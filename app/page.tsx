@@ -2,10 +2,5 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 
 export default function Home() {
-  return (
-    <main>
-      <h1>Hello DOKYU</h1>
-      <Button>Hello</Button>
-    </main>
-  );
+  return <main></main>;
 }
