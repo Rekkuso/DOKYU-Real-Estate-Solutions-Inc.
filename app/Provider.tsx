@@ -4,12 +4,7 @@ import React from "react";
 import Header from "./_components/Header";
 
 function Provider({ children }: { children: React.ReactNode }) {
-  return (
-    <>
-      <Header />
-      {children}
-    </>
-  );
+  return <>{children}</>;
 }
 
 export default Provider;
