@@ -18,8 +18,10 @@ function Header() {
   const { user, isSignedIn } = useUser();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
     };
@@ -37,13 +39,22 @@ function Header() {
     >
       <div className="flex gap-10 items-center">
         <Link href="/">
-          <img src="/companyLogo.svg" width={130} height={130} alt="DOKYU logo" />
+          <img
+            src="/companyLogo.svg"
+            width={130}
+            height={130}
+            alt="DOKYU logo"
+          />
         </Link>
         <ul className="hidden md:flex gap-8">
           {[
-            { label: "For Sale", href: "/", matchPath: "/" },
-            { label: "Services", href: "#services", matchPath: "/services" },
-            { label: "About Us", href: "#cta", matchPath: "/about" },
+            {
+              label: "Properties Listings",
+              href: "/properties",
+              matchPath: "/properties",
+            },
+            { label: "Services", href: "../#services", matchPath: "/" },
+            { label: "About Us", href: "../#cta", matchPath: "/" },
           ].map((item) => (
             <Link key={item.label} href={item.href}>
               <li
@@ -68,7 +79,9 @@ function Header() {
             <span className="hidden sm:inline">Post Your Ad</span>
           </Button>
         </Link>
-        {isSignedIn ? (
+        {!mounted ? (
+          <div className="w-[80px] h-9 rounded-lg bg-white/10 animate-pulse" />
+        ) : isSignedIn ? (
           <UserButton />
         ) : (
           <Link href="/sign-up">

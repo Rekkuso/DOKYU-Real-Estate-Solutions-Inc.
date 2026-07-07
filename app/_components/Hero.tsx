@@ -8,7 +8,10 @@ export default function Hero() {
   const [searchQuery, setSearchQuery] = useState("");
 
   return (
-    <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section
+      id="hero"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden"
+    >
       {/* Background Image */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
@@ -44,8 +47,9 @@ export default function Hero() {
 
         {/* Subtitle */}
         <p className="text-lg md:text-xl text-white/70 mb-10 max-w-2xl mx-auto leading-relaxed">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Discover premium
-          properties across the Philippines with our trusted real estate solutions.
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Discover
+          premium properties across the Philippines with our trusted real estate
+          solutions.
         </p>
 
         {/* Search Bar */}
@@ -76,7 +80,7 @@ export default function Hero() {
               >
                 {type}
               </button>
-            )
+            ),
           )}
         </div>
 
@@ -99,14 +103,6 @@ export default function Hero() {
               <div className="text-xs text-white/50">{stat.label}</div>
             </div>
           ))}
-        </div>
-      </div>
-
-      {/* Scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/40 animate-bounce">
-        <span className="text-xs font-medium tracking-widest uppercase">Scroll</span>
-        <div className="w-5 h-8 border-2 border-white/30 rounded-full flex items-start justify-center p-1">
-          <div className="w-1.5 h-1.5 bg-white/50 rounded-full animate-pulse" />
         </div>
       </div>
     </section>
