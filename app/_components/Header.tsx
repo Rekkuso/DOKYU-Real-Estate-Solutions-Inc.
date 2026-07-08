@@ -78,7 +78,9 @@ function Header() {
               ? (path === "/" && activeSection === item.href.replace("../", ""))
               : (path === item.matchPath);
 
-            const defaultColor = scrolled ? "text-black" : "text-white/90";
+            // Only use white text at the top if the page has a dark hero section
+            const isDarkHeroPage = path === "/" || path === "/properties";
+            const defaultColor = (!scrolled && isDarkHeroPage) ? "text-white/90" : "text-black";
 
             return (
               <li key={item.label}>
