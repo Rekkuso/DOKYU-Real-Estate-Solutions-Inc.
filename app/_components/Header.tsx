@@ -19,13 +19,31 @@ function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [activeSection, setActiveSection] = useState("");
 
   useEffect(() => {
     setMounted(true);
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
+
+      // Only check sections on the home page
+      if (window.location.pathname === "/") {
+        const services = document.getElementById("services");
+        const cta = document.getElementById("cta");
+        
+        let current = "";
+        // Determine which section is currently in view (offset by 300px for earlier trigger)
+        if (cta && window.scrollY >= cta.offsetTop - 300) {
+          current = "#cta";
+        } else if (services && window.scrollY >= services.offsetTop - 300) {
+          current = "#services";
+        }
+        setActiveSection(current);
+      }
     };
+    
     window.addEventListener("scroll", handleScroll);
+    handleScroll(); // Trigger once on mount
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -55,21 +73,26 @@ function Header() {
             },
             { label: "Services", href: "../#services", matchPath: "/" },
             { label: "About Us", href: "../#cta", matchPath: "/" },
-          ].map((item) => (
-            <Link key={item.label} href={item.href}>
-              <li
-                className={`hover:text-primary hover:scale-105 font-semibold transition-all duration-200 cursor-pointer ${
-                  path === item.matchPath
-                    ? "text-primary scale-105 font-bold"
-                    : scrolled
-                      ? "text-gray-600"
-                      : "text-white/80 hover:text-white"
-                }`}
-              >
-                {item.label}
+          ].map((item) => {
+            const isMatch = item.href.includes("#") 
+              ? (path === "/" && activeSection === item.href.replace("../", ""))
+              : (path === item.matchPath);
+
+            return (
+              <li key={item.label}>
+                <Link 
+                  href={item.href}
+                  className={`inline-block font-semibold transition-all duration-200 cursor-pointer hover:scale-105 hover:text-blue-600 ${
+                    isMatch
+                      ? "text-blue-600 scale-105"
+                      : "text-black"
+                  }`}
+                >
+                  {item.label}
+                </Link>
               </li>
-            </Link>
-          ))}
+            );
+          })}
         </ul>
       </div>
       <div className="flex gap-2 items-center">
