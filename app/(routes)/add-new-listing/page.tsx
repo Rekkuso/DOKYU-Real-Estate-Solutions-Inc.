@@ -23,11 +23,12 @@ function AddNewListing() {
     setLoading(true);
 
     try {
-      const formData = new FormData(e.currentTarget);
+      const form = e.currentTarget;
+      const formData = new FormData(form);
       await addListing(formData);
       
       toast.success("Property List Added Successfully!");
-      e.currentTarget.reset(); // clear the form back to empty state
+      form.reset(); // clear the form back to empty state
     } catch (error: any) {
       toast.error(error.message || "Something went wrong.");
     } finally {
