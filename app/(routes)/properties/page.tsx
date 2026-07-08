@@ -17,247 +17,25 @@ import {
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Footer from "../../_components/Footer";
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import { createClient } from "@/utils/supabase/client";
 
-/* ───────────────────────── Mock Data ───────────────────────── */
+interface Property {
+  id: number;
+  title: string;
+  location: string;
+  price: number;
+  beds: number;
+  baths: number;
+  area: string;
+  type: string;
+  tag: string;
+  gradient: string;
+  date: string;
+}
 
-const allProperties = [
-  {
-    id: 1,
-    title: "Modern Luxury Villa",
-    location: "Makati City, Metro Manila",
-    price: 25500000,
-    beds: 4,
-    baths: 3,
-    area: "350 sqm",
-    type: "Houses",
-    tag: "Featured",
-    gradient: "from-blue-600 to-indigo-600",
-    date: "2026-06-15",
-  },
-  {
-    id: 2,
-    title: "Seaside Condominium",
-    location: "Cebu City, Cebu",
-    price: 8900000,
-    beds: 2,
-    baths: 2,
-    area: "120 sqm",
-    type: "Condos",
-    tag: "New",
-    gradient: "from-emerald-600 to-teal-600",
-    date: "2026-07-01",
-  },
-  {
-    id: 3,
-    title: "Executive Townhouse",
-    location: "BGC, Taguig City",
-    price: 18200000,
-    beds: 3,
-    baths: 2,
-    area: "220 sqm",
-    type: "Townhouses",
-    tag: "Hot Deal",
-    gradient: "from-orange-500 to-rose-500",
-    date: "2026-05-20",
-  },
-  {
-    id: 4,
-    title: "Garden Estate Home",
-    location: "Alabang, Muntinlupa",
-    price: 32000000,
-    beds: 5,
-    baths: 4,
-    area: "500 sqm",
-    type: "Houses",
-    tag: "Premium",
-    gradient: "from-purple-600 to-pink-600",
-    date: "2026-04-10",
-  },
-  {
-    id: 5,
-    title: "Downtown Studio Loft",
-    location: "Ortigas, Pasig City",
-    price: 4500000,
-    beds: 1,
-    baths: 1,
-    area: "45 sqm",
-    type: "Apartments",
-    tag: "Affordable",
-    gradient: "from-cyan-600 to-blue-600",
-    date: "2026-07-05",
-  },
-  {
-    id: 6,
-    title: "Hillside Retreat",
-    location: "Tagaytay, Cavite",
-    price: 14800000,
-    beds: 3,
-    baths: 3,
-    area: "280 sqm",
-    type: "Houses",
-    tag: "Exclusive",
-    gradient: "from-violet-600 to-indigo-600",
-    date: "2026-03-18",
-  },
-  {
-    id: 7,
-    title: "Skyline Penthouse",
-    location: "Rockwell, Makati City",
-    price: 45000000,
-    beds: 4,
-    baths: 4,
-    area: "400 sqm",
-    type: "Condos",
-    tag: "Luxury",
-    gradient: "from-rose-600 to-pink-600",
-    date: "2026-06-28",
-  },
-  {
-    id: 8,
-    title: "Lakefront Cottage",
-    location: "Calamba, Laguna",
-    price: 9800000,
-    beds: 2,
-    baths: 2,
-    area: "160 sqm",
-    type: "Houses",
-    tag: "New",
-    gradient: "from-teal-500 to-emerald-600",
-    date: "2026-07-03",
-  },
-  {
-    id: 9,
-    title: "Commercial Office Space",
-    location: "Eastwood, Quezon City",
-    price: 22000000,
-    beds: 0,
-    baths: 2,
-    area: "300 sqm",
-    type: "Commercial",
-    tag: "Investment",
-    gradient: "from-amber-500 to-orange-600",
-    date: "2026-02-14",
-  },
-  {
-    id: 10,
-    title: "Beachfront Apartment",
-    location: "Boracay, Aklan",
-    price: 12500000,
-    beds: 2,
-    baths: 1,
-    area: "95 sqm",
-    type: "Apartments",
-    tag: "Hot Deal",
-    gradient: "from-sky-500 to-blue-600",
-    date: "2026-06-10",
-  },
-  {
-    id: 11,
-    title: "Heritage Townhouse",
-    location: "Intramuros, Manila",
-    price: 16500000,
-    beds: 3,
-    baths: 2,
-    area: "200 sqm",
-    type: "Townhouses",
-    tag: "Exclusive",
-    gradient: "from-fuchsia-500 to-purple-600",
-    date: "2026-01-22",
-  },
-  {
-    id: 12,
-    title: "Suburban Family Home",
-    location: "Antipolo, Rizal",
-    price: 7200000,
-    beds: 3,
-    baths: 2,
-    area: "180 sqm",
-    type: "Houses",
-    tag: "Featured",
-    gradient: "from-lime-500 to-green-600",
-    date: "2026-05-05",
-  },
-  {
-    id: 13,
-    title: "Riverside Condo",
-    location: "Mandaluyong City",
-    price: 6800000,
-    beds: 1,
-    baths: 1,
-    area: "55 sqm",
-    type: "Condos",
-    tag: "Affordable",
-    gradient: "from-indigo-500 to-blue-600",
-    date: "2026-06-20",
-  },
-  {
-    id: 14,
-    title: "Mountain View Estate",
-    location: "Baguio City, Benguet",
-    price: 28000000,
-    beds: 5,
-    baths: 3,
-    area: "450 sqm",
-    type: "Houses",
-    tag: "Premium",
-    gradient: "from-emerald-500 to-cyan-600",
-    date: "2026-04-28",
-  },
-  {
-    id: 15,
-    title: "Urban Micro Apartment",
-    location: "Poblacion, Makati City",
-    price: 3200000,
-    beds: 1,
-    baths: 1,
-    area: "30 sqm",
-    type: "Apartments",
-    tag: "New",
-    gradient: "from-pink-500 to-rose-600",
-    date: "2026-07-07",
-  },
-  {
-    id: 16,
-    title: "Commercial Retail Space",
-    location: "Bonifacio High Street, BGC",
-    price: 38000000,
-    beds: 0,
-    baths: 1,
-    area: "250 sqm",
-    type: "Commercial",
-    tag: "Investment",
-    gradient: "from-yellow-500 to-amber-600",
-    date: "2026-03-02",
-  },
-  {
-    id: 17,
-    title: "Cliffside Villa",
-    location: "Batangas City, Batangas",
-    price: 19500000,
-    beds: 4,
-    baths: 3,
-    area: "320 sqm",
-    type: "Houses",
-    tag: "Exclusive",
-    gradient: "from-blue-500 to-violet-600",
-    date: "2026-05-30",
-  },
-  {
-    id: 18,
-    title: "Garden Townhome",
-    location: "Las Piñas City",
-    price: 11200000,
-    beds: 3,
-    baths: 2,
-    area: "175 sqm",
-    type: "Townhouses",
-    tag: "Featured",
-    gradient: "from-green-500 to-teal-600",
-    date: "2026-06-03",
-  },
-];
+/* ───────────────────────── Data is fetched from Supabase ───────────────────────── */
 
 const propertyTypes = [
   "All",
@@ -297,11 +75,13 @@ function formatPrice(price: number) {
 
 /* ───────────────────── Component ───────────────────── */
 
-export default function PropertiesPage() {
+function PropertiesPageContent() {
   const searchParams = useSearchParams();
   const initialType = searchParams.get("type") || "All";
   const initialSearch = searchParams.get("q") || "";
 
+  const [allProperties, setAllProperties] = useState<Property[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState(initialSearch);
   const [activeType, setActiveType] = useState(initialType);
   const [priceRange, setPriceRange] = useState(0);
@@ -310,6 +90,26 @@ export default function PropertiesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [liked, setLiked] = useState<Set<number>>(new Set());
   const [showFilters, setShowFilters] = useState(false);
+
+  useEffect(() => {
+    async function fetchListings() {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from("listing")
+        .select("id, title, location, price, beds, baths, area, type, tag, gradient, date")
+        .eq("active", true)
+        .order("date", { ascending: false });
+
+      if (!error && data) {
+        // Supabase returns numeric columns as strings — cast to number
+        setAllProperties(
+          data.map((d) => ({ ...d, price: Number(d.price) }))
+        );
+      }
+      setLoading(false);
+    }
+    fetchListings();
+  }, []);
 
   const toggleLike = useCallback((id: number) => {
     setLiked((prev) => {
@@ -366,7 +166,7 @@ export default function PropertiesPage() {
     }
 
     return results;
-  }, [search, activeType, priceRange, bedrooms, sortBy]);
+  }, [allProperties, search, activeType, priceRange, bedrooms, sortBy]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
   const safeCurrentPage = Math.min(currentPage, totalPages);
@@ -615,7 +415,28 @@ export default function PropertiesPage() {
 
       {/* ───────── Property Grid ───────── */}
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 pb-12">
-        {paginated.length === 0 ? (
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pt-4">
+            {[...Array(9)].map((_, i) => (
+              <div
+                key={i}
+                className="bg-white rounded-2xl overflow-hidden shadow-md border border-gray-100 animate-pulse"
+              >
+                <div className="h-56 bg-gray-200" />
+                <div className="p-5 space-y-3">
+                  <div className="h-5 bg-gray-200 rounded w-3/4" />
+                  <div className="h-4 bg-gray-100 rounded w-1/2" />
+                  <div className="h-px bg-gray-100" />
+                  <div className="flex gap-4">
+                    <div className="h-4 bg-gray-100 rounded w-16" />
+                    <div className="h-4 bg-gray-100 rounded w-16" />
+                    <div className="h-4 bg-gray-100 rounded w-16" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : paginated.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 text-center">
             <div className="w-20 h-20 rounded-2xl bg-gray-100 flex items-center justify-center mb-6">
               <Home className="h-10 w-10 text-gray-300" />
@@ -768,5 +589,13 @@ export default function PropertiesPage() {
       {/* ───────── Footer ───────── */}
       <Footer />
     </div>
+  );
+}
+
+export default function PropertiesPage() {
+  return (
+    <Suspense>
+      <PropertiesPageContent />
+    </Suspense>
   );
 }
