@@ -78,6 +78,8 @@ function Header() {
               ? (path === "/" && activeSection === item.href.replace("../", ""))
               : (path === item.matchPath);
 
+            const defaultColor = scrolled ? "text-black" : "text-white/90";
+
             return (
               <li key={item.label}>
                 <Link 
@@ -85,7 +87,7 @@ function Header() {
                   className={`inline-block font-semibold transition-all duration-200 cursor-pointer hover:scale-105 hover:text-blue-600 ${
                     isMatch
                       ? "text-blue-600 scale-105"
-                      : "text-black"
+                      : defaultColor
                   }`}
                 >
                   {item.label}
