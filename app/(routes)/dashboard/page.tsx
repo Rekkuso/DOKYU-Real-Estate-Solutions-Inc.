@@ -1,5 +1,7 @@
 "use client";
 
+import { Skeleton } from "@/components/ui/skeleton";
+
 import React from "react";
 import { useAuthContext } from "../../_context/AuthContext";
 import { useAdmin } from "../../_hooks/useAdmin";
@@ -143,7 +145,7 @@ export default function DashboardPage() {
                   <p className="text-sm text-gray-400 mb-0.5">Account Role</p>
                   <div className="flex items-center gap-2">
                     {adminLoading ? (
-                      <div className="w-24 h-6 bg-gray-100 rounded-full animate-pulse" />
+                      <Skeleton className="w-24 h-6 rounded-full" />
                     ) : (
                       <span
                         className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
@@ -202,7 +204,7 @@ export default function DashboardPage() {
                   <span className="text-sm font-medium">Browse Properties</span>
                 </Link>
                 {adminLoading ? (
-                  <div className="h-12 w-full bg-gray-100 rounded-xl animate-pulse" />
+                  <Skeleton className="h-12 w-full rounded-xl" />
                 ) : (
                   isAdmin && (
                     <Link

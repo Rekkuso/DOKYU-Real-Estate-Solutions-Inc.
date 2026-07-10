@@ -12,6 +12,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import ListingForm from "./ListingForm";
 
 interface AdminPropertyActionsProps {
@@ -98,7 +99,7 @@ export default function AdminPropertyActions({
 
       {/* Edit Modal */}
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-5xl w-[95vw] max-h-[90vh] overflow-y-auto overflow-x-hidden">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold">
               Edit Listing
@@ -109,40 +110,40 @@ export default function AdminPropertyActions({
           </DialogHeader>
 
           {loadingListing ? (
-            <div className="mt-4 space-y-6 animate-pulse">
+            <div className="mt-4 space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <div className="h-4 bg-gray-200 rounded w-1/3"></div>
-                  <div className="h-10 bg-gray-200 rounded w-full"></div>
+                  <Skeleton className="h-4 w-1/3" />
+                  <Skeleton className="h-10 w-full" />
                 </div>
                 <div className="space-y-2">
-                  <div className="h-4 bg-gray-200 rounded w-1/3"></div>
-                  <div className="h-10 bg-gray-200 rounded w-full"></div>
+                  <Skeleton className="h-4 w-1/3" />
+                  <Skeleton className="h-10 w-full" />
                 </div>
               </div>
               <div className="grid grid-cols-1 gap-6">
                 <div className="space-y-2">
-                  <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-                  <div className="h-10 bg-gray-200 rounded w-full"></div>
+                  <Skeleton className="h-4 w-1/4" />
+                  <Skeleton className="h-10 w-full" />
                 </div>
                 <div className="space-y-2">
-                  <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-                  <div className="h-10 bg-gray-200 rounded w-full"></div>
+                  <Skeleton className="h-4 w-1/4" />
+                  <Skeleton className="h-10 w-full" />
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <div className="h-4 bg-gray-200 rounded w-1/3"></div>
-                  <div className="h-10 bg-gray-200 rounded w-full"></div>
+                  <Skeleton className="h-4 w-1/3" />
+                  <Skeleton className="h-10 w-full" />
                 </div>
                 <div className="space-y-2">
-                  <div className="h-4 bg-gray-200 rounded w-1/3"></div>
-                  <div className="h-10 bg-gray-200 rounded w-full"></div>
+                  <Skeleton className="h-4 w-1/3" />
+                  <Skeleton className="h-10 w-full" />
                 </div>
               </div>
               <div className="flex gap-3 pt-2">
-                <div className="h-12 bg-gray-200 rounded-xl w-full"></div>
-                <div className="h-12 bg-gray-200 rounded-xl w-full"></div>
+                <Skeleton className="h-12 w-full rounded-xl" />
+                <Skeleton className="h-12 w-full rounded-xl" />
               </div>
             </div>
           ) : (

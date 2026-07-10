@@ -1,5 +1,7 @@
 "use client";
 
+import { Skeleton } from "@/components/ui/skeleton";
+
 import { Bath, BedDouble, MapPin, Maximize, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -83,17 +85,17 @@ export default function FeaturedProperties() {
             {[...Array(6)].map((_, i) => (
               <div
                 key={i}
-                className="bg-white rounded-2xl overflow-hidden shadow-md border border-gray-100 animate-pulse"
+                className="bg-white rounded-2xl overflow-hidden shadow-md border border-gray-100"
               >
-                <div className="h-56 bg-gray-200" />
+                <Skeleton className="h-56 w-full rounded-none" />
                 <div className="p-5 space-y-3">
-                  <div className="h-5 bg-gray-200 rounded w-3/4" />
-                  <div className="h-4 bg-gray-100 rounded w-1/2" />
+                  <Skeleton className="h-5 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
                   <div className="h-px bg-gray-100" />
                   <div className="flex gap-4">
-                    <div className="h-4 bg-gray-100 rounded w-16" />
-                    <div className="h-4 bg-gray-100 rounded w-16" />
-                    <div className="h-4 bg-gray-100 rounded w-16" />
+                    <Skeleton className="h-4 w-16" />
+                    <Skeleton className="h-4 w-16" />
+                    <Skeleton className="h-4 w-16" />
                   </div>
                 </div>
               </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Plus, LogOut, User } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -10,7 +11,12 @@ import { useAuthContext } from "../_context/AuthContext";
 
 function Header() {
   const path = usePathname();
-  const { user, isSignedIn, isLoading: authLoading, signOut } = useAuthContext();
+  const {
+    user,
+    isSignedIn,
+    isLoading: authLoading,
+    signOut,
+  } = useAuthContext();
   const { isAdmin, isLoading: adminLoading } = useAdmin();
   const [scrolled, setScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -27,7 +33,7 @@ function Header() {
       if (window.location.pathname === "/") {
         const services = document.getElementById("services");
         const cta = document.getElementById("cta");
-        
+
         let current = "";
         // Determine which section is currently in view (offset by 300px for earlier trigger)
         if (cta && window.scrollY >= cta.offsetTop - 300) {
@@ -38,7 +44,7 @@ function Header() {
         setActiveSection(current);
       }
     };
-    
+
     window.addEventListener("scroll", handleScroll);
     handleScroll(); // Trigger once on mount
     return () => window.removeEventListener("scroll", handleScroll);
@@ -47,7 +53,10 @@ function Header() {
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      ) {
         setDropdownOpen(false);
       }
     };
@@ -91,22 +100,22 @@ function Header() {
             { label: "Services", href: "../#services", matchPath: "/" },
             { label: "About Us", href: "../#cta", matchPath: "/" },
           ].map((item) => {
-            const isMatch = item.href.includes("#") 
-              ? (path === "/" && activeSection === item.href.replace("../", ""))
-              : (path === item.matchPath);
+            const isMatch = item.href.includes("#")
+              ? path === "/" && activeSection === item.href.replace("../", "")
+              : path === item.matchPath;
 
             // Only use white text at the top if the page has a dark hero section
-            const isDarkHeroPage = path === "/" || path === "/properties";
-            const defaultColor = (!scrolled && isDarkHeroPage) ? "text-white/90" : "text-black";
+            const isDarkHeroPage =
+              path === "/" || path === "/properties" || path === "/dashboard";
+            const defaultColor =
+              !scrolled && isDarkHeroPage ? "text-white/90" : "text-black";
 
             return (
               <li key={item.label}>
-                <Link 
+                <Link
                   href={item.href}
                   className={`inline-block font-semibold transition-all duration-200 cursor-pointer hover:scale-105 hover:text-blue-600 ${
-                    isMatch
-                      ? "text-blue-600 scale-105"
-                      : defaultColor
+                    isMatch ? "text-blue-600 scale-105" : defaultColor
                   }`}
                 >
                   {item.label}
@@ -118,13 +127,13 @@ function Header() {
       </div>
       <div className="flex gap-2 items-center">
         {adminLoading ? (
-          <div className="w-32 h-10 rounded-lg bg-white/10 animate-pulse hidden sm:block" />
+          <Skeleton className="w-32 h-10 rounded-lg hidden sm:block" />
         ) : (
           isAdmin && (
             <Link href="/add-new-listing">
               <Button className="hover:scale-105 hover:bg-blue-700 text-white flex gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 border-0 rounded-lg shadow-md shadow-blue-500/20 cursor-pointer">
                 <Plus className="h-4 w-4" />
-                <span className="hidden sm:inline">Post Your Ad</span>
+                <span className="hidden sm:inline">Post Property</span>
               </Button>
             </Link>
           )
@@ -144,7 +153,7 @@ function Header() {
                     {user?.email}
                   </p>
                   {adminLoading ? (
-                    <div className="mt-1.5 w-12 h-5 bg-gray-100 rounded-full animate-pulse" />
+                    <Skeleton className="mt-1.5 w-12 h-5 rounded-full" />
                   ) : (
                     isAdmin && (
                       <span className="inline-block mt-1 px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 text-xs font-semibold">
