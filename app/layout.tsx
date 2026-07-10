@@ -4,6 +4,9 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import Provider from "./Provider";
 import { AuthProvider } from "./_context/AuthContext";
+import { AdminProvider } from "./_context/AdminContext";
+import { createClient } from "@/utils/supabase/server";
+import { cookies } from "next/headers";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -24,11 +27,15 @@ export const metadata: Metadata = {
 
 import { Toaster } from "@/components/ui/sonner";
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+  const { data: { user } } = await supabase.auth.getUser();
+  const isAdmin = user?.app_metadata?.role === "admin";
   return (
     <html
       lang="en"
@@ -43,8 +50,10 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <AuthProvider>
-          <Provider>{children}</Provider>
-          <Toaster position="top-center" />
+          <AdminProvider isAdmin={isAdmin}>
+            <Provider>{children}</Provider>
+            <Toaster position="top-center" />
+          </AdminProvider>
         </AuthProvider>
       </body>
     </html>
