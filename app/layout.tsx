@@ -3,7 +3,7 @@ import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import Provider from "./Provider";
-import { ClerkProvider } from "@clerk/nextjs";
+import { AuthProvider } from "./_context/AuthContext";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -30,23 +30,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
-      <html
-        lang="en"
-        className={cn(
-          "h-full",
-          "antialiased",
-          geistSans.variable,
-          geistMono.variable,
-          "font-sans",
-          inter.variable,
-        )}
-      >
-        <body className="min-h-full flex flex-col" suppressHydrationWarning>
+    <html
+      lang="en"
+      className={cn(
+        "h-full",
+        "antialiased",
+        geistSans.variable,
+        geistMono.variable,
+        "font-sans",
+        inter.variable,
+      )}
+    >
+      <body className="min-h-full flex flex-col" suppressHydrationWarning>
+        <AuthProvider>
           <Provider>{children}</Provider>
           <Toaster position="top-center" />
-        </body>
-      </html>
-    </ClerkProvider>
+        </AuthProvider>
+      </body>
+    </html>
   );
 }

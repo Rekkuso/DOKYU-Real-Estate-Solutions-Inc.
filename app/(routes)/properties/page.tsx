@@ -17,9 +17,13 @@ import {
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Footer from "../../_components/Footer";
+import AdminPropertyActions from "../../_components/AdminPropertyActions";
 import { useState, useMemo, useCallback, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
+import { useAdmin } from "../../_hooks/useAdmin";
+import { deleteListing } from "../../_actions/listing";
+import { toast } from "sonner";
 
 interface Property {
   id: number;
@@ -77,8 +81,10 @@ function formatPrice(price: number) {
 
 function PropertiesPageContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const initialType = searchParams.get("type") || "All";
   const initialSearch = searchParams.get("q") || "";
+  const { isAdmin } = useAdmin();
 
   const [allProperties, setAllProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
@@ -90,26 +96,26 @@ function PropertiesPageContent() {
   const [currentPage, setCurrentPage] = useState(1);
   const [liked, setLiked] = useState<Set<number>>(new Set());
   const [showFilters, setShowFilters] = useState(false);
+  const fetchListings = useCallback(async () => {
+    setLoading(true);
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("listing")
+      .select("id, title, location, price, beds, baths, area, type, tag, gradient, date")
+      .eq("active", true)
+      .order("date", { ascending: false });
+
+    if (!error && data) {
+      setAllProperties(
+        data.map((d) => ({ ...d, price: Number(d.price) }))
+      );
+    }
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
-    async function fetchListings() {
-      const supabase = createClient();
-      const { data, error } = await supabase
-        .from("listing")
-        .select("id, title, location, price, beds, baths, area, type, tag, gradient, date")
-        .eq("active", true)
-        .order("date", { ascending: false });
-
-      if (!error && data) {
-        // Supabase returns numeric columns as strings — cast to number
-        setAllProperties(
-          data.map((d) => ({ ...d, price: Number(d.price) }))
-        );
-      }
-      setLoading(false);
-    }
     fetchListings();
-  }, []);
+  }, [fetchListings]);
 
   const toggleLike = useCallback((id: number) => {
     setLiked((prev) => {
@@ -531,6 +537,18 @@ function PropertiesPageContent() {
                       <span>{property.area}</span>
                     </div>
                   </div>
+
+                  {/* Admin Actions */}
+                  {isAdmin && (
+                    <AdminPropertyActions
+                      id={property.id}
+                      title={property.title}
+                      onEditSuccess={fetchListings}
+                      onDeleteSuccess={(id) =>
+                        setAllProperties((prev) => prev.filter((p) => p.id !== id))
+                      }
+                    />
+                  )}
                 </div>
               </div>
             ))}

@@ -9,7 +9,6 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@clerk/nextjs": "^7.3.5",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.106.0",
     "@vis.gl/react-google-maps": "^1.8.3",
