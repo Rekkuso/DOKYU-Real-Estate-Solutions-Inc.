@@ -71,8 +71,11 @@ function AddNewListingContent() {
         <div className="w-full bg-gradient-to-br from-gray-900 via-blue-950 to-indigo-950 h-28 md:h-36 rounded-2xl md:rounded-3xl relative overflow-hidden flex items-center shadow-lg">
           <div className="absolute inset-0 bg-black/10"></div>
           <div className="w-full relative z-10 flex justify-between items-center h-full px-6 md:px-10">
-            <h1 className="text-2xl md:text-3xl font-semibold text-white">
-              Add New Properties
+            <h1 className="text-2xl md:text-3xl font-bold text-white">
+              Add New{" "}
+              <span className="bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
+                Property
+              </span>
             </h1>
             {/* Building Illustration Placeholder */}
             <div className="hidden md:flex gap-3 opacity-60 absolute right-12 bottom-0 items-end">
@@ -86,7 +89,6 @@ function AddNewListingContent() {
       </div>
 
       <div className="flex-1 w-full max-w-7xl mx-auto px-4 md:px-8 pb-12 relative z-20">
-
         {/* Main Form Content */}
         <ListingForm />
       </div>

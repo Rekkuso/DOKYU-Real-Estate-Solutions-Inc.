@@ -6,10 +6,9 @@ import { Plus, LogOut, User } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useEffect, useState, useRef } from "react";
-import { useAdmin } from "../_hooks/useAdmin";
 import { useAuthContext } from "../_context/AuthContext";
 
-function Header() {
+function Header({ isAdmin }: { isAdmin?: boolean }) {
   const path = usePathname();
   const {
     user,
@@ -17,7 +16,6 @@ function Header() {
     isLoading: authLoading,
     signOut,
   } = useAuthContext();
-  const { isAdmin, isLoading: adminLoading } = useAdmin();
   const [scrolled, setScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [activeSection, setActiveSection] = useState("");
@@ -126,17 +124,13 @@ function Header() {
         </ul>
       </div>
       <div className="flex gap-2 items-center">
-        {adminLoading ? (
-          <Skeleton className="w-32 h-10 rounded-lg hidden sm:block" />
-        ) : (
-          isAdmin && (
-            <Link href="/add-new-listing">
-              <Button className="hover:scale-105 hover:bg-blue-700 text-white flex gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 border-0 rounded-lg shadow-md shadow-blue-500/20 cursor-pointer">
-                <Plus className="h-4 w-4" />
-                <span className="hidden sm:inline">Post Property</span>
-              </Button>
-            </Link>
-          )
+        {isAdmin && (
+          <Link href="/add-new-listing">
+            <Button className="hover:scale-105 hover:bg-blue-700 text-white flex gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 border-0 rounded-lg shadow-md shadow-blue-500/20 cursor-pointer">
+              <Plus className="h-4 w-4" />
+              <span className="hidden sm:inline">Post Property</span>
+            </Button>
+          </Link>
         )}
         {isSignedIn ? (
           <div className="relative" ref={dropdownRef}>
@@ -152,14 +146,10 @@ function Header() {
                   <p className="text-sm font-medium text-gray-900 truncate">
                     {user?.email}
                   </p>
-                  {adminLoading ? (
-                    <Skeleton className="mt-1.5 w-12 h-5 rounded-full" />
-                  ) : (
-                    isAdmin && (
-                      <span className="inline-block mt-1 px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 text-xs font-semibold">
-                        Admin
-                      </span>
-                    )
+                  {isAdmin && (
+                    <span className="inline-block mt-1 px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 text-xs font-semibold">
+                      Admin
+                    </span>
                   )}
                 </div>
                 <Link

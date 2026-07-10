@@ -117,36 +117,52 @@ export default function DashboardPage() {
       <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Profile Card */}
-          <div className="md:col-span-2 bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
-            <div className="px-6 py-5 border-b border-gray-100">
-              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                <User className="h-5 w-5 text-blue-600" />
-                Profile Information
-              </h2>
-            </div>
-            <div className="p-6 space-y-5">
-              {/* Email */}
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
-                  <Mail className="h-5 w-5 text-blue-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-400 mb-0.5">Email Address</p>
-                  <p className="text-gray-900 font-medium">{user.email}</p>
-                </div>
+          {adminLoading ? (
+            <div className="md:col-span-2 bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
+              <div className="px-6 py-5 border-b border-gray-100 flex items-center gap-2">
+                <Skeleton className="h-5 w-5 rounded" />
+                <Skeleton className="h-6 w-40" />
               </div>
-
-              {/* Role */}
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center flex-shrink-0">
-                  <Shield className="h-5 w-5 text-indigo-600" />
+              <div className="p-6 space-y-5">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="flex items-start gap-4">
+                    <Skeleton className="w-10 h-10 rounded-xl flex-shrink-0" />
+                    <div className="space-y-2 pt-1">
+                      <Skeleton className="h-3 w-24" />
+                      <Skeleton className="h-4 w-40" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="md:col-span-2 bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
+              <div className="px-6 py-5 border-b border-gray-100">
+                <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                  <User className="h-5 w-5 text-blue-600" />
+                  Profile Information
+                </h2>
+              </div>
+              <div className="p-6 space-y-5">
+                {/* Email */}
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
+                    <Mail className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400 mb-0.5">Email Address</p>
+                    <p className="text-gray-900 font-medium">{user.email}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-gray-400 mb-0.5">Account Role</p>
-                  <div className="flex items-center gap-2">
-                    {adminLoading ? (
-                      <Skeleton className="w-24 h-6 rounded-full" />
-                    ) : (
+
+                {/* Role */}
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center flex-shrink-0">
+                    <Shield className="h-5 w-5 text-indigo-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400 mb-0.5">Account Role</p>
+                    <div className="flex items-center gap-2">
                       <span
                         className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
                           isAdmin
@@ -156,57 +172,66 @@ export default function DashboardPage() {
                       >
                         {isAdmin ? "Administrator" : "User"}
                       </span>
-                    )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Joined Date */}
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center flex-shrink-0">
+                    <Calendar className="h-5 w-5 text-emerald-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400 mb-0.5">Member Since</p>
+                    <p className="text-gray-900 font-medium">{createdAt}</p>
+                  </div>
+                </div>
+
+                {/* User ID */}
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center flex-shrink-0">
+                    <User className="h-5 w-5 text-gray-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400 mb-0.5">User ID</p>
+                    <p className="text-gray-500 font-mono text-xs break-all">
+                      {user.id}
+                    </p>
                   </div>
                 </div>
               </div>
-
-              {/* Joined Date */}
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center flex-shrink-0">
-                  <Calendar className="h-5 w-5 text-emerald-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-400 mb-0.5">Member Since</p>
-                  <p className="text-gray-900 font-medium">{createdAt}</p>
-                </div>
-              </div>
-
-              {/* User ID */}
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center flex-shrink-0">
-                  <User className="h-5 w-5 text-gray-500" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-400 mb-0.5">User ID</p>
-                  <p className="text-gray-500 font-mono text-xs break-all">
-                    {user.id}
-                  </p>
-                </div>
-              </div>
             </div>
-          </div>
+          )}
 
           {/* Quick Actions */}
           <div className="space-y-6">
-            <div className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
-              <div className="px-6 py-5 border-b border-gray-100">
-                <h2 className="text-lg font-bold text-gray-900">
-                  Quick Actions
-                </h2>
-              </div>
-              <div className="p-4 space-y-2">
-                <Link
-                  href="/properties"
-                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200"
-                >
-                  <Home className="h-4.5 w-4.5" />
-                  <span className="text-sm font-medium">Browse Properties</span>
-                </Link>
-                {adminLoading ? (
+            {adminLoading ? (
+              <div className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
+                <div className="px-6 py-5 border-b border-gray-100">
+                  <Skeleton className="h-6 w-32" />
+                </div>
+                <div className="p-4 space-y-2">
                   <Skeleton className="h-12 w-full rounded-xl" />
-                ) : (
-                  isAdmin && (
+                  <Skeleton className="h-12 w-full rounded-xl" />
+                  <Skeleton className="h-12 w-full rounded-xl" />
+                </div>
+              </div>
+            ) : (
+              <div className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
+                <div className="px-6 py-5 border-b border-gray-100">
+                  <h2 className="text-lg font-bold text-gray-900">
+                    Quick Actions
+                  </h2>
+                </div>
+                <div className="p-4 space-y-2">
+                  <Link
+                    href="/properties"
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200"
+                  >
+                    <Home className="h-4.5 w-4.5" />
+                    <span className="text-sm font-medium">Browse Properties</span>
+                  </Link>
+                  {isAdmin && (
                     <Link
                       href="/add-new-listing"
                       className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200"
@@ -214,17 +239,17 @@ export default function DashboardPage() {
                       <Shield className="h-4.5 w-4.5" />
                       <span className="text-sm font-medium">Add New Listing</span>
                     </Link>
-                  )
-                )}
-                <button
-                  onClick={handleSignOut}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition-all duration-200 cursor-pointer"
-                >
-                  <LogOut className="h-4.5 w-4.5" />
-                  <span className="text-sm font-medium">Sign Out</span>
-                </button>
+                  )}
+                  <button
+                    onClick={handleSignOut}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition-all duration-200 cursor-pointer"
+                  >
+                    <LogOut className="h-4.5 w-4.5" />
+                    <span className="text-sm font-medium">Sign Out</span>
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </main>
