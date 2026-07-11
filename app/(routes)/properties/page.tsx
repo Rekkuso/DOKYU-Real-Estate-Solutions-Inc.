@@ -224,7 +224,7 @@ function PropertiesPageContent() {
       {/* ───────── Hero Banner ───────── */}
       <section className="relative pt-32 pb-16 px-4 overflow-hidden">
         {/* Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-blue-950 to-indigo-950" />
+        <div className="absolute inset-0 bg-linear-to-br from-gray-900 via-blue-950 to-indigo-950" />
         <div className="absolute inset-0">
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
           <div className="absolute bottom-0 right-1/4 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
@@ -245,7 +245,7 @@ function PropertiesPageContent() {
 
           <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-3 tracking-tight">
             Explore{" "}
-            <span className="bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
               Properties
             </span>
           </h1>
@@ -458,7 +458,7 @@ function PropertiesPageContent() {
             </p>
             <Button
               onClick={clearAll}
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl cursor-pointer"
+              className="bg-linear-to-r from-blue-600 to-indigo-600 text-white rounded-xl cursor-pointer"
             >
               Clear All Filters
             </Button>
@@ -473,7 +473,7 @@ function PropertiesPageContent() {
                 {/* Image Placeholder with Gradient */}
                 <div className="relative h-56 overflow-hidden">
                   <div
-                    className={`absolute inset-0 bg-gradient-to-br ${property.gradient} opacity-90`}
+                    className={`absolute inset-0 bg-linear-to-br ${property.gradient} opacity-90`}
                   />
                   {/* Decorative elements */}
                   <div className="absolute inset-0 flex items-center justify-center">

@@ -59,7 +59,7 @@ export default function DashboardPage() {
               Please sign in to view your dashboard.
             </p>
             <Link href="/sign-in?redirect=/dashboard">
-              <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl shadow-lg shadow-blue-500/30 cursor-pointer">
+              <Button className="bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl shadow-lg shadow-blue-500/30 cursor-pointer">
                 Sign In
               </Button>
             </Link>
@@ -82,7 +82,7 @@ export default function DashboardPage() {
     <div className="min-h-screen flex flex-col bg-gray-50">
       {/* Hero */}
       <section className="relative pt-32 pb-16 px-4 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-blue-950 to-indigo-950" />
+        <div className="absolute inset-0 bg-linear-to-br from-gray-900 via-blue-950 to-indigo-950" />
         <div className="absolute inset-0">
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
           <div className="absolute bottom-0 right-1/4 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
@@ -98,7 +98,7 @@ export default function DashboardPage() {
           </nav>
 
           <div className="flex items-center gap-6">
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-3xl font-bold shadow-xl shadow-blue-500/30">
+            <div className="w-20 h-20 rounded-2xl bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-3xl font-bold shadow-xl shadow-blue-500/30">
               {userInitial}
             </div>
             <div>
@@ -126,7 +126,7 @@ export default function DashboardPage() {
               <div className="p-6 space-y-5">
                 {[1, 2, 3, 4].map((i) => (
                   <div key={i} className="flex items-start gap-4">
-                    <Skeleton className="w-10 h-10 rounded-xl flex-shrink-0" />
+                    <Skeleton className="w-10 h-10 rounded-xl shrink-0" />
                     <div className="space-y-2 pt-1">
                       <Skeleton className="h-3 w-24" />
                       <Skeleton className="h-4 w-40" />
@@ -146,7 +146,7 @@ export default function DashboardPage() {
               <div className="p-6 space-y-5">
                 {/* Email */}
                 <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
                     <Mail className="h-5 w-5 text-blue-600" />
                   </div>
                   <div>
@@ -157,7 +157,7 @@ export default function DashboardPage() {
 
                 {/* Role */}
                 <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center shrink-0">
                     <Shield className="h-5 w-5 text-indigo-600" />
                   </div>
                   <div>
@@ -178,7 +178,7 @@ export default function DashboardPage() {
 
                 {/* Joined Date */}
                 <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0">
                     <Calendar className="h-5 w-5 text-emerald-600" />
                   </div>
                   <div>
@@ -189,7 +189,7 @@ export default function DashboardPage() {
 
                 {/* User ID */}
                 <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center shrink-0">
                     <User className="h-5 w-5 text-gray-500" />
                   </div>
                   <div>

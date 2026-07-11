@@ -333,7 +333,7 @@ export default function ListingForm({
           </Button>
           <Button
             type="submit"
-            className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-6 text-sm font-semibold rounded-xl shadow-lg shadow-blue-500/30 transition-all duration-300"
+            className="flex-1 bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-6 text-sm font-semibold rounded-xl shadow-lg shadow-blue-500/30 transition-all duration-300"
             disabled={loading}
           >
             {loading ? (

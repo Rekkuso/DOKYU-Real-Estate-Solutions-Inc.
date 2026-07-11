@@ -126,7 +126,7 @@ function Header({ isAdmin }: { isAdmin?: boolean }) {
       <div className="flex gap-2 items-center">
         {isAdmin && (
           <Link href="/add-new-listing">
-            <Button className="hover:scale-105 hover:bg-blue-700 text-white flex gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 border-0 rounded-lg shadow-md shadow-blue-500/20 cursor-pointer">
+            <Button className="hover:scale-105 hover:bg-blue-700 text-white flex gap-2 bg-linear-to-r from-blue-600 to-indigo-600 border-0 rounded-lg shadow-md shadow-blue-500/20 cursor-pointer">
               <Plus className="h-4 w-4" />
               <span className="hidden sm:inline">Post Property</span>
             </Button>
@@ -136,7 +136,7 @@ function Header({ isAdmin }: { isAdmin?: boolean }) {
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-sm font-bold shadow-md shadow-blue-500/20 hover:scale-105 transition-transform duration-200 cursor-pointer"
+              className="w-9 h-9 rounded-full bg-linear-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-sm font-bold shadow-md shadow-blue-500/20 hover:scale-105 transition-transform duration-200 cursor-pointer"
             >
               {userInitial}
             </button>

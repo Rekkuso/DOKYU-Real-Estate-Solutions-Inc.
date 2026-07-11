@@ -18,7 +18,7 @@ export default function Hero() {
         style={{ backgroundImage: "url('/backgroundPhoto.webp')" }}
       />
       {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80" />
+      <div className="absolute inset-0 bg-linear-to-b from-black/70 via-black/50 to-black/80" />
 
       {/* Animated floating shapes */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -38,7 +38,7 @@ export default function Hero() {
         {/* Headline */}
         <h1 className="text-5xl md:text-7xl font-extrabold text-white leading-tight mb-6 tracking-tight">
           Find Your{" "}
-          <span className="bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
+          <span className="bg-linear-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
             Dream Home
           </span>
           <br />
@@ -64,7 +64,7 @@ export default function Hero() {
               className="w-full pl-12 pr-4 py-4 rounded-xl bg-white/95 backdrop-blur-sm text-gray-800 placeholder-gray-400 text-base border-0 outline-none focus:ring-2 focus:ring-blue-500/50 shadow-2xl transition-all duration-300"
             />
           </div>
-          <Button className="w-full sm:w-auto px-8 py-4 h-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-semibold text-base shadow-2xl shadow-blue-500/25 transition-all duration-300 hover:scale-105 hover:shadow-blue-500/40 cursor-pointer">
+          <Button className="w-full sm:w-auto px-8 py-4 h-auto bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-semibold text-base shadow-2xl shadow-blue-500/25 transition-all duration-300 hover:scale-105 hover:shadow-blue-500/40 cursor-pointer">
             <Search className="h-5 w-5 mr-2" />
             Search
           </Button>
