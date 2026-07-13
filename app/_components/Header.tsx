@@ -18,7 +18,6 @@ function Header({ isAdmin }: { isAdmin?: boolean }) {
   } = useAuthContext();
   const [scrolled, setScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [activeSection, setActiveSection] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -26,21 +25,6 @@ function Header({ isAdmin }: { isAdmin?: boolean }) {
     setMounted(true);
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
-
-      // Only check sections on the home page
-      if (window.location.pathname === "/") {
-        const services = document.getElementById("services");
-        const cta = document.getElementById("cta");
-
-        let current = "";
-        // Determine which section is currently in view (offset by 300px for earlier trigger)
-        if (cta && window.scrollY >= cta.offsetTop - 300) {
-          current = "#cta";
-        } else if (services && window.scrollY >= services.offsetTop - 300) {
-          current = "#services";
-        }
-        setActiveSection(current);
-      }
     };
 
     window.addEventListener("scroll", handleScroll);
@@ -93,18 +77,19 @@ function Header({ isAdmin }: { isAdmin?: boolean }) {
             {
               label: "Properties Listings",
               href: "/properties",
-              matchPath: "/properties",
             },
-            { label: "Services", href: "../#services", matchPath: "/" },
-            { label: "About Us", href: "../#cta", matchPath: "/" },
+            { label: "Services", href: "/services" },
+            { label: "About Us", href: "/about" },
           ].map((item) => {
-            const isMatch = item.href.includes("#")
-              ? path === "/" && activeSection === item.href.replace("../", "")
-              : path === item.matchPath;
+            const isMatch = path === item.href;
 
             // Only use white text at the top if the page has a dark hero section
             const isDarkHeroPage =
-              path === "/" || path === "/properties" || path === "/dashboard";
+              path === "/" ||
+              path === "/properties" ||
+              path === "/dashboard" ||
+              path === "/about" ||
+              path === "/services";
             const defaultColor =
               !scrolled && isDarkHeroPage ? "text-white/90" : "text-black";
 
