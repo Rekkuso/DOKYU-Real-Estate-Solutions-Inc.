@@ -222,34 +222,36 @@ function PropertiesPageContent() {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       {/* ───────── Hero Banner ───────── */}
-      <section className="relative pt-32 pb-16 px-4 overflow-hidden">
+      <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden">
         {/* Background */}
-        <div className="absolute inset-0 bg-linear-to-br from-gray-900 via-blue-950 to-indigo-950" />
-        <div className="absolute inset-0">
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: "url('/backgroundPhoto.webp')" }}
+        />
+        <div className="absolute inset-0 bg-linear-to-b from-black/75 via-black/60 to-black/85" />
+
+        {/* Floating shapes */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-0 right-1/4 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
+          <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
+          <div className="absolute top-1/2 right-1/3 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-500" />
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto">
-          {/* Breadcrumb */}
-          <nav className="flex items-center gap-2 text-sm text-white/50 mb-6">
-            <Link
-              href="/"
-              className="hover:text-white transition-colors duration-200"
-            >
-              Home
-            </Link>
-            <span>/</span>
-            <span className="text-white/90">Properties</span>
-          </nav>
+        {/* Content */}
+        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white/90 text-sm font-medium mb-8 animate-fade-in">
+            <Home className="w-4 h-4 text-blue-400" />
+            Property Listings
+          </div>
 
-          <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-3 tracking-tight">
+          <h1 className="text-5xl md:text-7xl font-extrabold text-white leading-tight mb-6 tracking-tight animate-fade-in">
             Explore{" "}
             <span className="bg-linear-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
               Properties
             </span>
           </h1>
-          <p className="text-white/60 text-lg max-w-2xl">
+
+          <p className="text-lg md:text-xl text-white/70 max-w-2xl mx-auto leading-relaxed animate-fade-in delay-500">
             Browse our curated selection of premium properties across the
             Philippines.
           </p>
