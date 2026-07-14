@@ -161,21 +161,31 @@ export default function UserDashboard({
         <aside className="w-full md:w-64 shrink-0 space-y-6">
           <div className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
             <div className="p-6 flex flex-col items-center border-b border-gray-100">
-              <AvatarUpload
-                currentUrl={profile?.avatar_url}
-                fallbackInitial={userInitial}
-                size="lg"
-                onUploadSuccess={(url) => {
-                  setProfile((p: any) => (p ? { ...p, avatar_url: url } : p));
-                  window.dispatchEvent(new CustomEvent("profileUpdated", { detail: { avatar_url: url } }));
-                }}
-              />
-              <h2 className="mt-4 font-bold text-gray-900 text-lg text-center truncate w-full">
-                {profile?.display_name || `User ${user.id.substring(0, 8)}`}
-              </h2>
-              <p className="text-gray-500 text-sm truncate w-full text-center">
-                {user.email}
-              </p>
+              {loadingProfile ? (
+                <>
+                  <Skeleton className="w-28 h-28 rounded-2xl" />
+                  <Skeleton className="h-6 w-32 mt-4" />
+                  <Skeleton className="h-4 w-48 mt-2" />
+                </>
+              ) : (
+                <>
+                  <AvatarUpload
+                    currentUrl={profile?.avatar_url}
+                    fallbackInitial={userInitial}
+                    size="lg"
+                    onUploadSuccess={(url) => {
+                      setProfile((p: any) => (p ? { ...p, avatar_url: url } : p));
+                      window.dispatchEvent(new CustomEvent("profileUpdated", { detail: { avatar_url: url } }));
+                    }}
+                  />
+                  <h2 className="mt-4 font-bold text-gray-900 text-lg text-center truncate w-full">
+                    {profile?.display_name || `User ${user.id.substring(0, 8)}`}
+                  </h2>
+                  <p className="text-gray-500 text-sm truncate w-full text-center">
+                    {user.email}
+                  </p>
+                </>
+              )}
             </div>
 
             <nav className="p-3 space-y-1">
