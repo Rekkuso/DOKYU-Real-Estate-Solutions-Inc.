@@ -2,11 +2,12 @@
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, LogOut, User } from "lucide-react";
+import { Plus, LogOut, User, Shield } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useEffect, useState, useRef } from "react";
 import { useAuthContext } from "../_context/AuthContext";
+import { getProfile } from "../_actions/profile";
 
 function Header({ isAdmin }: { isAdmin?: boolean }) {
   const path = usePathname();
@@ -19,7 +20,45 @@ function Header({ isAdmin }: { isAdmin?: boolean }) {
   const [scrolled, setScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [displayName, setDisplayName] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const fetchProfile = () => {
+      if (isSignedIn && user) {
+        getProfile()
+          .then((data) => {
+            if (data?.display_name) {
+              setDisplayName(data.display_name);
+            }
+            if (data?.avatar_url !== undefined) {
+              setAvatarUrl(data.avatar_url);
+            }
+          })
+          .catch(console.error);
+      }
+    };
+
+    fetchProfile();
+
+    const handleProfileUpdated = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail) {
+        if (customEvent.detail.display_name !== undefined) {
+          setDisplayName(customEvent.detail.display_name);
+        }
+        if (customEvent.detail.avatar_url !== undefined) {
+          setAvatarUrl(customEvent.detail.avatar_url);
+        }
+      }
+      // Also fetch to ensure consistency
+      fetchProfile();
+    };
+
+    window.addEventListener("profileUpdated", handleProfileUpdated);
+    return () => window.removeEventListener("profileUpdated", handleProfileUpdated);
+  }, [isSignedIn, user]);
 
   useEffect(() => {
     setMounted(true);
@@ -52,8 +91,13 @@ function Header({ isAdmin }: { isAdmin?: boolean }) {
     window.location.href = "/";
   };
 
-  // Get user initials for the avatar
-  const userInitial = user?.email?.charAt(0).toUpperCase() || "U";
+  // Get user initials and display name
+  const nameToShow = displayName || (isAdmin ? "Admin" : `User ${user?.id}`);
+  const userInitial = displayName 
+    ? displayName.charAt(0).toUpperCase() 
+    : isAdmin 
+      ? "A" 
+      : "U";
 
   return (
     <div
@@ -88,6 +132,7 @@ function Header({ isAdmin }: { isAdmin?: boolean }) {
               path === "/" ||
               path === "/properties" ||
               path === "/dashboard" ||
+              path === "/admin" ||
               path === "/about" ||
               path === "/services";
             const defaultColor =
@@ -121,15 +166,19 @@ function Header({ isAdmin }: { isAdmin?: boolean }) {
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="w-9 h-9 rounded-full bg-linear-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-sm font-bold shadow-md shadow-blue-500/20 hover:scale-105 transition-transform duration-200 cursor-pointer"
+              className="w-9 h-9 rounded-full bg-linear-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-sm font-bold shadow-md shadow-blue-500/20 hover:scale-105 transition-transform duration-200 cursor-pointer overflow-hidden"
             >
-              {userInitial}
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                userInitial
+              )}
             </button>
             {dropdownOpen && (
               <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-2 animate-in fade-in slide-in-from-top-2 duration-200">
                 <div className="px-4 py-2 border-b border-gray-100">
-                  <p className="text-sm font-medium text-gray-900 truncate">
-                    {user?.email}
+                  <p className="text-sm font-medium text-gray-900 truncate" title={nameToShow}>
+                    {nameToShow}
                   </p>
                   {isAdmin && (
                     <span className="inline-block mt-1 px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 text-xs font-semibold">
@@ -137,14 +186,25 @@ function Header({ isAdmin }: { isAdmin?: boolean }) {
                     </span>
                   )}
                 </div>
-                <Link
-                  href="/dashboard"
-                  onClick={() => setDropdownOpen(false)}
-                  className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                >
-                  <User className="h-4 w-4" />
-                  My Dashboard
-                </Link>
+                {isAdmin ? (
+                  <Link
+                    href="/admin"
+                    onClick={() => setDropdownOpen(false)}
+                    className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-blue-600 hover:bg-blue-50 transition-colors"
+                  >
+                    <Shield className="h-4 w-4" />
+                    Admin Dashboard
+                  </Link>
+                ) : (
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setDropdownOpen(false)}
+                    className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <User className="h-4 w-4" />
+                    My Dashboard
+                  </Link>
+                )}
                 <button
                   onClick={handleSignOut}
                   className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors cursor-pointer"

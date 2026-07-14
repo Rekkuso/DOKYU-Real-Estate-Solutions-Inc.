@@ -6,6 +6,9 @@ import { Bath, BedDouble, MapPin, Maximize, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
+import { getUserLikes, toggleLike } from "../_actions/likes";
+import { useAuthContext } from "../_context/AuthContext";
+import { toast } from "sonner";
 
 interface Property {
   id: number;
@@ -26,9 +29,11 @@ function formatPrice(price: number) {
 }
 
 export default function FeaturedProperties() {
+  const { isSignedIn } = useAuthContext();
   const [liked, setLiked] = useState<Set<number>>(new Set());
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
+  const [togglingLike, setTogglingLike] = useState<number | null>(null);
 
   useEffect(() => {
     async function fetchProperties() {
@@ -50,13 +55,50 @@ export default function FeaturedProperties() {
     fetchProperties();
   }, []);
 
-  const toggleLike = (id: number) => {
+  // Fetch user's liked listings on mount
+  useEffect(() => {
+    if (!isSignedIn) return;
+    async function fetchLikes() {
+      try {
+        const likedIds = await getUserLikes();
+        setLiked(new Set(likedIds));
+      } catch {
+        // silently fail for anonymous users
+      }
+    }
+    fetchLikes();
+  }, [isSignedIn]);
+
+  const handleToggleLike = async (id: number) => {
+    if (!isSignedIn) {
+      toast.error("Please sign in to like properties.");
+      return;
+    }
+    if (togglingLike === id) return; // prevent double-click
+
+    setTogglingLike(id);
+    // Optimistic update
     setLiked((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
       return next;
     });
+
+    try {
+      await toggleLike(id);
+    } catch {
+      // Revert on error
+      setLiked((prev) => {
+        const next = new Set(prev);
+        if (next.has(id)) next.delete(id);
+        else next.add(id);
+        return next;
+      });
+      toast.error("Failed to update like.");
+    } finally {
+      setTogglingLike(null);
+    }
   };
 
   return (
@@ -129,7 +171,7 @@ export default function FeaturedProperties() {
 
                   {/* Like Button */}
                   <button
-                    onClick={() => toggleLike(property.id)}
+                    onClick={() => handleToggleLike(property.id)}
                     className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white hover:bg-white/40 transition-all duration-300 cursor-pointer"
                   >
                     <Heart

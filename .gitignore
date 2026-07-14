@@ -42,3 +42,7 @@ next-env.d.ts
 
 CLAUDE.md
 001_admin_roles_and_listings_rls.sql
+002_admin_dashboard_features.sql
+003_add_user_uid.sql
+004_user_dashboard_fields.sql
+005_drop_user_uid.sql

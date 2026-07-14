@@ -26,6 +26,8 @@ import { createClient } from "@/utils/supabase/client";
 import { useAdmin } from "../../_hooks/useAdmin";
 import { deleteListing } from "../../_actions/listing";
 import { toast } from "sonner";
+import { getUserLikes, toggleLike as toggleLikeAction } from "../../_actions/likes";
+import { useAuthContext } from "../../_context/AuthContext";
 
 interface Property {
   id: number;
@@ -98,6 +100,16 @@ function PropertiesPageContent() {
   const [currentPage, setCurrentPage] = useState(1);
   const [liked, setLiked] = useState<Set<number>>(new Set());
   const [showFilters, setShowFilters] = useState(false);
+  const { isSignedIn } = useAuthContext();
+  const [togglingLike, setTogglingLike] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (isSignedIn) {
+      getUserLikes().then((likes) => setLiked(new Set(likes))).catch(console.error);
+    } else {
+      setLiked(new Set());
+    }
+  }, [isSignedIn]);
   const fetchListings = useCallback(async () => {
     setLoading(true);
     const supabase = createClient();
@@ -119,14 +131,35 @@ function PropertiesPageContent() {
     fetchListings();
   }, [fetchListings]);
 
-  const toggleLike = useCallback((id: number) => {
+  const handleToggleLike = async (id: number) => {
+    if (!isSignedIn) {
+      toast.error("Please sign in to like properties.");
+      return;
+    }
+    if (togglingLike === id) return;
+
+    setTogglingLike(id);
     setLiked((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
       return next;
     });
-  }, []);
+
+    try {
+      await toggleLikeAction(id);
+    } catch {
+      setLiked((prev) => {
+        const next = new Set(prev);
+        if (next.has(id)) next.delete(id);
+        else next.add(id);
+        return next;
+      });
+      toast.error("Failed to update like.");
+    } finally {
+      setTogglingLike(null);
+    }
+  };
 
   /* ─── Filtering & Sorting ─── */
 
@@ -493,7 +526,7 @@ function PropertiesPageContent() {
 
                   {/* Like Button */}
                   <button
-                    onClick={() => toggleLike(property.id)}
+                    onClick={() => handleToggleLike(property.id)}
                     className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white hover:bg-white/40 transition-all duration-300 cursor-pointer"
                   >
                     <Heart

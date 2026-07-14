@@ -106,3 +106,69 @@ export async function getListingById(id: number) {
 
   return data;
 }
+
+/**
+ * Fetch all draft listings (active = false).
+ * Admin-only.
+ */
+export async function getDraftListings() {
+  await checkIsAdmin();
+
+  const supabase = getSupabase();
+
+  const { data, error } = await supabase
+    .from("listing")
+    .select("*")
+    .eq("active", false)
+    .order("date", { ascending: false });
+
+  if (error) {
+    console.error("Error fetching drafts:", error);
+    throw new Error("Failed to fetch draft listings.");
+  }
+
+  return data || [];
+}
+
+/**
+ * Save a listing as a draft (active = false).
+ * Admin-only.
+ */
+export async function saveDraft(formData: FormData) {
+  await checkIsAdmin();
+
+  const listingData = extractListingData(formData);
+  listingData.active = false;
+  const supabase = getSupabase();
+
+  const { error } = await supabase.from("listing").insert([listingData]);
+
+  if (error) {
+    console.error("Error saving draft:", error);
+    throw new Error("Failed to save draft.");
+  }
+
+  return { success: true };
+}
+
+/**
+ * Publish a draft listing by setting active = true.
+ * Admin-only.
+ */
+export async function publishListing(id: number) {
+  await checkIsAdmin();
+
+  const supabase = getSupabase();
+
+  const { error } = await supabase
+    .from("listing")
+    .update({ active: true })
+    .eq("id", id);
+
+  if (error) {
+    console.error("Error publishing listing:", error);
+    throw new Error("Failed to publish listing.");
+  }
+
+  return { success: true };
+}
