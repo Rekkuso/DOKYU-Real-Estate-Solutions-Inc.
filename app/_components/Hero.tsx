@@ -3,9 +3,26 @@
 import { Search, MapPin, Home, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Hero() {
   const [searchQuery, setSearchQuery] = useState("");
+  const router = useRouter();
+
+  const handleSearch = () => {
+    const trimmed = searchQuery.trim();
+    if (trimmed) {
+      router.push(`/properties?q=${encodeURIComponent(trimmed)}`);
+    } else {
+      router.push("/properties");
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
 
   return (
     <section
@@ -61,10 +78,14 @@ export default function Hero() {
               placeholder="Search by city, neighborhood, or ZIP code..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={handleKeyDown}
               className="w-full pl-12 pr-4 py-4 rounded-xl bg-white/95 backdrop-blur-sm text-gray-800 placeholder-gray-400 text-base border-0 outline-none focus:ring-2 focus:ring-blue-500/50 shadow-2xl transition-all duration-300"
             />
           </div>
-          <Button className="w-full sm:w-auto px-8 py-4 h-auto bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-semibold text-base shadow-2xl shadow-blue-500/25 transition-all duration-300 hover:scale-105 hover:shadow-blue-500/40 cursor-pointer">
+          <Button
+            onClick={handleSearch}
+            className="w-full sm:w-auto px-8 py-4 h-auto bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-semibold text-base shadow-2xl shadow-blue-500/25 transition-all duration-300 hover:scale-105 hover:shadow-blue-500/40 cursor-pointer"
+          >
             <Search className="h-5 w-5 mr-2" />
             Search
           </Button>
@@ -76,6 +97,7 @@ export default function Hero() {
             (type) => (
               <button
                 key={type}
+                onClick={() => router.push(`/properties?type=${encodeURIComponent(type)}`)}
                 className="px-5 py-2.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white/80 text-sm font-medium hover:bg-white/20 hover:text-white transition-all duration-300 hover:scale-105 cursor-pointer"
               >
                 {type}
