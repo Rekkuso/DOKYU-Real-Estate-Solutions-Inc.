@@ -20,28 +20,15 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Footer from "../../_components/Footer";
 import AdminPropertyActions from "../../_components/AdminPropertyActions";
-import { useState, useMemo, useCallback, useEffect, Suspense } from "react";
+import { useState, useCallback, useEffect, useRef, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { createClient } from "@/utils/supabase/client";
 import { useAdmin } from "../../_hooks/useAdmin";
-import { deleteListing } from "../../_actions/listing";
+import { searchListings, deleteListing } from "../../_actions/listing";
+import type { Listing, ListingSearchResult } from "../../_actions/listing";
 import { toast } from "sonner";
 import { getUserLikes, toggleLike as toggleLikeAction } from "../../_actions/likes";
 import { useAuthContext } from "../../_context/AuthContext";
 
-interface Property {
-  id: number;
-  title: string;
-  location: string;
-  price: number;
-  beds: number;
-  baths: number;
-  area: string;
-  type: string;
-  tag: string;
-  gradient: string;
-  date: string;
-}
 
 /* ───────────────────────── Data is fetched from Supabase ───────────────────────── */
 
@@ -90,19 +77,44 @@ function PropertiesPageContent() {
   const initialSearch = searchParams.get("q") || "";
   const { isAdmin } = useAdmin();
 
-  const [allProperties, setAllProperties] = useState<Property[]>([]);
+  // Server-driven result state
+  const [results, setResults] = useState<ListingSearchResult>({
+    listings: [],
+    totalCount: 0,
+    page: 1,
+    perPage: ITEMS_PER_PAGE,
+    totalPages: 1,
+  });
   const [loading, setLoading] = useState(true);
+
+  // Filter state
   const [search, setSearch] = useState(initialSearch);
+  const [debouncedSearch, setDebouncedSearch] = useState(initialSearch);
   const [activeType, setActiveType] = useState(initialType);
   const [priceRange, setPriceRange] = useState(0);
   const [bedrooms, setBedrooms] = useState("Any");
   const [sortBy, setSortBy] = useState("newest");
   const [currentPage, setCurrentPage] = useState(1);
+
+  // UI state
   const [liked, setLiked] = useState<Set<number>>(new Set());
   const [showFilters, setShowFilters] = useState(false);
   const { isSignedIn } = useAuthContext();
   const [togglingLike, setTogglingLike] = useState<number | null>(null);
 
+  // Debounce search input (300ms)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    debounceRef.current = setTimeout(() => {
+      setDebouncedSearch(search);
+      setCurrentPage(1);
+    }, 300);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [search]);
+
+  // Fetch likes
   useEffect(() => {
     if (isSignedIn) {
       getUserLikes().then((likes) => setLiked(new Set(likes))).catch(console.error);
@@ -110,22 +122,30 @@ function PropertiesPageContent() {
       setLiked(new Set());
     }
   }, [isSignedIn]);
+
+  // Fetch listings from server whenever filters change
   const fetchListings = useCallback(async () => {
     setLoading(true);
-    const supabase = createClient();
-    const { data, error } = await supabase
-      .from("listing")
-      .select("id, title, location, price, beds, baths, area, type, tag, gradient, date")
-      .eq("active", true)
-      .order("date", { ascending: false });
-
-    if (!error && data) {
-      setAllProperties(
-        data.map((d) => ({ ...d, price: Number(d.price) }))
-      );
+    try {
+      const range = priceRanges[priceRange];
+      const data = await searchListings({
+        query: debouncedSearch || undefined,
+        type: activeType,
+        priceMin: range.min > 0 ? range.min : undefined,
+        priceMax: range.max < Infinity ? range.max : undefined,
+        beds: bedrooms,
+        sortBy: sortBy as "newest" | "price-asc" | "price-desc",
+        page: currentPage,
+        perPage: ITEMS_PER_PAGE,
+      });
+      setResults(data);
+    } catch (error) {
+      console.error("Failed to search listings:", error);
+      toast.error("Failed to load properties.");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-  }, []);
+  }, [debouncedSearch, activeType, priceRange, bedrooms, sortBy, currentPage]);
 
   useEffect(() => {
     fetchListings();
@@ -161,69 +181,20 @@ function PropertiesPageContent() {
     }
   };
 
-  /* ─── Filtering & Sorting ─── */
+  /* ─── Derived values from server result ─── */
 
-  const filtered = useMemo(() => {
-    let results = [...allProperties];
-
-    // search
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      results = results.filter(
-        (p) =>
-          p.title.toLowerCase().includes(q) ||
-          p.location.toLowerCase().includes(q),
-      );
-    }
-
-    // type
-    if (activeType !== "All") {
-      results = results.filter((p) => p.type === activeType);
-    }
-
-    // price
-    const range = priceRanges[priceRange];
-    results = results.filter(
-      (p) => p.price >= range.min && p.price < range.max,
-    );
-
-    // bedrooms
-    if (bedrooms !== "Any") {
-      const bed = parseInt(bedrooms);
-      results = results.filter((p) =>
-        bedrooms === "5+" ? p.beds >= 5 : p.beds === bed,
-      );
-    }
-
-    // sort
-    if (sortBy === "newest") {
-      results.sort(
-        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-      );
-    } else if (sortBy === "price-asc") {
-      results.sort((a, b) => a.price - b.price);
-    } else {
-      results.sort((a, b) => b.price - a.price);
-    }
-
-    return results;
-  }, [allProperties, search, activeType, priceRange, bedrooms, sortBy]);
-
-  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
+  const { listings: paginated, totalCount, totalPages } = results;
   const safeCurrentPage = Math.min(currentPage, totalPages);
-  const paginated = filtered.slice(
-    (safeCurrentPage - 1) * ITEMS_PER_PAGE,
-    safeCurrentPage * ITEMS_PER_PAGE,
-  );
 
   const activeFilterCount =
     (activeType !== "All" ? 1 : 0) +
     (priceRange !== 0 ? 1 : 0) +
     (bedrooms !== "Any" ? 1 : 0) +
-    (search.trim() ? 1 : 0);
+    (debouncedSearch.trim() ? 1 : 0);
 
   const clearAll = () => {
     setSearch("");
+    setDebouncedSearch("");
     setActiveType("All");
     setPriceRange(0);
     setBedrooms("Any");
@@ -233,7 +204,7 @@ function PropertiesPageContent() {
 
   /* ─── Page Numbers ─── */
 
-  const pageNumbers = useMemo(() => {
+  const pageNumbers = (() => {
     const pages: (number | "...")[] = [];
     if (totalPages <= 7) {
       for (let i = 1; i <= totalPages; i++) pages.push(i);
@@ -250,7 +221,8 @@ function PropertiesPageContent() {
       pages.push(totalPages);
     }
     return pages;
-  }, [totalPages, safeCurrentPage]);
+  })();
+
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -443,9 +415,9 @@ function PropertiesPageContent() {
         <p className="text-sm text-gray-500">
           Showing{" "}
           <span className="font-semibold text-gray-800">
-            {filtered.length}
+            {totalCount}
           </span>{" "}
-          {filtered.length === 1 ? "property" : "properties"}
+          {totalCount === 1 ? "property" : "properties"}
           {activeType !== "All" && (
             <span>
               {" "}
@@ -581,9 +553,7 @@ function PropertiesPageContent() {
                       id={property.id}
                       title={property.title}
                       onEditSuccess={fetchListings}
-                      onDeleteSuccess={(id) =>
-                        setAllProperties((prev) => prev.filter((p) => p.id !== id))
-                      }
+                      onDeleteSuccess={fetchListings}
                     />
                   )}
                 </div>

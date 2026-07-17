@@ -19,7 +19,7 @@ interface AdminPropertyActionsProps {
   id: number;
   title: string;
   onEditSuccess?: () => void;
-  onDeleteSuccess: (id: number) => void;
+  onDeleteSuccess: (id?: number) => void;
 }
 
 export default function AdminPropertyActions({

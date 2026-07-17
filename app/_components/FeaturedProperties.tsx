@@ -5,22 +5,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Bath, BedDouble, MapPin, Maximize, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
-import { createClient } from "@/utils/supabase/client";
+import { getFeaturedListings } from "../_actions/listing";
+import type { Listing } from "../_actions/listing";
 import { getUserLikes, toggleLike } from "../_actions/likes";
 import { useAuthContext } from "../_context/AuthContext";
 import { toast } from "sonner";
-
-interface Property {
-  id: number;
-  title: string;
-  location: string;
-  price: number;
-  beds: number;
-  baths: number;
-  area: string;
-  tag: string;
-  gradient: string;
-}
 
 function formatPrice(price: number) {
   if (price >= 1000000) return `₱${(price / 1000000).toFixed(1)}M`;
@@ -31,29 +20,24 @@ function formatPrice(price: number) {
 export default function FeaturedProperties() {
   const { isSignedIn } = useAuthContext();
   const [liked, setLiked] = useState<Set<number>>(new Set());
-  const [properties, setProperties] = useState<Property[]>([]);
+  const [properties, setProperties] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [togglingLike, setTogglingLike] = useState<number | null>(null);
 
   useEffect(() => {
     async function fetchProperties() {
-      const supabase = createClient();
-      const { data, error } = await supabase
-        .from("listing")
-        .select("id, title, location, price, beds, baths, area, tag, gradient")
-        .eq("active", true)
-        .order("date", { ascending: false })
-        .limit(6);
-
-      if (!error && data) {
-        setProperties(
-          data.map((d) => ({ ...d, price: Number(d.price) }))
-        );
+      try {
+        const data = await getFeaturedListings(6);
+        setProperties(data);
+      } catch (error) {
+        console.error("Failed to fetch featured properties:", error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
     fetchProperties();
   }, []);
+
 
   // Fetch user's liked listings on mount
   useEffect(() => {

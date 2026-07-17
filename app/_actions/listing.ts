@@ -172,3 +172,153 @@ export async function publishListing(id: number) {
 
   return { success: true };
 }
+
+/* ───────────────────────────────────────────────────────────
+ * Centralized listing queries — search, filter & pagination
+ * ─────────────────────────────────────────────────────────── */
+
+export interface Listing {
+  id: number;
+  title: string;
+  location: string;
+  address: string;
+  price: number;
+  beds: number;
+  baths: number;
+  area: string;
+  type: string;
+  tag: string;
+  gradient: string;
+  date: string;
+  active: boolean;
+}
+
+export interface ListingFilters {
+  /** Text search — matched against title and location (case-insensitive) */
+  query?: string;
+  /** Property type filter, e.g. "Houses", "Condos" */
+  type?: string;
+  /** Minimum price (inclusive) */
+  priceMin?: number;
+  /** Maximum price (exclusive) */
+  priceMax?: number;
+  /** Bedroom filter — exact match, or "5+" for 5 and above */
+  beds?: string;
+  /** Sort order */
+  sortBy?: "newest" | "price-asc" | "price-desc";
+  /** 1-indexed page number (default 1) */
+  page?: number;
+  /** Results per page (default 9) */
+  perPage?: number;
+}
+
+export interface ListingSearchResult {
+  listings: Listing[];
+  totalCount: number;
+  page: number;
+  perPage: number;
+  totalPages: number;
+}
+
+/**
+ * Server-side search, filter, sort & paginate active listings.
+ * Pushes all query work to Supabase/Postgres instead of the browser.
+ */
+export async function searchListings(
+  filters: ListingFilters = {},
+): Promise<ListingSearchResult> {
+  const supabase = getSupabase();
+
+  const page = Math.max(1, filters.page ?? 1);
+  const perPage = Math.max(1, Math.min(50, filters.perPage ?? 9));
+  const from = (page - 1) * perPage;
+  const to = from + perPage - 1;
+
+  // Start building the query — request exact count alongside data
+  let query = supabase
+    .from("listing")
+    .select(
+      "id, title, location, address, price, beds, baths, area, type, tag, gradient, date, active",
+      { count: "exact" },
+    )
+    .eq("active", true);
+
+  // ── Text search (title OR location) ──
+  if (filters.query?.trim()) {
+    const q = `%${filters.query.trim()}%`;
+    query = query.or(`title.ilike.${q},location.ilike.${q}`);
+  }
+
+  // ── Type filter ──
+  if (filters.type && filters.type !== "All") {
+    query = query.eq("type", filters.type);
+  }
+
+  // ── Price range ──
+  if (filters.priceMin !== undefined && filters.priceMin > 0) {
+    query = query.gte("price", filters.priceMin);
+  }
+  if (filters.priceMax !== undefined && filters.priceMax < Infinity) {
+    query = query.lt("price", filters.priceMax);
+  }
+
+  // ── Bedrooms ──
+  if (filters.beds && filters.beds !== "Any") {
+    if (filters.beds === "5+") {
+      query = query.gte("beds", 5);
+    } else {
+      query = query.eq("beds", parseInt(filters.beds, 10));
+    }
+  }
+
+  // ── Sorting ──
+  const sortBy = filters.sortBy ?? "newest";
+  if (sortBy === "newest") {
+    query = query.order("date", { ascending: false });
+  } else if (sortBy === "price-asc") {
+    query = query.order("price", { ascending: true });
+  } else {
+    query = query.order("price", { ascending: false });
+  }
+
+  // ── Pagination ──
+  query = query.range(from, to);
+
+  const { data, error, count } = await query;
+
+  if (error) {
+    console.error("Error searching listings:", error);
+    throw new Error("Failed to search listings.");
+  }
+
+  const totalCount = count ?? 0;
+
+  return {
+    listings: (data || []).map((d) => ({ ...d, price: Number(d.price) })) as Listing[],
+    totalCount,
+    page,
+    perPage,
+    totalPages: Math.max(1, Math.ceil(totalCount / perPage)),
+  };
+}
+
+/**
+ * Fetch the latest active listings for the homepage featured section.
+ */
+export async function getFeaturedListings(limit = 6): Promise<Listing[]> {
+  const supabase = getSupabase();
+
+  const { data, error } = await supabase
+    .from("listing")
+    .select("id, title, location, address, price, beds, baths, area, type, tag, gradient, date, active")
+    .eq("active", true)
+    .order("date", { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error("Error fetching featured listings:", error);
+    throw new Error("Failed to fetch featured listings.");
+  }
+
+  return (data || []).map((d) => ({ ...d, price: Number(d.price) })) as Listing[];
+}
