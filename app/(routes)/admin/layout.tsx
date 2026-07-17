@@ -1,7 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import Header from "../../_components/Header";
 
 export default async function AdminLayout({
   children,
@@ -24,7 +23,6 @@ export default async function AdminLayout({
 
   return (
     <>
-      <Header isAdmin={isAdmin} />
       {children}
     </>
   );

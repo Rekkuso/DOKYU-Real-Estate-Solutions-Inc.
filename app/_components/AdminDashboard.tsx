@@ -201,7 +201,7 @@ export default function AdminDashboard() {
     <div className="min-h-screen flex flex-col bg-gray-50">
       {/* Hero section */}
       <section className="relative pt-32 pb-16 px-4 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-blue-950 to-indigo-950" />
+        <div className="absolute inset-0 bg-linear-to-br from-gray-900 via-blue-950 to-indigo-950" />
         <div className="absolute inset-0">
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
           <div className="absolute bottom-0 right-1/4 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
@@ -225,7 +225,7 @@ export default function AdminDashboard() {
               <Skeleton className="w-20 h-20 rounded-2xl" />
             ) : (
               <AvatarUpload
-                currentUrl={profile?.avatar_url}
+                currentUrl={profile?.avatar_url || null}
                 fallbackInitial={userInitial}
                 size="lg"
                 onUploadSuccess={(url) => {
@@ -333,7 +333,7 @@ export default function AdminDashboard() {
                       }}
                       className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer ${
                         isActive
-                          ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25"
+                          ? "bg-linear-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25"
                           : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                       }`}
                     >
@@ -415,7 +415,7 @@ export default function AdminDashboard() {
                     </p>
                   </div>
                   <Link href="/add-new-listing">
-                    <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl shadow-lg shadow-blue-500/25 cursor-pointer">
+                    <Button className="bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl shadow-lg shadow-blue-500/25 cursor-pointer">
                       New Listing
                     </Button>
                   </Link>
@@ -520,7 +520,7 @@ function OverviewTab({
             >
               <div className="flex items-center justify-between mb-3">
                 <div
-                  className={`w-10 h-10 rounded-xl bg-gradient-to-br ${card.gradient} ${card.shadow} shadow-lg flex items-center justify-center`}
+                  className={`w-10 h-10 rounded-xl bg-linear-to-br ${card.gradient} ${card.shadow} shadow-lg flex items-center justify-center`}
                 >
                   <Icon className="h-5 w-5 text-white" />
                 </div>
@@ -537,7 +537,7 @@ function OverviewTab({
 
               {/* Decorative corner */}
               <div
-                className={`absolute -top-6 -right-6 w-24 h-24 rounded-full bg-gradient-to-br ${card.gradient} opacity-5`}
+                className={`absolute -top-6 -right-6 w-24 h-24 rounded-full bg-linear-to-br ${card.gradient} opacity-5`}
               />
             </div>
           );
