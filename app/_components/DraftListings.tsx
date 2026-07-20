@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { getDefaultGradient } from "@/utils/gradients";
 import {
   FileText,
   Pencil,
@@ -34,7 +35,7 @@ interface DraftListing {
   area: string;
   type: string;
   tag: string;
-  gradient: string;
+  images: string[];
   date: string;
 }
 
@@ -65,6 +66,7 @@ export default function DraftListings({
   const [editOpen, setEditOpen] = useState(false);
   const [loadingListing, setLoadingListing] = useState(false);
   const [editData, setEditData] = useState<any>(null);
+  const [editImages, setEditImages] = useState<string[]>([]);
   const [editId, setEditId] = useState<number | null>(null);
 
   const handlePublish = async (id: number) => {
@@ -119,6 +121,7 @@ export default function DraftListings({
         baths: String(data.baths || 0),
         tag: data.tag || "",
       });
+      setEditImages(Array.isArray(data.images) ? data.images : []);
     } catch {
       toast.error("Failed to fetch draft details.");
       setEditOpen(false);
@@ -174,12 +177,19 @@ export default function DraftListings({
             key={draft.id}
             className="bg-white rounded-xl border border-gray-100 p-5 flex flex-col sm:flex-row sm:items-center gap-4 hover:shadow-md transition-shadow duration-200"
           >
-            {/* Gradient preview */}
-            <div
-              className={`w-14 h-14 rounded-xl bg-gradient-to-br ${draft.gradient} flex items-center justify-center shrink-0`}
-            >
-              <FileText className="h-6 w-6 text-white/80" />
-            </div>
+            {/* Image/Gradient preview */}
+            {draft.images && draft.images.length > 0 ? (
+              <div
+                className="w-14 h-14 rounded-xl shrink-0 bg-cover bg-center"
+                style={{ backgroundImage: `url(${draft.images[0]})` }}
+              />
+            ) : (
+              <div
+                className={`w-14 h-14 rounded-xl bg-gradient-to-br ${getDefaultGradient(draft.id)} flex items-center justify-center shrink-0`}
+              >
+                <FileText className="h-6 w-6 text-white/80" />
+              </div>
+            )}
 
             {/* Info */}
             <div className="flex-1 min-w-0">
@@ -264,6 +274,7 @@ export default function DraftListings({
                   isEditMode
                   propertyId={editId}
                   initialData={editData}
+                  existingImages={editImages}
                   onCancel={() => setEditOpen(false)}
                   onSuccess={() => {
                     setEditOpen(false);

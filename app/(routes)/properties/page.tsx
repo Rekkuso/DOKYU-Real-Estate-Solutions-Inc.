@@ -15,6 +15,7 @@ import {
   SlidersHorizontal,
   X,
   ChevronDown,
+  Calendar,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -25,6 +26,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useAdmin } from "../../_hooks/useAdmin";
 import { searchListings, deleteListing } from "../../_actions/listing";
 import type { Listing, ListingSearchResult } from "../../_actions/listing";
+import { getDefaultGradient } from "@/utils/gradients";
 import { toast } from "sonner";
 import { getUserLikes, toggleLike as toggleLikeAction } from "../../_actions/likes";
 import { useAuthContext } from "../../_context/AuthContext";
@@ -477,17 +479,31 @@ function PropertiesPageContent() {
                 key={property.id}
                 className={`group relative bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-gray-100 animate-slide-up stagger-${index + 1}`}
               >
-                {/* Image Placeholder with Gradient */}
+                {/* Image or Gradient Fallback */}
                 <div className="relative h-56 overflow-hidden">
-                  <div
-                    className={`absolute inset-0 bg-linear-to-br ${property.gradient} opacity-90`}
-                  />
-                  {/* Decorative elements */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-20 h-20 border-2 border-white/30 rounded-xl rotate-12 group-hover:rotate-45 transition-transform duration-700" />
-                    <div className="absolute w-32 h-32 border border-white/10 rounded-full -top-4 -right-4" />
-                    <div className="absolute w-16 h-16 bg-white/10 rounded-lg bottom-4 left-4 rotate-6" />
-                  </div>
+                  {property.images && property.images.length > 0 ? (
+                    <img
+                      src={property.images[0]}
+                      alt={property.title}
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
+                  ) : (
+                    <div
+                      className={`absolute inset-0 bg-linear-to-br ${getDefaultGradient(property.id)} opacity-90`}
+                    />
+                  )}
+                  {/* Decorative elements — only for gradient fallback */}
+                  {(!property.images || property.images.length === 0) && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-20 h-20 border-2 border-white/30 rounded-xl rotate-12 group-hover:rotate-45 transition-transform duration-700" />
+                      <div className="absolute w-32 h-32 border border-white/10 rounded-full -top-4 -right-4" />
+                      <div className="absolute w-16 h-16 bg-white/10 rounded-lg bottom-4 left-4 rotate-6" />
+                    </div>
+                  )}
+                  {/* Dark overlay for readability on images */}
+                  {property.images && property.images.length > 0 && (
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+                  )}
 
                   {/* Tag */}
                   <div className="absolute top-4 left-4">
@@ -523,9 +539,17 @@ function PropertiesPageContent() {
                   <h3 className="text-lg font-bold text-gray-900 mb-1 group-hover:text-blue-600 transition-colors">
                     {property.title}
                   </h3>
-                  <div className="flex items-center gap-1 text-gray-400 text-sm mb-4">
+                  <div className="flex items-center gap-1 text-gray-400 text-sm mb-1">
                     <MapPin className="h-3.5 w-3.5" />
                     {property.location}
+                  </div>
+                  <div className="flex items-center gap-1 text-gray-400 text-xs mb-4">
+                    <Calendar className="h-3 w-3" />
+                    {new Date(property.date).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    })}
                   </div>
 
                   {/* Divider */}

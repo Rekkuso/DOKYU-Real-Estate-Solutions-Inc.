@@ -25,8 +25,12 @@ import {
   Tag,
 } from "lucide-react";
 
+const MAX_IMAGES = 10;
+
 interface ListingFormProps {
   initialData?: Record<string, string>;
+  /** Existing image URLs (for edit mode) */
+  existingImages?: string[];
   isEditMode?: boolean;
   propertyId?: number;
   onSuccess?: () => void;
@@ -51,32 +55,59 @@ const FACILITIES_LIST = [
 
 export default function ListingForm({
   initialData = {},
+  existingImages: initialExistingImages = [],
   isEditMode = false,
   propertyId,
   onSuccess,
   onCancel,
 }: ListingFormProps) {
   const [loading, setLoading] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [existingImages, setExistingImages] = useState<string[]>(initialExistingImages);
   const [selectedFacilities, setSelectedFacilities] = useState<string[]>([]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setSelectedImage(file);
-      setImagePreview(URL.createObjectURL(file));
-    }
-  };
+  const totalImageCount = existingImages.length + selectedImages.length;
 
-  const removeImage = () => {
-    setSelectedImage(null);
-    setImagePreview(null);
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+
+    const newFiles = Array.from(e.target.files);
+    const remaining = MAX_IMAGES - totalImageCount;
+
+    if (remaining <= 0) {
+      toast.error(`Maximum ${MAX_IMAGES} images allowed.`);
+      return;
+    }
+
+    if (newFiles.length > remaining) {
+      toast.warning(
+        `Only ${remaining} more image${remaining > 1 ? "s" : ""} can be added. Selecting the first ${remaining}.`,
+      );
+    }
+
+    const filesToAdd = newFiles.slice(0, remaining);
+    const newPreviews = filesToAdd.map((f) => URL.createObjectURL(f));
+
+    setSelectedImages((prev) => [...prev, ...filesToAdd]);
+    setImagePreviews((prev) => [...prev, ...newPreviews]);
+
+    // Reset file input so the same file can be re-selected
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
+  };
+
+  const removeNewImage = (index: number) => {
+    URL.revokeObjectURL(imagePreviews[index]);
+    setSelectedImages((prev) => prev.filter((_, i) => i !== index));
+    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const removeExistingImage = (index: number) => {
+    setExistingImages((prev) => prev.filter((_, i) => i !== index));
   };
 
   const toggleFacility = (facility: string) => {
@@ -95,10 +126,17 @@ export default function ListingForm({
       const form = e.currentTarget;
       const formData = new FormData(form);
 
-      // Append facilities and image to formData
+      // Append facilities
       formData.append("facilities", JSON.stringify(selectedFacilities));
-      if (selectedImage) {
-        formData.append("image", selectedImage);
+
+      // Append all new image files
+      for (const file of selectedImages) {
+        formData.append("images", file);
+      }
+
+      // Append existing image URLs for edit mode
+      if (isEditMode) {
+        formData.append("existingImages", JSON.stringify(existingImages));
       }
 
       if (isEditMode && propertyId) {
@@ -109,8 +147,9 @@ export default function ListingForm({
         await addListing(formData);
         toast.success("Property listing added successfully!");
         form.reset();
-        setSelectedImage(null);
-        setImagePreview(null);
+        setSelectedImages([]);
+        setImagePreviews([]);
+        setExistingImages([]);
         setSelectedFacilities([]);
         if (onSuccess) onSuccess();
       }
@@ -354,86 +393,114 @@ export default function ListingForm({
       <div className="lg:col-span-1 space-y-6">
         {/* Upload Image Card */}
         <div className="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300">
-          <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <ImagePlus className="w-5 h-5 text-blue-600" /> Upload image
+          <h3 className="text-xl font-bold text-gray-900 mb-1 flex items-center gap-2">
+            <ImagePlus className="w-5 h-5 text-blue-600" /> Upload images
           </h3>
+          <p className="text-sm text-gray-500 mb-4">
+            Up to {MAX_IMAGES} images · PNG, JPG up to 5MB each
+          </p>
 
           <input
             type="file"
             accept="image/*"
+            multiple
             className="hidden"
             ref={fileInputRef}
             onChange={handleImageChange}
           />
 
-          <div
-            onClick={() => !imagePreview && fileInputRef.current?.click()}
-            className={`rounded-xl overflow-hidden mb-4 relative group h-48 border-2 border-dashed flex flex-col items-center justify-center transition-all duration-300 ${
-              imagePreview
-                ? "border-transparent bg-gray-100"
-                : "border-gray-300 bg-gray-50 hover:bg-blue-50 hover:border-blue-300 cursor-pointer"
-            }`}
-          >
-            {imagePreview ? (
-              <>
-                <img
-                  src={imagePreview}
-                  alt="Preview"
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    size="sm"
-                    className="rounded-full shadow-md bg-white text-gray-800 hover:bg-gray-100 px-6 cursor-pointer"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      fileInputRef.current?.click();
-                    }}
-                  >
-                    Replace
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="sm"
-                    className="rounded-full shadow-md bg-white text-red-600 hover:bg-red-50 hover:text-red-700 px-6 cursor-pointer"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      removeImage();
-                    }}
-                  >
-                    Remove
-                  </Button>
-                </div>
-              </>
-            ) : (
+          {/* Main Upload Area */}
+          {totalImageCount === 0 ? (
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              className="rounded-xl overflow-hidden mb-4 relative group h-48 border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-blue-50 hover:border-blue-300 cursor-pointer flex flex-col items-center justify-center transition-all duration-300"
+            >
               <div className="flex flex-col items-center justify-center text-center px-4">
                 <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-3">
                   <ImagePlus className="w-6 h-6" />
                 </div>
                 <p className="text-sm font-semibold text-gray-700">
-                  Click to upload image
+                  Click to upload images
                 </p>
-                <p className="text-xs text-gray-500 mt-1">PNG, JPG up to 5MB</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Select multiple files at once
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="mb-4">
+              {/* Primary image preview (first image) */}
+              <div className="relative rounded-xl overflow-hidden h-48 mb-3 group">
+                <img
+                  src={existingImages[0] || imagePreviews[0]}
+                  alt="Primary preview"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="text-white text-sm font-medium bg-black/30 px-3 py-1 rounded-full">
+                    Primary Photo
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Thumbnail Grid */}
+          <div className="flex flex-wrap gap-3">
+            {/* Existing image thumbnails */}
+            {existingImages.map((url, index) => (
+              <div
+                key={`existing-${index}`}
+                className="relative w-16 h-16 rounded-xl border border-blue-200 shrink-0 bg-cover bg-center ring-2 ring-blue-100 group overflow-hidden"
+                style={{ backgroundImage: `url(${url})` }}
+              >
+                <button
+                  type="button"
+                  onClick={() => removeExistingImage(index)}
+                  className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md cursor-pointer z-10"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+                {index === 0 && existingImages.length > 0 && (
+                  <div className="absolute bottom-0 left-0 right-0 bg-blue-600/80 text-white text-[9px] font-bold text-center py-0.5">
+                    PRIMARY
+                  </div>
+                )}
+              </div>
+            ))}
+
+            {/* New image thumbnails */}
+            {imagePreviews.map((preview, index) => (
+              <div
+                key={`new-${index}`}
+                className="relative w-16 h-16 rounded-xl border border-emerald-200 shrink-0 bg-cover bg-center ring-2 ring-emerald-100 group overflow-hidden"
+                style={{ backgroundImage: `url(${preview})` }}
+              >
+                <button
+                  type="button"
+                  onClick={() => removeNewImage(index)}
+                  className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md cursor-pointer z-10"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+                {index === 0 && existingImages.length === 0 && (
+                  <div className="absolute bottom-0 left-0 right-0 bg-blue-600/80 text-white text-[9px] font-bold text-center py-0.5">
+                    PRIMARY
+                  </div>
+                )}
+              </div>
+            ))}
+
+            {/* Add More Button */}
+            {totalImageCount < MAX_IMAGES && (
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                className="w-16 h-16 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center shrink-0 cursor-pointer hover:bg-blue-50 hover:border-blue-300 hover:text-blue-500 transition-colors text-gray-400"
+              >
+                <span className="text-xl leading-none">+</span>
+                <span className="text-[9px] mt-0.5">{totalImageCount}/{MAX_IMAGES}</span>
               </div>
             )}
-          </div>
-
-          <div className="flex gap-3">
-            {imagePreview && (
-              <div
-                className="w-16 h-16 rounded-xl border border-blue-500 shrink-0 bg-cover bg-center ring-2 ring-blue-100"
-                style={{ backgroundImage: `url(${imagePreview})` }}
-              ></div>
-            )}
-            <div
-              onClick={() => fileInputRef.current?.click()}
-              className="w-16 h-16 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center shrink-0 cursor-pointer hover:bg-blue-50 hover:border-blue-300 hover:text-blue-500 transition-colors text-gray-400"
-            >
-              <span className="text-xl">+</span>
-            </div>
           </div>
         </div>
 

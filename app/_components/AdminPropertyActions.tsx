@@ -35,6 +35,7 @@ export default function AdminPropertyActions({
   const [editOpen, setEditOpen] = useState(false);
   const [loadingListing, setLoadingListing] = useState(false);
   const [editData, setEditData] = useState<any>(null);
+  const [editImages, setEditImages] = useState<string[]>([]);
 
   const openEditModal = async () => {
     setEditOpen(true);
@@ -52,6 +53,7 @@ export default function AdminPropertyActions({
         baths: String(data.baths || 0),
         tag: data.tag || "",
       });
+      setEditImages(Array.isArray(data.images) ? data.images : []);
     } catch (error) {
       toast.error("Failed to fetch property details for editing.");
       setEditOpen(false);
@@ -153,6 +155,7 @@ export default function AdminPropertyActions({
                   isEditMode
                   propertyId={id}
                   initialData={editData}
+                  existingImages={editImages}
                   onCancel={() => setEditOpen(false)}
                   onSuccess={() => {
                     setEditOpen(false);

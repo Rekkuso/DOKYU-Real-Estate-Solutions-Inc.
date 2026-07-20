@@ -10,14 +10,41 @@ function getSupabase() {
   return createClient(supabaseUrl, serviceRoleKey);
 }
 
-// Generate a random gradient for the mock image if not provided
-const gradients = [
-  "from-blue-600 to-indigo-600",
-  "from-emerald-600 to-teal-600",
-  "from-orange-500 to-rose-500",
-  "from-purple-600 to-pink-600",
-  "from-cyan-600 to-blue-600",
-];
+/**
+ * Upload multiple images to Supabase Storage and return their public URLs.
+ */
+async function uploadImages(files: File[]): Promise<string[]> {
+  if (files.length === 0) return [];
+
+  const supabase = getSupabase();
+  const urls: string[] = [];
+
+  for (const file of files) {
+    const ext = file.name.split(".").pop() || "jpg";
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
+    const filePath = `listings/${fileName}`;
+
+    const { error } = await supabase.storage
+      .from("listing-images")
+      .upload(filePath, file, {
+        contentType: file.type,
+        upsert: false,
+      });
+
+    if (error) {
+      console.error("Error uploading image:", error);
+      continue;
+    }
+
+    const { data: publicUrlData } = supabase.storage
+      .from("listing-images")
+      .getPublicUrl(filePath);
+
+    urls.push(publicUrlData.publicUrl);
+  }
+
+  return urls;
+}
 
 function extractListingData(formData: FormData) {
   const priceRaw = formData.get("price") as string;
@@ -35,8 +62,6 @@ function extractListingData(formData: FormData) {
     area: formData.get("area") as string,
     type: (formData.get("type") as string) || "Houses",
     tag: (formData.get("tag") as string) || "New",
-    gradient: gradients[Math.floor(Math.random() * gradients.length)],
-    date: new Date().toISOString().split("T")[0],
     active: true,
   };
 }
@@ -47,7 +72,20 @@ export async function addListing(formData: FormData) {
   const listingData = extractListingData(formData);
   const supabase = getSupabase();
 
-  const { error } = await supabase.from("listing").insert([listingData]);
+  // Upload images
+  const imageFiles = formData.getAll("images") as File[];
+  const validFiles = imageFiles.filter(
+    (f) => f instanceof File && f.size > 0,
+  );
+  const imageUrls = await uploadImages(validFiles);
+
+  const { error } = await supabase.from("listing").insert([
+    {
+      ...listingData,
+      images: imageUrls,
+      date: new Date().toISOString().split("T")[0],
+    },
+  ]);
 
   if (error) {
     console.error("Error adding listing:", error);
@@ -63,9 +101,33 @@ export async function updateListing(id: number, formData: FormData) {
   const listingData = extractListingData(formData);
   const supabase = getSupabase();
 
+  // Upload new images (if any)
+  const imageFiles = formData.getAll("images") as File[];
+  const validFiles = imageFiles.filter(
+    (f) => f instanceof File && f.size > 0,
+  );
+  const newImageUrls = await uploadImages(validFiles);
+
+  // Get existing images that were kept (passed as JSON string)
+  const existingImagesRaw = formData.get("existingImages") as string;
+  let existingImages: string[] = [];
+  try {
+    existingImages = existingImagesRaw ? JSON.parse(existingImagesRaw) : [];
+  } catch {
+    existingImages = [];
+  }
+
+  const allImages = [...existingImages, ...newImageUrls];
+
+  // NOTE: We do NOT overwrite `date` here. The original publish date is preserved
+  // so that edited listings maintain their position in "newest" sort order.
   const { error } = await supabase
     .from("listing")
-    .update(listingData)
+    .update({
+      ...listingData,
+      images: allImages,
+      updated_at: new Date().toISOString().split("T")[0],
+    })
     .eq("id", id);
 
   if (error) {
@@ -138,10 +200,23 @@ export async function saveDraft(formData: FormData) {
   await checkIsAdmin();
 
   const listingData = extractListingData(formData);
-  listingData.active = false;
   const supabase = getSupabase();
 
-  const { error } = await supabase.from("listing").insert([listingData]);
+  // Upload images
+  const imageFiles = formData.getAll("images") as File[];
+  const validFiles = imageFiles.filter(
+    (f) => f instanceof File && f.size > 0,
+  );
+  const imageUrls = await uploadImages(validFiles);
+
+  const { error } = await supabase.from("listing").insert([
+    {
+      ...listingData,
+      images: imageUrls,
+      date: new Date().toISOString().split("T")[0],
+      active: false,
+    },
+  ]);
 
   if (error) {
     console.error("Error saving draft:", error);
@@ -188,8 +263,9 @@ export interface Listing {
   area: string;
   type: string;
   tag: string;
-  gradient: string;
+  images: string[];
   date: string;
+  updated_at?: string;
   active: boolean;
 }
 
@@ -238,7 +314,7 @@ export async function searchListings(
   let query = supabase
     .from("listing")
     .select(
-      "id, title, location, address, price, beds, baths, area, type, tag, gradient, date, active",
+      "id, title, location, address, price, beds, baths, area, type, tag, images, date, updated_at, active",
       { count: "exact" },
     )
     .eq("active", true);
@@ -294,7 +370,11 @@ export async function searchListings(
   const totalCount = count ?? 0;
 
   return {
-    listings: (data || []).map((d) => ({ ...d, price: Number(d.price) })) as Listing[],
+    listings: (data || []).map((d) => ({
+      ...d,
+      price: Number(d.price),
+      images: Array.isArray(d.images) ? d.images : [],
+    })) as Listing[],
     totalCount,
     page,
     perPage,
@@ -310,7 +390,7 @@ export async function getFeaturedListings(limit = 6): Promise<Listing[]> {
 
   const { data, error } = await supabase
     .from("listing")
-    .select("id, title, location, address, price, beds, baths, area, type, tag, gradient, date, active")
+    .select("id, title, location, address, price, beds, baths, area, type, tag, images, date, updated_at, active")
     .eq("active", true)
     .order("date", { ascending: false })
     .limit(limit);
@@ -320,5 +400,9 @@ export async function getFeaturedListings(limit = 6): Promise<Listing[]> {
     throw new Error("Failed to fetch featured listings.");
   }
 
-  return (data || []).map((d) => ({ ...d, price: Number(d.price) })) as Listing[];
+  return (data || []).map((d) => ({
+    ...d,
+    price: Number(d.price),
+    images: Array.isArray(d.images) ? d.images : [],
+  })) as Listing[];
 }
