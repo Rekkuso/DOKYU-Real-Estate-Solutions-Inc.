@@ -46,3 +46,4 @@ CLAUDE.md
 003_add_user_uid.sql
 004_user_dashboard_fields.sql
 005_drop_user_uid.sql
+006_listing_images.sql
