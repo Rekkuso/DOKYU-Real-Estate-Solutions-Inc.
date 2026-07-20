@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Pencil, Trash2, CheckCircle2, Loader2 } from "lucide-react";
+import { Pencil, Trash2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { deleteListing, getListingById } from "../_actions/listing";
 import {
@@ -30,7 +30,6 @@ export default function AdminPropertyActions({
 }: AdminPropertyActionsProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [deleteSuccessOpen, setDeleteSuccessOpen] = useState(false);
 
   const [editOpen, setEditOpen] = useState(false);
   const [loadingListing, setLoadingListing] = useState(false);
@@ -67,17 +66,13 @@ export default function AdminPropertyActions({
     try {
       await deleteListing(id);
       setDeleteOpen(false);
-      setDeleteSuccessOpen(true);
+      toast.success("Property listing deleted successfully.");
+      onDeleteSuccess(id);
     } catch (error: any) {
       toast.error(error.message || "Failed to delete listing.");
     } finally {
       setIsDeleting(false);
     }
-  };
-
-  const handleCloseSuccess = () => {
-    setDeleteSuccessOpen(false);
-    onDeleteSuccess(id);
   };
 
   return (
@@ -212,33 +207,6 @@ export default function AdminPropertyActions({
         </DialogContent>
       </Dialog>
 
-      {/* Delete Success Modal */}
-      <Dialog open={deleteSuccessOpen} onOpenChange={(open) => {
-        if (!open) handleCloseSuccess();
-      }}>
-        <DialogContent className="max-w-sm text-center">
-          <DialogHeader>
-            <div className="w-16 h-16 mx-auto bg-green-100 rounded-full flex items-center justify-center mb-4 animate-in zoom-in duration-300">
-              <CheckCircle2 className="h-8 w-8 text-green-600" />
-            </div>
-            <DialogTitle className="text-xl font-bold text-gray-900">
-              Successfully Deleted
-            </DialogTitle>
-            <DialogDescription className="pt-2">
-              The property listing has been permanently removed from the
-              database.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="mt-6">
-            <Button
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-              onClick={handleCloseSuccess}
-            >
-              Close
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </>
   );
 }
