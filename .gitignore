@@ -44,3 +44,7 @@ CLAUDE.md
 *.sql
 
 /lib/generated/prisma
+
+.claude 
+.windsurf
+.agents
