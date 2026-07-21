@@ -5,7 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Bath, BedDouble, MapPin, Maximize, Heart, Calendar } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { getFeaturedListings } from "../_actions/listing";
 import type { Listing } from "../_actions/listing";
 import { getDefaultGradient } from "@/utils/gradients";
@@ -25,8 +25,8 @@ export default function FeaturedProperties({ initialProperties }: { initialPrope
   const [liked, setLiked] = useState<Set<number>>(new Set());
   const [properties, setProperties] = useState<Listing[]>(initialProperties || []);
   const [loading, setLoading] = useState(!initialProperties);
-  const [togglingLike, setTogglingLike] = useState<number | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const likeTimeouts = useRef<{ [id: number]: NodeJS.Timeout }>({});
 
   useEffect(() => {
     if (initialProperties) return;
@@ -58,15 +58,20 @@ export default function FeaturedProperties({ initialProperties }: { initialPrope
     fetchLikes();
   }, [isSignedIn]);
 
-  const handleToggleLike = async (id: number) => {
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      Object.values(likeTimeouts.current).forEach(clearTimeout);
+    };
+  }, []);
+
+  const handleToggleLike = (id: number) => {
     if (!isSignedIn) {
       setShowAuthModal(true);
       return;
     }
-    if (togglingLike === id) return; // prevent double-click
 
-    setTogglingLike(id);
-    // Optimistic update
+    // 1. Optimistic update
     setLiked((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
@@ -74,20 +79,26 @@ export default function FeaturedProperties({ initialProperties }: { initialPrope
       return next;
     });
 
-    try {
-      await toggleLike(id);
-    } catch {
-      // Revert on error
-      setLiked((prev) => {
-        const next = new Set(prev);
-        if (next.has(id)) next.delete(id);
-        else next.add(id);
-        return next;
-      });
-      toast.error("Failed to update like.");
-    } finally {
-      setTogglingLike(null);
+    // 2. Clear existing timeout to debounce
+    if (likeTimeouts.current[id]) {
+      clearTimeout(likeTimeouts.current[id]);
     }
+
+    // 3. Set a new timeout to sync with the server
+    likeTimeouts.current[id] = setTimeout(async () => {
+      try {
+        await toggleLike(id);
+      } catch {
+        // Revert on error
+        setLiked((prev) => {
+          const next = new Set(prev);
+          if (next.has(id)) next.delete(id);
+          else next.add(id);
+          return next;
+        });
+        toast.error("Failed to save like.");
+      }
+    }, 1000); // 1 second debounce
   };
 
   return (

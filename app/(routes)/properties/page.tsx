@@ -103,8 +103,8 @@ function PropertiesPageContent() {
   const [liked, setLiked] = useState<Set<number>>(new Set());
   const [showFilters, setShowFilters] = useState(false);
   const { isSignedIn } = useAuthContext();
-  const [togglingLike, setTogglingLike] = useState<number | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const likeTimeouts = useRef<{ [id: number]: NodeJS.Timeout }>({});
 
   // Debounce search input (300ms)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -126,6 +126,13 @@ function PropertiesPageContent() {
       setLiked(new Set());
     }
   }, [isSignedIn]);
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      Object.values(likeTimeouts.current).forEach(clearTimeout);
+    };
+  }, []);
 
   // Fetch listings from server whenever filters change
   const fetchListings = useCallback(async () => {
@@ -155,14 +162,13 @@ function PropertiesPageContent() {
     fetchListings();
   }, [fetchListings]);
 
-  const handleToggleLike = async (id: number) => {
+  const handleToggleLike = (id: number) => {
     if (!isSignedIn) {
       setShowAuthModal(true);
       return;
     }
-    if (togglingLike === id) return;
 
-    setTogglingLike(id);
+    // 1. Optimistic UI update instantly
     setLiked((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
@@ -170,19 +176,26 @@ function PropertiesPageContent() {
       return next;
     });
 
-    try {
-      await toggleLikeAction(id);
-    } catch {
-      setLiked((prev) => {
-        const next = new Set(prev);
-        if (next.has(id)) next.delete(id);
-        else next.add(id);
-        return next;
-      });
-      toast.error("Failed to update like.");
-    } finally {
-      setTogglingLike(null);
+    // 2. Clear existing timeout to debounce
+    if (likeTimeouts.current[id]) {
+      clearTimeout(likeTimeouts.current[id]);
     }
+
+    // 3. Set a new timeout to sync with the server
+    likeTimeouts.current[id] = setTimeout(async () => {
+      try {
+        await toggleLikeAction(id);
+      } catch {
+        // Revert UI on failure
+        setLiked((prev) => {
+          const next = new Set(prev);
+          if (next.has(id)) next.delete(id);
+          else next.add(id);
+          return next;
+        });
+        toast.error("Failed to save like.");
+      }
+    }, 1000); // 1 second debounce
   };
 
   /* ─── Derived values from server result ─── */
@@ -517,8 +530,7 @@ function PropertiesPageContent() {
                   {/* Like Button */}
                   <button
                     onClick={() => handleToggleLike(property.id)}
-                    disabled={togglingLike === property.id}
-                    className={`absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white hover:bg-white/40 transition-all duration-300 ${togglingLike === property.id ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                    className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white hover:bg-white/40 transition-all duration-300 cursor-pointer"
                   >
                     <Heart
                       className={`h-4 w-4 transition-all ${
