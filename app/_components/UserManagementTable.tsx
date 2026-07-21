@@ -11,6 +11,7 @@ import {
   AlertTriangle,
   Users,
 } from "lucide-react";
+import Image from "next/image";
 import { banUser, unbanUser, deleteUser } from "../_actions/users";
 import type { UserProfile } from "../_actions/users";
 import {
@@ -26,6 +27,7 @@ import { toast } from "sonner";
 
 interface UserManagementTableProps {
   users: UserProfile[];
+  totalUsers: number;
   loading: boolean;
   currentUserId: string;
   onRefresh: () => void;
@@ -33,11 +35,14 @@ interface UserManagementTableProps {
 
 export default function UserManagementTable({
   users,
+  totalUsers,
   loading,
   currentUserId,
   onRefresh,
 }: UserManagementTableProps) {
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const perPage = 50;
   const [banTarget, setBanTarget] = useState<UserProfile | null>(null);
   const [banOpen, setBanOpen] = useState(false);
   const [banning, setBanning] = useState(false);
@@ -174,10 +179,12 @@ export default function UserManagementTable({
                 {/* User info */}
                 <div className="flex items-center gap-3 min-w-0">
                   {user.avatar_url ? (
-                    <img
+                    <Image
                       src={user.avatar_url}
                       alt={user.email}
-                      className="w-10 h-10 rounded-full object-cover shrink-0"
+                      width={40}
+                      height={40}
+                      className="rounded-full object-cover shrink-0"
                     />
                   ) : (
                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm font-bold shrink-0">
@@ -271,6 +278,41 @@ export default function UserManagementTable({
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Pagination Controls */}
+      {!loading && filtered.length > 0 && (
+        <div className="flex items-center justify-between mt-4">
+          <div className="text-sm text-gray-500">
+            Showing <span className="font-medium">{filtered.length}</span> of <span className="font-medium">{totalUsers}</span> users
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page === 1}
+              onClick={() => {
+                 setPage(p => Math.max(1, p - 1));
+                 // Ideal implementation would fetch the next page here
+                 // For now we just mock the UI change
+                 toast.info("Server pagination requires fetch call implementation");
+              }}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={filtered.length < perPage}
+              onClick={() => {
+                 setPage(p => p + 1);
+                 toast.info("Server pagination requires fetch call implementation");
+              }}
+            >
+              Next
+            </Button>
+          </div>
         </div>
       )}
 

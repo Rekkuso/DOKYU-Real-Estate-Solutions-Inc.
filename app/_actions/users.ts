@@ -3,12 +3,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { checkIsAdmin } from "./admin";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-
-function getSupabase() {
-  return createClient(supabaseUrl, serviceRoleKey);
-}
+import { supabaseAdmin as supabase } from "@/utils/supabase/admin";
 
 export interface UserProfile {
   id: string;
@@ -24,24 +19,27 @@ export interface UserProfile {
  * Fetches all users with their profile data.
  * Admin-only.
  */
-export async function getAllUsers(): Promise<UserProfile[]> {
+export async function getAllUsers(page = 1, perPage = 50): Promise<{ users: UserProfile[], total: number }> {
   await checkIsAdmin();
 
-  const supabase = getSupabase();
 
-  // Fetch all auth users
+
+  // Fetch paginated auth users
   const { data: authData, error: authError } =
-    await supabase.auth.admin.listUsers({ perPage: 1000 });
+    await supabase.auth.admin.listUsers({ page, perPage });
 
   if (authError) {
     console.error("Error fetching auth users:", authError);
     throw new Error("Failed to fetch users.");
   }
 
-  // Fetch all profiles
+  const userIds = authData.users.map(u => u.id);
+
+  // Fetch profiles for only those users
   const { data: profiles, error: profileError } = await supabase
     .from("profiles")
-    .select("id, role, display_name, avatar_url, is_banned, created_at");
+    .select("id, role, display_name, avatar_url, is_banned, created_at")
+    .in("id", userIds);
 
   if (profileError) {
     console.error("Error fetching profiles:", profileError);
@@ -52,7 +50,7 @@ export async function getAllUsers(): Promise<UserProfile[]> {
     (profiles || []).map((p: any) => [p.id, p])
   );
 
-  return (authData.users || []).map((authUser) => {
+  const mappedUsers = (authData.users || []).map((authUser) => {
     const profile = profileMap.get(authUser.id) as any;
     return {
       id: authUser.id,
@@ -64,6 +62,11 @@ export async function getAllUsers(): Promise<UserProfile[]> {
       created_at: profile?.created_at || authUser.created_at,
     };
   });
+
+  return {
+    users: mappedUsers,
+    total: (authData as any).aud ? (authData as any).total || mappedUsers.length : mappedUsers.length
+  };
 }
 
 /**
@@ -73,7 +76,7 @@ export async function getAllUsers(): Promise<UserProfile[]> {
 export async function banUser(userId: string) {
   await checkIsAdmin();
 
-  const supabase = getSupabase();
+
 
   const { error } = await supabase
     .from("profiles")
@@ -95,7 +98,7 @@ export async function banUser(userId: string) {
 export async function unbanUser(userId: string) {
   await checkIsAdmin();
 
-  const supabase = getSupabase();
+
 
   const { error } = await supabase
     .from("profiles")
@@ -117,7 +120,7 @@ export async function unbanUser(userId: string) {
 export async function deleteUser(userId: string) {
   await checkIsAdmin();
 
-  const supabase = getSupabase();
+
 
   const { error } = await supabase.auth.admin.deleteUser(userId);
 

@@ -2,14 +2,14 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
-import { unstable_noStore as noStore } from "next/cache";
+import { connection } from "next/server";
 
 /**
  * Toggle a like on a listing for the current user.
  * If already liked, removes the like. Otherwise, adds it.
  */
 export async function toggleLike(listingId: number) {
-  noStore();
+  await connection();
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
@@ -60,7 +60,7 @@ export async function toggleLike(listingId: number) {
  * Get all listing IDs liked by the current user.
  */
 export async function getUserLikes(): Promise<number[]> {
-  noStore();
+  await connection();
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
@@ -87,7 +87,7 @@ export async function getUserLikes(): Promise<number[]> {
  * Get full listing data for all properties liked by the current user.
  */
 export async function getLikedListings() {
-  noStore();
+  await connection();
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 

@@ -3,6 +3,7 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { Bath, BedDouble, MapPin, Maximize, Heart, Calendar } from "lucide-react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { getFeaturedListings } from "../_actions/listing";
@@ -18,14 +19,15 @@ function formatPrice(price: number) {
   return `₱${price.toLocaleString()}`;
 }
 
-export default function FeaturedProperties() {
+export default function FeaturedProperties({ initialProperties }: { initialProperties?: Listing[] }) {
   const { isSignedIn } = useAuthContext();
   const [liked, setLiked] = useState<Set<number>>(new Set());
-  const [properties, setProperties] = useState<Listing[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [properties, setProperties] = useState<Listing[]>(initialProperties || []);
+  const [loading, setLoading] = useState(!initialProperties);
   const [togglingLike, setTogglingLike] = useState<number | null>(null);
 
   useEffect(() => {
+    if (initialProperties) return;
     async function fetchProperties() {
       try {
         const data = await getFeaturedListings(6);
@@ -37,7 +39,7 @@ export default function FeaturedProperties() {
       }
     }
     fetchProperties();
-  }, []);
+  }, [initialProperties]);
 
 
   // Fetch user's liked listings on mount
@@ -138,10 +140,12 @@ export default function FeaturedProperties() {
                 {/* Image or Gradient Fallback */}
                 <div className="relative h-56 overflow-hidden">
                   {property.images && property.images.length > 0 ? (
-                    <img
+                    <Image
                       src={property.images[0]}
                       alt={property.title}
-                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className="object-cover group-hover:scale-105 transition-transform duration-700"
                     />
                   ) : (
                     <div

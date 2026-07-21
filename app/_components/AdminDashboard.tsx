@@ -29,6 +29,7 @@ import { getProfile, updateProfile } from "../_actions/profile";
 import { getDraftListings } from "../_actions/listing";
 import { getLikedListings, toggleLike } from "../_actions/likes";
 import { getAllUsers } from "../_actions/users";
+import { getAdminDashboardData } from "../_actions/dashboard";
 import type { UserProfile } from "../_actions/users";
 import AvatarUpload from "./AvatarUpload";
 import LikesTab from "./LikesTab";
@@ -78,6 +79,7 @@ export default function AdminDashboard() {
   const [likedListings, setLikedListings] = useState<any[]>([]);
   const [likesLoading, setLikesLoading] = useState(true);
   const [users, setUsers] = useState<UserProfile[]>([]);
+  const [totalUsers, setTotalUsers] = useState(0);
   const [usersLoading, setUsersLoading] = useState(true);
 
   // Editing display name
@@ -92,16 +94,48 @@ export default function AdminDashboard() {
     totalLikes: 0,
   });
 
-  const fetchProfile = useCallback(async () => {
+  const [loading, setLoading] = useState(true);
+
+  const fetchDashboardData = useCallback(async () => {
+    setLoading(true);
     setProfileLoading(true);
+    setDraftsLoading(true);
+    setLikesLoading(true);
+    setUsersLoading(true);
+
+    try {
+      const data = await getAdminDashboardData();
+      setProfile(data.profile as any);
+      if (data.profile?.display_name) setNameInput(data.profile.display_name);
+      
+      setDrafts(data.drafts);
+      setLikedListings(data.likes);
+      setUsers(data.users);
+      setTotalUsers(data.totalUsers);
+      setStats(data.stats);
+    } catch (error) {
+      console.error("Failed to fetch dashboard data:", error);
+      toast.error("Failed to load dashboard data");
+    } finally {
+      setLoading(false);
+      setProfileLoading(false);
+      setDraftsLoading(false);
+      setLikesLoading(false);
+      setUsersLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
+
+  // Keep individual fetch functions for the sub-components to refresh their specific data
+  const fetchProfile = useCallback(async () => {
     try {
       const data = await getProfile();
-      setProfile(data);
-      if (data?.display_name) setNameInput(data.display_name);
+      setProfile(data as any);
     } catch {
       console.error("Failed to fetch profile");
-    } finally {
-      setProfileLoading(false);
     }
   }, []);
 
@@ -110,6 +144,7 @@ export default function AdminDashboard() {
     try {
       const data = await getDraftListings();
       setDrafts(data);
+      setStats((prev) => ({ ...prev, totalDrafts: data.length }));
     } catch {
       console.error("Failed to fetch drafts");
     } finally {
@@ -122,6 +157,7 @@ export default function AdminDashboard() {
     try {
       const data = await getLikedListings();
       setLikedListings(data);
+      setStats((prev) => ({ ...prev, totalLikes: data.length }));
     } catch {
       console.error("Failed to fetch likes");
     } finally {
@@ -132,29 +168,16 @@ export default function AdminDashboard() {
   const fetchUsers = useCallback(async () => {
     setUsersLoading(true);
     try {
-      const data = await getAllUsers();
-      setUsers(data);
+      const data = await getAllUsers(1, 50);
+      setUsers(data.users);
+      setTotalUsers(data.total);
+      setStats((prev) => ({ ...prev, totalUsers: data.total }));
     } catch {
       console.error("Failed to fetch users");
     } finally {
       setUsersLoading(false);
     }
   }, []);
-
-  useEffect(() => {
-    fetchProfile();
-    fetchDrafts();
-    fetchLikes();
-    fetchUsers();
-  }, [fetchProfile, fetchDrafts, fetchLikes, fetchUsers]);
-
-  useEffect(() => {
-    setStats({
-      totalUsers: users.length,
-      totalDrafts: drafts.length,
-      totalLikes: likedListings.length,
-    });
-  }, [users, drafts, likedListings]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -444,6 +467,7 @@ export default function AdminDashboard() {
                 </div>
                 <UserManagementTable
                   users={users}
+                  totalUsers={totalUsers}
                   loading={usersLoading}
                   currentUserId={user?.id || ""}
                   onRefresh={fetchUsers}

@@ -2,14 +2,14 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
-import { unstable_noStore as noStore } from "next/cache";
+import { connection } from "next/server";
 
 /**
  * Returns true if the currently authenticated Supabase user has
  * the 'admin' role in the profiles table.
  */
 export async function getIsAdmin(): Promise<boolean> {
-  noStore();
+  await connection();
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
@@ -25,7 +25,7 @@ export async function getIsAdmin(): Promise<boolean> {
     .eq("id", user.id)
     .single();
 
-  console.log("getIsAdmin check for user:", user.id, "Data:", data, "Error:", error);
+
 
   if (error || !data) return false;
   return data.role === "admin";

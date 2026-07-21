@@ -2,13 +2,9 @@
 
 import { createClient } from "@supabase/supabase-js";
 import { checkIsAdmin } from "./admin";
+import { unstable_cache } from "next/cache";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-
-function getSupabase() {
-  return createClient(supabaseUrl, serviceRoleKey);
-}
+import { supabaseAdmin as supabase } from "@/utils/supabase/admin";
 
 /**
  * Upload multiple images to Supabase Storage and return their public URLs.
@@ -16,10 +12,8 @@ function getSupabase() {
 async function uploadImages(files: File[]): Promise<string[]> {
   if (files.length === 0) return [];
 
-  const supabase = getSupabase();
-  const urls: string[] = [];
 
-  for (const file of files) {
+  const uploadPromises = files.map(async (file) => {
     const ext = file.name.split(".").pop() || "jpg";
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
     const filePath = `listings/${fileName}`;
@@ -33,17 +27,18 @@ async function uploadImages(files: File[]): Promise<string[]> {
 
     if (error) {
       console.error("Error uploading image:", error);
-      continue;
+      return null;
     }
 
     const { data: publicUrlData } = supabase.storage
       .from("listing-images")
       .getPublicUrl(filePath);
 
-    urls.push(publicUrlData.publicUrl);
-  }
+    return publicUrlData.publicUrl;
+  });
 
-  return urls;
+  const results = await Promise.all(uploadPromises);
+  return results.filter((url): url is string => url !== null);
 }
 
 function extractListingData(formData: FormData) {
@@ -70,7 +65,7 @@ export async function addListing(formData: FormData) {
   await checkIsAdmin();
 
   const listingData = extractListingData(formData);
-  const supabase = getSupabase();
+
 
   // Upload images
   const imageFiles = formData.getAll("images") as File[];
@@ -99,7 +94,7 @@ export async function updateListing(id: number, formData: FormData) {
   await checkIsAdmin();
 
   const listingData = extractListingData(formData);
-  const supabase = getSupabase();
+
 
   // Upload new images (if any)
   const imageFiles = formData.getAll("images") as File[];
@@ -141,7 +136,7 @@ export async function updateListing(id: number, formData: FormData) {
 export async function deleteListing(id: number) {
   await checkIsAdmin();
 
-  const supabase = getSupabase();
+
 
   const { error } = await supabase.from("listing").delete().eq("id", id);
 
@@ -154,7 +149,7 @@ export async function deleteListing(id: number) {
 }
 
 export async function getListingById(id: number) {
-  const supabase = getSupabase();
+
 
   const { data, error } = await supabase
     .from("listing")
@@ -176,7 +171,7 @@ export async function getListingById(id: number) {
 export async function getDraftListings() {
   await checkIsAdmin();
 
-  const supabase = getSupabase();
+
 
   const { data, error } = await supabase
     .from("listing")
@@ -200,7 +195,7 @@ export async function saveDraft(formData: FormData) {
   await checkIsAdmin();
 
   const listingData = extractListingData(formData);
-  const supabase = getSupabase();
+
 
   // Upload images
   const imageFiles = formData.getAll("images") as File[];
@@ -233,7 +228,7 @@ export async function saveDraft(formData: FormData) {
 export async function publishListing(id: number) {
   await checkIsAdmin();
 
-  const supabase = getSupabase();
+
 
   const { error } = await supabase
     .from("listing")
@@ -303,7 +298,7 @@ export interface ListingSearchResult {
 export async function searchListings(
   filters: ListingFilters = {},
 ): Promise<ListingSearchResult> {
-  const supabase = getSupabase();
+
 
   const page = Math.max(1, filters.page ?? 1);
   const perPage = Math.max(1, Math.min(50, filters.perPage ?? 9));
@@ -382,23 +377,31 @@ export async function searchListings(
   };
 }
 
+const getCachedFeaturedListings = unstable_cache(
+  async (limit: number) => {
+    const { data, error } = await supabase
+      .from("listing")
+      .select("id, title, location, address, price, beds, baths, area, type, tag, images, date, updated_at, active")
+      .eq("active", true)
+      .order("date", { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error("Error fetching featured listings:", error);
+      throw new Error("Failed to fetch featured listings.");
+    }
+
+    return data;
+  },
+  ["featured-listings"],
+  { revalidate: 60 }
+);
+
 /**
  * Fetch the latest active listings for the homepage featured section.
  */
 export async function getFeaturedListings(limit = 6): Promise<Listing[]> {
-  const supabase = getSupabase();
-
-  const { data, error } = await supabase
-    .from("listing")
-    .select("id, title, location, address, price, beds, baths, area, type, tag, images, date, updated_at, active")
-    .eq("active", true)
-    .order("date", { ascending: false })
-    .limit(limit);
-
-  if (error) {
-    console.error("Error fetching featured listings:", error);
-    throw new Error("Failed to fetch featured listings.");
-  }
+  const data = await getCachedFeaturedListings(limit);
 
   return (data || []).map((d) => ({
     ...d,

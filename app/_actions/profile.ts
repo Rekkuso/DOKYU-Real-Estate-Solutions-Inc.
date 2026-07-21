@@ -2,17 +2,14 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
-import { unstable_noStore as noStore } from "next/cache";
-import { createClient as createServiceClient } from "@supabase/supabase-js";
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+import { connection } from "next/server";
+import { supabaseAdmin as serviceSupabase } from "@/utils/supabase/admin";
 
 /**
  * Get the current user's profile data.
  */
 export async function getProfile() {
-  noStore();
+  await connection();
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
@@ -43,7 +40,7 @@ export async function getProfile() {
  * Update the current user's profile information.
  */
 export async function updateProfile(updates: { display_name?: string; age?: number | null; phone_number?: string | null; avatar_url?: string | null }) {
-  noStore();
+  await connection();
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
@@ -71,7 +68,7 @@ export async function updateProfile(updates: { display_name?: string; age?: numb
  * Uploads to Supabase Storage and updates the avatar_url in profiles.
  */
 export async function uploadAvatar(formData: FormData) {
-  noStore();
+  await connection();
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
@@ -99,7 +96,6 @@ export async function uploadAvatar(formData: FormData) {
   const fileName = `${user.id}/avatar.${ext}`;
 
   // Use service role to bypass any RLS issues with storage
-  const serviceSupabase = createServiceClient(supabaseUrl, serviceRoleKey);
 
   // Upload to storage (upsert to overwrite existing)
   const { error: uploadError } = await serviceSupabase.storage
