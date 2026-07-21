@@ -5,8 +5,7 @@ import { cn } from "@/lib/utils";
 import Provider from "./Provider";
 import { AuthProvider } from "./_context/AuthContext";
 import { AdminProvider } from "./_context/AdminContext";
-import { createClient } from "@/utils/supabase/server";
-import { cookies } from "next/headers";
+import { getIsAdmin } from "./_actions/admin";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -32,10 +31,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
-  const { data: { user } } = await supabase.auth.getUser();
-  const isAdmin = user?.app_metadata?.role === "admin";
+  const isAdmin = await getIsAdmin();
   return (
     <html
       lang="en"
