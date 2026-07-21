@@ -30,6 +30,7 @@ import { getDefaultGradient } from "@/utils/gradients";
 import { toast } from "sonner";
 import { getUserLikes, toggleLike as toggleLikeAction } from "../../_actions/likes";
 import { useAuthContext } from "../../_context/AuthContext";
+import AuthModal from "../../_components/AuthModal";
 
 
 /* ───────────────────────── Data is fetched from Supabase ───────────────────────── */
@@ -103,6 +104,7 @@ function PropertiesPageContent() {
   const [showFilters, setShowFilters] = useState(false);
   const { isSignedIn } = useAuthContext();
   const [togglingLike, setTogglingLike] = useState<number | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   // Debounce search input (300ms)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -155,7 +157,7 @@ function PropertiesPageContent() {
 
   const handleToggleLike = async (id: number) => {
     if (!isSignedIn) {
-      toast.error("Please sign in to like properties.");
+      setShowAuthModal(true);
       return;
     }
     if (togglingLike === id) return;
@@ -515,7 +517,8 @@ function PropertiesPageContent() {
                   {/* Like Button */}
                   <button
                     onClick={() => handleToggleLike(property.id)}
-                    className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white hover:bg-white/40 transition-all duration-300 cursor-pointer"
+                    disabled={togglingLike === property.id}
+                    className={`absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white hover:bg-white/40 transition-all duration-300 ${togglingLike === property.id ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                   >
                     <Heart
                       className={`h-4 w-4 transition-all ${
@@ -635,8 +638,11 @@ function PropertiesPageContent() {
         )}
       </main>
 
-      {/* ───────── Footer ───────── */}
+      {/* Footer */}
       <Footer />
+      
+      {/* Auth Modal */}
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </div>
   );
 }

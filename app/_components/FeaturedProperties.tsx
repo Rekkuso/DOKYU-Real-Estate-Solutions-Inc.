@@ -12,6 +12,7 @@ import { getDefaultGradient } from "@/utils/gradients";
 import { getUserLikes, toggleLike } from "../_actions/likes";
 import { useAuthContext } from "../_context/AuthContext";
 import { toast } from "sonner";
+import AuthModal from "./AuthModal";
 
 function formatPrice(price: number) {
   if (price >= 1000000) return `₱${(price / 1000000).toFixed(1)}M`;
@@ -25,6 +26,7 @@ export default function FeaturedProperties({ initialProperties }: { initialPrope
   const [properties, setProperties] = useState<Listing[]>(initialProperties || []);
   const [loading, setLoading] = useState(!initialProperties);
   const [togglingLike, setTogglingLike] = useState<number | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   useEffect(() => {
     if (initialProperties) return;
@@ -58,7 +60,7 @@ export default function FeaturedProperties({ initialProperties }: { initialPrope
 
   const handleToggleLike = async (id: number) => {
     if (!isSignedIn) {
-      toast.error("Please sign in to like properties.");
+      setShowAuthModal(true);
       return;
     }
     if (togglingLike === id) return; // prevent double-click
@@ -248,6 +250,8 @@ export default function FeaturedProperties({ initialProperties }: { initialPrope
           </Button>
         </div>
       </div>
+      
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </section>
   );
 }
