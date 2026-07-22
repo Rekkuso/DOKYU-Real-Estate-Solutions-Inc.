@@ -46,6 +46,14 @@ export default async function middleware(request: NextRequest) {
     return NextResponse.redirect(signInUrl);
   }
 
+  // Strictly protect /update-password: MUST have the reset flow cookie
+  if (pathname.startsWith("/update-password")) {
+    const hasResetCookie = request.cookies.has("reset_password_flow");
+    if (!hasResetCookie) {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+  }
+
   // Redirect authenticated users away from auth routes
   if (user && authRoutes.some((route) => pathname.startsWith(route))) {
     return NextResponse.redirect(new URL("/", request.url));

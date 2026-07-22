@@ -33,7 +33,15 @@ export async function GET(request: Request) {
     )
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`)
+      const response = NextResponse.redirect(`${origin}${next}`)
+      if (next.includes('/update-password')) {
+        response.cookies.set('reset_password_flow', 'true', {
+          maxAge: 60 * 15, // 15 minutes
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+        })
+      }
+      return response
     }
   }
 
