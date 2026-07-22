@@ -19,6 +19,7 @@ import {
   Loader2,
   Save,
   Lock,
+  MailCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -506,23 +507,34 @@ export default function UserDashboard({
       <Footer />
 
       <Dialog open={isPasswordResetModalOpen} onOpenChange={setIsPasswordResetModalOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Check your email</DialogTitle>
-            <DialogDescription>
-              We&apos;ve sent a password reset link to <span className="font-medium text-gray-900">{user.email}</span>. 
-              Please click the link in the email to securely change your password.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="sm:justify-end">
+        <DialogContent className="sm:max-w-md p-0 overflow-hidden border-0 rounded-2xl shadow-2xl">
+          <div className="bg-linear-to-b from-blue-50 to-white px-6 pt-10 pb-8 flex flex-col items-center text-center">
+            <div className="w-16 h-16 bg-blue-100/50 rounded-full flex items-center justify-center mb-6 shadow-xs ring-4 ring-white">
+              <MailCheck className="w-8 h-8 text-blue-600" />
+            </div>
+            
+            <DialogHeader className="space-y-3">
+              <DialogTitle className="text-2xl font-bold text-gray-900 text-center">
+                Check your email
+              </DialogTitle>
+              <DialogDescription className="text-gray-500 text-base leading-relaxed text-center">
+                We&apos;ve sent a password reset link to <br />
+                <span className="font-semibold text-gray-900">{user.email}</span>
+                <br /><br />
+                Please click the link in the email to securely change your password.
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+          
+          <div className="px-6 pb-6 bg-white">
             <Button 
               type="button" 
               onClick={() => setIsPasswordResetModalOpen(false)}
-              className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-md cursor-pointer"
+              className="w-full py-6 text-base font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl shadow-lg shadow-blue-500/30 transition-all duration-300 cursor-pointer"
             >
-              Got it
+              Got it, thanks!
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
