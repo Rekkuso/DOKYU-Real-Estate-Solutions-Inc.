@@ -5,7 +5,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!;
 
 // Routes that require authentication
-const protectedRoutes = ["/add-new-listing"];
+const protectedRoutes = ["/add-new-listing", "/update-password"];
 
 // Routes that should redirect to home if already authenticated
 const authRoutes = ["/sign-in", "/sign-up", "/forgot-password"];

@@ -30,13 +30,7 @@ export async function updateSession(request: NextRequest) {
   });
 
   // IMPORTANT: You *must* call `getUser` to refresh the session token.
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (request.nextUrl.pathname.startsWith('/update-password') && !user) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/sign-in';
-    return NextResponse.redirect(url);
-  }
+  await supabase.auth.getUser();
 
   return supabaseResponse;
 }
