@@ -18,6 +18,7 @@ import {
   Shield,
   Loader2,
   Save,
+  Lock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +27,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 export default function UserDashboard({
   user,
@@ -48,6 +57,10 @@ export default function UserDashboard({
   // Likes State
   const [likedListings, setLikedListings] = useState<any[]>([]);
   const [loadingLikes, setLoadingLikes] = useState(true);
+
+  // Password Reset State
+  const [isPasswordResetModalOpen, setIsPasswordResetModalOpen] = useState(false);
+  const [isResettingPassword, setIsResettingPassword] = useState(false);
 
   // Fetch initial data
   useEffect(() => {
@@ -111,6 +124,23 @@ export default function UserDashboard({
       toast.error(error.message || "Failed to update profile");
     } finally {
       setSavingProfile(false);
+    }
+  };
+
+  const handleRequestPasswordReset = async () => {
+    setIsResettingPassword(true);
+    try {
+      const { createClient } = await import("@/utils/supabase/client");
+      const supabase = createClient();
+      const { error } = await supabase.auth.resetPasswordForEmail(user.email!, {
+        redirectTo: `${window.location.origin}/auth/callback?next=/update-password`,
+      });
+      if (error) throw error;
+      setIsPasswordResetModalOpen(true);
+    } catch (error: any) {
+      toast.error(error.message || "Failed to request password reset");
+    } finally {
+      setIsResettingPassword(false);
     }
   };
 
@@ -434,6 +464,30 @@ export default function UserDashboard({
                     </div>
                   </form>
                 )}
+
+                {/* Security Section */}
+                {!loadingProfile && (
+                  <div className="mt-8 pt-6 border-t border-gray-100 max-w-lg mx-auto">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Security</h3>
+                    <p className="text-sm text-gray-500 mb-4">
+                      Need to update your password? We will send a secure reset link to your email address.
+                    </p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="text-gray-700 border-gray-200 hover:bg-gray-50 w-full cursor-pointer rounded-xl py-5"
+                      onClick={handleRequestPasswordReset}
+                      disabled={isResettingPassword}
+                    >
+                      {isResettingPassword ? (
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      ) : (
+                        <Lock className="h-4 w-4 mr-2" />
+                      )}
+                      Request Password Change
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -450,6 +504,27 @@ export default function UserDashboard({
       </main>
 
       <Footer />
+
+      <Dialog open={isPasswordResetModalOpen} onOpenChange={setIsPasswordResetModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Check your email</DialogTitle>
+            <DialogDescription>
+              We&apos;ve sent a password reset link to <span className="font-medium text-gray-900">{user.email}</span>. 
+              Please click the link in the email to securely change your password.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="sm:justify-end">
+            <Button 
+              type="button" 
+              onClick={() => setIsPasswordResetModalOpen(false)}
+              className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-md cursor-pointer"
+            >
+              Got it
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
