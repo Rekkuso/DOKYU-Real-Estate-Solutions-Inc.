@@ -8,7 +8,7 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!;
 const protectedRoutes = ["/add-new-listing"];
 
 // Routes that should redirect to home if already authenticated
-const authRoutes = ["/sign-in", "/sign-up"];
+const authRoutes = ["/sign-in", "/sign-up", "/forgot-password"];
 
 export default async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
