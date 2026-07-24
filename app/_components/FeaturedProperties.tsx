@@ -4,6 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 import { Bath, BedDouble, MapPin, Maximize, Heart, Calendar } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect, useRef } from "react";
 import { getFeaturedListings } from "../_actions/listing";
@@ -146,8 +147,9 @@ export default function FeaturedProperties({ initialProperties }: { initialPrope
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {properties.map((property) => (
-              <div
+              <Link
                 key={property.id}
+                href={`/properties/${property.id}`}
                 className="group relative bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-gray-100"
               >
                 {/* Image or Gradient Fallback */}
@@ -187,7 +189,11 @@ export default function FeaturedProperties({ initialProperties }: { initialPrope
 
                   {/* Like Button */}
                   <button
-                    onClick={() => handleToggleLike(property.id)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleToggleLike(property.id);
+                    }}
                     className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white hover:bg-white/40 transition-all duration-300 cursor-pointer"
                   >
                     <Heart
@@ -243,8 +249,27 @@ export default function FeaturedProperties({ initialProperties }: { initialPrope
                       <span>{property.area}</span>
                     </div>
                   </div>
+
+                  {/* Facilities Badges */}
+                  {property.facilities && property.facilities.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-1.5 mt-3 pt-3 border-t border-gray-100/80">
+                      {property.facilities.slice(0, 3).map((fac) => (
+                        <span
+                          key={fac}
+                          className="px-2 py-0.5 rounded-md bg-blue-50/80 text-blue-700 text-[11px] font-medium border border-blue-100"
+                        >
+                          {fac}
+                        </span>
+                      ))}
+                      {property.facilities.length > 3 && (
+                        <span className="px-2 py-0.5 rounded-md bg-gray-100 text-gray-600 text-[11px] font-semibold">
+                          +{property.facilities.length - 3} more
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}

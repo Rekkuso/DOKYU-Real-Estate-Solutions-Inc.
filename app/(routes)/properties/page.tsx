@@ -494,8 +494,8 @@ function PropertiesPageContent() {
                 key={property.id}
                 className={`group relative bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-gray-100 animate-slide-up stagger-${index + 1}`}
               >
-                {/* Image or Gradient Fallback */}
-                <div className="relative h-56 overflow-hidden">
+                {/* Clickable Image Section */}
+                <Link href={`/properties/${property.id}`} className="block relative h-56 overflow-hidden">
                   {property.images && property.images.length > 0 ? (
                     <img
                       src={property.images[0]}
@@ -527,73 +527,96 @@ function PropertiesPageContent() {
                     </span>
                   </div>
 
-                  {/* Like Button */}
-                  <button
-                    onClick={() => handleToggleLike(property.id)}
-                    className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white hover:bg-white/40 transition-all duration-300 cursor-pointer"
-                  >
-                    <Heart
-                      className={`h-4 w-4 transition-all ${
-                        liked.has(property.id)
-                          ? "fill-rose-500 text-rose-500 scale-110"
-                          : ""
-                      }`}
-                    />
-                  </button>
-
                   {/* Price */}
                   <div className="absolute bottom-4 left-4">
                     <span className="text-2xl font-bold text-white drop-shadow-lg">
                       {formatPrice(property.price)}
                     </span>
                   </div>
-                </div>
+                </Link>
+
+                {/* Like Button (outside of Link) */}
+                <button
+                  onClick={() => handleToggleLike(property.id)}
+                  className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white hover:bg-white/40 transition-all duration-300 cursor-pointer z-10"
+                >
+                  <Heart
+                    className={`h-4 w-4 transition-all ${
+                      liked.has(property.id)
+                        ? "fill-rose-500 text-rose-500 scale-110"
+                        : ""
+                    }`}
+                  />
+                </button>
 
                 {/* Card Content */}
                 <div className="p-5">
-                  <h3 className="text-lg font-bold text-gray-900 mb-1 group-hover:text-blue-600 transition-colors">
-                    {property.title}
-                  </h3>
-                  <div className="flex items-center gap-1 text-gray-400 text-sm mb-1">
-                    <MapPin className="h-3.5 w-3.5" />
-                    {property.location}
-                  </div>
-                  <div className="flex items-center gap-1 text-gray-400 text-xs mb-4">
-                    <Calendar className="h-3 w-3" />
-                    {new Date(property.date).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </div>
-
-                  {/* Divider */}
-                  <div className="h-px bg-gray-100 mb-4" />
-
-                  {/* Details */}
-                  <div className="flex items-center justify-between text-gray-500 text-sm">
-                    <div className="flex items-center gap-1.5">
-                      <BedDouble className="h-4 w-4 text-blue-500" />
-                      <span>{property.beds} Beds</span>
+                  <Link href={`/properties/${property.id}`} className="block">
+                    <h3 className="text-lg font-bold text-gray-900 mb-1 group-hover:text-blue-600 transition-colors">
+                      {property.title}
+                    </h3>
+                    <div className="flex items-center gap-1 text-gray-400 text-sm mb-1">
+                      <MapPin className="h-3.5 w-3.5" />
+                      {property.location}
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <Bath className="h-4 w-4 text-blue-500" />
-                      <span>{property.baths} Baths</span>
+                    <div className="flex items-center gap-1 text-gray-400 text-xs mb-4">
+                      <Calendar className="h-3 w-3" />
+                      {new Date(property.date).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })}
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <Maximize className="h-4 w-4 text-blue-500" />
-                      <span>{property.area}</span>
-                    </div>
-                  </div>
 
-                  {/* Admin Actions */}
+                    {/* Divider */}
+                    <div className="h-px bg-gray-100 mb-4" />
+
+                    {/* Details */}
+                    <div className="flex items-center justify-between text-gray-500 text-sm">
+                      <div className="flex items-center gap-1.5">
+                        <BedDouble className="h-4 w-4 text-blue-500" />
+                        <span>{property.beds} Beds</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Bath className="h-4 w-4 text-blue-500" />
+                        <span>{property.baths} Baths</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Maximize className="h-4 w-4 text-blue-500" />
+                        <span>{property.area}</span>
+                      </div>
+                    </div>
+
+                    {/* Facilities Badges */}
+                    {property.facilities && property.facilities.length > 0 && (
+                      <div className="flex flex-wrap items-center gap-1.5 mt-3 pt-3 border-t border-gray-100/80">
+                        {property.facilities.slice(0, 3).map((fac) => (
+                          <span
+                            key={fac}
+                            className="px-2 py-0.5 rounded-md bg-blue-50/80 text-blue-700 text-[11px] font-medium border border-blue-100"
+                          >
+                            {fac}
+                          </span>
+                        ))}
+                        {property.facilities.length > 3 && (
+                          <span className="px-2 py-0.5 rounded-md bg-gray-100 text-gray-600 text-[11px] font-semibold">
+                            +{property.facilities.length - 3} more
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </Link>
+
+                  {/* Admin Actions (outside of Link) */}
                   {isAdmin && (
-                    <AdminPropertyActions
-                      id={property.id}
-                      title={property.title}
-                      onEditSuccess={fetchListings}
-                      onDeleteSuccess={fetchListings}
-                    />
+                    <div className="mt-4 pt-3 border-t border-gray-100">
+                      <AdminPropertyActions
+                        id={property.id}
+                        title={property.title}
+                        onEditSuccess={fetchListings}
+                        onDeleteSuccess={fetchListings}
+                      />
+                    </div>
                   )}
                 </div>
               </div>
