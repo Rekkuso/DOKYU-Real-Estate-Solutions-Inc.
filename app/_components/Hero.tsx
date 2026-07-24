@@ -27,7 +27,7 @@ export default function Hero() {
   return (
     <section
       id="hero"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
+      className="relative min-h-screen flex flex-col justify-center overflow-hidden pt-32 pb-16"
     >
       {/* Background Image */}
       <div
@@ -97,7 +97,9 @@ export default function Hero() {
             (type) => (
               <button
                 key={type}
-                onClick={() => router.push(`/properties?type=${encodeURIComponent(type)}`)}
+                onClick={() =>
+                  router.push(`/properties?type=${encodeURIComponent(type)}`)
+                }
                 className="px-5 py-2.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white/80 text-sm font-medium hover:bg-white/20 hover:text-white transition-all duration-300 hover:scale-105 cursor-pointer"
               >
                 {type}
