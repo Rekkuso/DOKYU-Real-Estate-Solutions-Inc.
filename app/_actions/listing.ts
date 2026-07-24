@@ -2,9 +2,22 @@
 
 import { createClient } from "@supabase/supabase-js";
 import { checkIsAdmin } from "./admin";
-import { unstable_cache } from "next/cache";
+import { unstable_cache, revalidatePath, revalidateTag } from "next/cache";
 
 import { supabaseAdmin as supabase } from "@/utils/supabase/admin";
+
+function revalidateAllListingPaths(id?: number) {
+  try {
+    revalidatePath("/properties");
+    revalidatePath("/admin");
+    revalidatePath("/", "layout");
+    if (id) {
+      revalidatePath(`/properties/${id}`);
+    }
+  } catch (e) {
+    console.error("Revalidation error:", e);
+  }
+}
 
 /**
  * Upload multiple images to Supabase Storage and return their public URLs.
@@ -47,17 +60,29 @@ function extractListingData(formData: FormData) {
   const beds = parseInt(formData.get("beds") as string) || 0;
   const baths = parseInt(formData.get("baths") as string) || 0;
 
+  const isDraft = formData.get("isDraft") === "true";
+
+  const facilitiesRaw = formData.get("facilities") as string;
+  let facilities: string[] = [];
+  try {
+    facilities = facilitiesRaw ? JSON.parse(facilitiesRaw) : [];
+  } catch {
+    facilities = [];
+  }
+
   return {
-    title: formData.get("title") as string,
-    location: formData.get("location") as string,
-    address: formData.get("address") as string,
+    title: (formData.get("title") as string) || "",
+    location: (formData.get("location") as string) || "",
+    address: (formData.get("address") as string) || "",
+    description: (formData.get("description") as string) || "",
     price: price,
     beds: beds,
     baths: baths,
-    area: formData.get("area") as string,
+    area: (formData.get("area") as string) || "",
     type: (formData.get("type") as string) || "Houses",
     tag: (formData.get("tag") as string) || "New",
-    active: true,
+    facilities: facilities,
+    active: !isDraft,
   };
 }
 
@@ -84,9 +109,10 @@ export async function addListing(formData: FormData) {
 
   if (error) {
     console.error("Error adding listing:", error);
-    throw new Error("Failed to add listing to database.");
+    throw new Error(`Failed to add listing: ${error.message}`);
   }
 
+  revalidateAllListingPaths();
   return { success: true };
 }
 
@@ -127,9 +153,10 @@ export async function updateListing(id: number, formData: FormData) {
 
   if (error) {
     console.error("Error updating listing:", error);
-    throw new Error("Failed to update listing.");
+    throw new Error(`Failed to update listing: ${error.message}`);
   }
 
+  revalidateAllListingPaths(id);
   return { success: true };
 }
 
@@ -142,9 +169,10 @@ export async function deleteListing(id: number) {
 
   if (error) {
     console.error("Error deleting listing:", error);
-    throw new Error("Failed to delete listing.");
+    throw new Error(`Failed to delete listing: ${error.message}`);
   }
 
+  revalidateAllListingPaths(id);
   return { success: true };
 }
 
@@ -162,6 +190,64 @@ export async function getListingById(id: number) {
   }
 
   return data;
+}
+
+/**
+ * Fetch a single active listing by ID — for public property detail pages.
+ * Returns null if not found or if the listing is a draft.
+ */
+export async function getPublicListingById(
+  id: number,
+): Promise<Listing | null> {
+  const { data, error } = await supabase
+    .from("listing")
+    .select("*")
+    .eq("id", id)
+    .eq("active", true)
+    .single();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return {
+    ...data,
+    price: Number(data.price),
+    images: Array.isArray(data.images) ? data.images : [],
+  } as Listing;
+}
+
+/**
+ * Fetch similar active listings (same type, excluding the given id).
+ * Used for the "You May Also Like" section on the property detail page.
+ */
+export async function getSimilarListings(
+  currentId: number,
+  type: string,
+  limit = 3,
+): Promise<Listing[]> {
+  const { data, error } = await supabase
+    .from("listing")
+    .select(
+      "id, title, location, address, description, price, beds, baths, area, type, tag, facilities, images, date, updated_at, active",
+    )
+    .eq("active", true)
+    .eq("type", type)
+    .neq("id", currentId)
+    .order("date", { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error("Error fetching similar listings:", error);
+    return [];
+  }
+
+  return (data || []).map((d) => ({
+    ...d,
+    price: Number(d.price),
+    images: Array.isArray(d.images) ? d.images : [],
+    facilities: Array.isArray(d.facilities) ? d.facilities : [],
+  })) as Listing[];
 }
 
 /**
@@ -215,9 +301,10 @@ export async function saveDraft(formData: FormData) {
 
   if (error) {
     console.error("Error saving draft:", error);
-    throw new Error("Failed to save draft.");
+    throw new Error(`Failed to save draft: ${error.message}`);
   }
 
+  revalidateAllListingPaths();
   return { success: true };
 }
 
@@ -228,8 +315,6 @@ export async function saveDraft(formData: FormData) {
 export async function publishListing(id: number) {
   await checkIsAdmin();
 
-
-
   const { error } = await supabase
     .from("listing")
     .update({ active: true })
@@ -237,9 +322,10 @@ export async function publishListing(id: number) {
 
   if (error) {
     console.error("Error publishing listing:", error);
-    throw new Error("Failed to publish listing.");
+    throw new Error(`Failed to publish listing: ${error.message}`);
   }
 
+  revalidateAllListingPaths(id);
   return { success: true };
 }
 
@@ -252,12 +338,14 @@ export interface Listing {
   title: string;
   location: string;
   address: string;
+  description?: string;
   price: number;
   beds: number;
   baths: number;
   area: string;
   type: string;
   tag: string;
+  facilities?: string[];
   images: string[];
   date: string;
   updated_at?: string;
@@ -309,7 +397,7 @@ export async function searchListings(
   let query = supabase
     .from("listing")
     .select(
-      "id, title, location, address, price, beds, baths, area, type, tag, images, date, updated_at, active",
+      "id, title, location, address, description, price, beds, baths, area, type, tag, facilities, images, date, updated_at, active",
       { count: "exact" },
     )
     .eq("active", true);
@@ -369,6 +457,7 @@ export async function searchListings(
       ...d,
       price: Number(d.price),
       images: Array.isArray(d.images) ? d.images : [],
+      facilities: Array.isArray(d.facilities) ? d.facilities : [],
     })) as Listing[],
     totalCount,
     page,
@@ -381,7 +470,7 @@ const getCachedFeaturedListings = unstable_cache(
   async (limit: number) => {
     const { data, error } = await supabase
       .from("listing")
-      .select("id, title, location, address, price, beds, baths, area, type, tag, images, date, updated_at, active")
+      .select("id, title, location, address, description, price, beds, baths, area, type, tag, facilities, images, date, updated_at, active")
       .eq("active", true)
       .order("date", { ascending: false })
       .limit(limit);
@@ -407,5 +496,6 @@ export async function getFeaturedListings(limit = 6): Promise<Listing[]> {
     ...d,
     price: Number(d.price),
     images: Array.isArray(d.images) ? d.images : [],
+    facilities: Array.isArray(d.facilities) ? d.facilities : [],
   })) as Listing[];
 }

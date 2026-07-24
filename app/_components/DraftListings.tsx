@@ -248,29 +248,133 @@ export default function DraftListings({
 
       {/* Edit Modal */}
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
-        <DialogContent className="sm:max-w-5xl w-[95vw] max-h-[90vh] overflow-y-auto overflow-x-hidden">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">Edit Draft</DialogTitle>
-            <DialogDescription>
-              Update the draft details below.
-            </DialogDescription>
-          </DialogHeader>
-          {loadingListing ? (
-            <div className="mt-4 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="space-y-2">
-                    <Skeleton className="h-4 w-1/3" />
-                    <Skeleton className="h-10 w-full" />
-                  </div>
-                ))}
+        <DialogContent className="sm:max-w-5xl w-[95vw] max-h-[90vh] p-0 rounded-3xl border-none shadow-2xl overflow-hidden flex flex-col">
+          <div className="bg-gradient-to-r from-gray-900 via-blue-950 to-indigo-950 p-6 md:p-8 text-white shrink-0 relative">
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-2xl bg-blue-500/20 backdrop-blur-md border border-blue-400/30 flex items-center justify-center text-blue-400">
+                <FileText className="w-5 h-5" />
+              </div>
+              <div>
+                <DialogTitle className="text-2xl font-bold text-white tracking-tight">
+                  Edit Draft Listing
+                </DialogTitle>
+                <DialogDescription className="text-blue-200/80 text-sm mt-0.5">
+                  Update draft details, location, facilities, and upload photos.
+                </DialogDescription>
               </div>
             </div>
-          ) : (
-            editData &&
-            editId && (
-              <div className="mt-4">
+          </div>
+
+          <div className="p-6 md:p-8 overflow-y-auto max-h-[calc(90vh-100px)] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full bg-slate-50/50">
+            {loadingListing ? (
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-pulse">
+                {/* Left Column Skeleton */}
+                <div className="lg:col-span-2 space-y-6">
+                  {/* About Property Skeleton Card */}
+                  <div className="bg-white p-6 rounded-3xl border border-gray-100 space-y-5">
+                    <div className="flex items-center gap-3 pb-4 border-b border-gray-100">
+                      <Skeleton className="w-10 h-10 rounded-2xl bg-gray-200" />
+                      <div className="space-y-1.5 flex-1">
+                        <Skeleton className="h-5 w-40 rounded-lg bg-gray-200" />
+                        <Skeleton className="h-3 w-56 rounded-md bg-gray-100" />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Skeleton className="h-3 w-24 rounded-md bg-gray-200" />
+                        <Skeleton className="h-11 w-full rounded-xl bg-gray-100" />
+                      </div>
+                      <div className="space-y-2">
+                        <Skeleton className="h-3 w-24 rounded-md bg-gray-200" />
+                        <Skeleton className="h-11 w-full rounded-xl bg-gray-100" />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Skeleton className="h-3 w-24 rounded-md bg-gray-200" />
+                        <Skeleton className="h-11 w-full rounded-xl bg-gray-100" />
+                      </div>
+                      <div className="space-y-2">
+                        <Skeleton className="h-3 w-24 rounded-md bg-gray-200" />
+                        <Skeleton className="h-11 w-full rounded-xl bg-gray-100" />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Skeleton className="h-3 w-28 rounded-md bg-gray-200" />
+                      <Skeleton className="h-24 w-full rounded-2xl bg-gray-100" />
+                    </div>
+                  </div>
+
+                  {/* Location Skeleton Card */}
+                  <div className="bg-white p-6 rounded-3xl border border-gray-100 space-y-5">
+                    <div className="flex items-center gap-3 pb-4 border-b border-gray-100">
+                      <Skeleton className="w-10 h-10 rounded-2xl bg-gray-200" />
+                      <div className="space-y-1.5 flex-1">
+                        <Skeleton className="h-5 w-36 rounded-lg bg-gray-200" />
+                        <Skeleton className="h-3 w-48 rounded-md bg-gray-100" />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Skeleton className="h-3 w-24 rounded-md bg-gray-200" />
+                        <Skeleton className="h-11 w-full rounded-xl bg-gray-100" />
+                      </div>
+                      <div className="space-y-2">
+                        <Skeleton className="h-3 w-24 rounded-md bg-gray-200" />
+                        <Skeleton className="h-11 w-full rounded-xl bg-gray-100" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons Skeleton */}
+                  <div className="flex gap-4 pt-2">
+                    <Skeleton className="h-14 flex-1 rounded-2xl bg-gray-200" />
+                    <Skeleton className="h-14 flex-1 rounded-2xl bg-gray-200" />
+                    <Skeleton className="h-14 flex-1 rounded-2xl bg-gray-300" />
+                  </div>
+                </div>
+
+                {/* Right Column Skeleton */}
+                <div className="lg:col-span-1 space-y-6">
+                  {/* Upload Images Skeleton Card */}
+                  <div className="bg-white p-6 rounded-3xl border border-gray-100 space-y-4">
+                    <div className="flex items-center gap-3 pb-3 border-b border-gray-100">
+                      <Skeleton className="w-10 h-10 rounded-2xl bg-gray-200" />
+                      <div className="space-y-1.5 flex-1">
+                        <Skeleton className="h-5 w-32 rounded-lg bg-gray-200" />
+                        <Skeleton className="h-3 w-40 rounded-md bg-gray-100" />
+                      </div>
+                    </div>
+                    <Skeleton className="h-44 w-full rounded-2xl bg-gray-100" />
+                    <div className="flex gap-2">
+                      <Skeleton className="w-16 h-16 rounded-2xl bg-gray-200" />
+                      <Skeleton className="w-16 h-16 rounded-2xl bg-gray-200" />
+                      <Skeleton className="w-16 h-16 rounded-2xl bg-gray-200" />
+                    </div>
+                  </div>
+
+                  {/* Facilities Skeleton Card */}
+                  <div className="bg-white p-6 rounded-3xl border border-gray-100 space-y-4">
+                    <div className="flex items-center gap-3 pb-3 border-b border-gray-100">
+                      <Skeleton className="w-10 h-10 rounded-2xl bg-gray-200" />
+                      <div className="space-y-1.5 flex-1">
+                        <Skeleton className="h-5 w-28 rounded-lg bg-gray-200" />
+                        <Skeleton className="h-3 w-36 rounded-md bg-gray-100" />
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                        <Skeleton key={i} className="h-8 w-20 rounded-full bg-gray-100" />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              editData &&
+              editId && (
                 <ListingForm
+                  key={editId}
                   isEditMode
                   propertyId={editId}
                   initialData={editData}
@@ -281,9 +385,9 @@ export default function DraftListings({
                     onRefresh();
                   }}
                 />
-              </div>
-            )
-          )}
+              )
+            )}
+          </div>
         </DialogContent>
       </Dialog>
 
