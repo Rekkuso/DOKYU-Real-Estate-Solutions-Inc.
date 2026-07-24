@@ -6,6 +6,15 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Loader2, Eye, EyeOff } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+
+const avatars = [
+  "https://randomuser.me/api/portraits/women/79.jpg",
+  "https://api.uifaces.co/our-content/donated/xZ4wg2Xj.jpg",
+  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-0.3.5&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&s=a72ca28288878f8404a795f39642a46f",
+  "https://randomuser.me/api/portraits/men/86.jpg",
+  "https://images.unsplash.com/photo-1510227272981-87123e259b17?ixlib=rb-0.3.5&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&s=3759e09a5b9fbe53088b23c615b6312e",
+];
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -52,81 +61,106 @@ export default function SignUpPage() {
 
   return (
     <main className="w-full flex">
+      {/* Decorative left panel */}
       <div
-        className="relative flex-1 hidden items-center justify-center h-screen lg:flex bg-cover bg-center"
+        className="relative flex-1 hidden items-center justify-center h-screen lg:flex bg-cover bg-center overflow-hidden"
         style={{ backgroundImage: "url(/backgroundPhoto.webp)" }}
       >
-        <div className="absolute inset-0 bg-black/70" />
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.7 }}
+          transition={{ duration: 1 }}
+          className="absolute inset-0 bg-black" 
+        />
 
-        <div className="relative pt-20 z-10 w-full max-w-md ">
-          <Image
-            src="/companyLogo.svg"
-            width={400}
-            height={100}
-            style={{ height: "auto" }}
-            className="top-35 relative right-30"
-            alt="Logo"
-          />
+        <div className="relative pt-20 z-10 w-full max-w-md">
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+          >
+            <Image
+              src="/companyLogo.svg"
+              width={400}
+              height={100}
+              style={{ height: "auto" }}
+              className="top-35 relative right-30"
+              alt="Logo"
+            />
+          </motion.div>
+
           <div className="top-40 right-23 relative space-y-3">
-            <h3 className="text-white text-3xl font-bold">
+            <motion.h3 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-white text-3xl font-bold"
+            >
               Properties That Suits You.
-            </h3>
-            <p className="text-gray-300">
+            </motion.h3>
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="text-gray-300"
+            >
               Create an account and get access to all properties.
-            </p>
-            <div className="flex items-center -space-x-2">
-              <Image
-                src="https://randomuser.me/api/portraits/women/79.jpg"
-                width={40}
-                height={40}
-                className="w-10 h-10 rounded-full border-2 border-white"
-                alt=""
-              />
-              <Image
-                src="https://api.uifaces.co/our-content/donated/xZ4wg2Xj.jpg"
-                width={40}
-                height={40}
-                className="w-10 h-10 rounded-full border-2 border-white"
-                alt=""
-              />
-              <Image
-                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-0.3.5&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&s=a72ca28288878f8404a795f39642a46f"
-                width={40}
-                height={40}
-                className="w-10 h-10 rounded-full border-2 border-white"
-                alt=""
-              />
-              <Image
-                src="https://randomuser.me/api/portraits/men/86.jpg"
-                width={40}
-                height={40}
-                className="w-10 h-10 rounded-full border-2 border-white"
-                alt=""
-              />
-              <Image
-                src="https://images.unsplash.com/photo-1510227272981-87123e259b17?ixlib=rb-0.3.5&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&s=3759e09a5b9fbe53088b23c615b6312e"
-                width={40}
-                height={40}
-                className="w-10 h-10 rounded-full border-2 border-white"
-                alt=""
-              />
-              <p className="text-sm text-gray-400 font-medium translate-x-5">
+            </motion.p>
+            <div className="flex items-center -space-x-2 pt-2">
+              {avatars.map((url, index) => (
+                <motion.img
+                  key={index}
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 260,
+                    damping: 20,
+                    delay: 0.4 + index * 0.08,
+                  }}
+                  src={url}
+                  className="w-10 h-10 rounded-full border-2 border-white object-cover"
+                  alt={`User ${index + 1}`}
+                />
+              ))}
+              <motion.p 
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.8, duration: 0.4 }}
+                className="text-sm text-gray-400 font-medium translate-x-5"
+              >
                 Join our community.
-              </p>
+              </motion.p>
             </div>
           </div>
         </div>
       </div>
 
+      {/* Right Form */}
       <div className="flex-1 flex items-center justify-center h-screen px-6">
-        <div className="w-full max-w-md mx-auto">
-          <div className="mb-8">
+        <motion.div 
+          initial={{ opacity: 0, y: 25, filter: "blur(6px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="w-full max-w-md mx-auto"
+        >
+          <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="mb-8"
+          >
             <h2 className="text-3xl font-bold text-gray-900 mb-2">Create your account</h2>
             <p className="text-gray-500">Join us and explore premium properties</p>
-          </div>
+          </motion.div>
 
           {success ? (
-            <div className="space-y-4">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.4 }}
+              className="space-y-4"
+            >
               <div className="p-4 rounded-xl bg-green-50 border border-green-200 text-green-700 text-sm">
                 <p className="font-semibold mb-1">Check your email!</p>
                 <p>
@@ -134,22 +168,36 @@ export default function SignUpPage() {
                   Click the link to activate your account.
                 </p>
               </div>
-              <Link
-                href="/sign-in"
-                className="block w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold text-center shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-300"
-              >
-                Go to Sign In
-              </Link>
-            </div>
+              <motion.div whileHover={{ scale: 1.015 }} whileTap={{ scale: 0.985 }}>
+                <Link
+                  href="/sign-in"
+                  className="block w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold text-center shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-300"
+                >
+                  Go to Sign In
+                </Link>
+              </motion.div>
+            </motion.div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
-              {error && (
-                <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm">
-                  {error}
-                </div>
-              )}
+              <AnimatePresence mode="wait">
+                {error && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: -10, height: 0 }}
+                    animate={{ opacity: 1, y: 0, height: "auto" }}
+                    exit={{ opacity: 0, y: -10, height: 0 }}
+                    className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm"
+                  >
+                    {error}
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
-              <div className="space-y-2">
+              <motion.div 
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.2 }}
+                className="space-y-2"
+              >
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                   Email address
                 </label>
@@ -162,9 +210,14 @@ export default function SignUpPage() {
                   required
                   className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-800 placeholder-gray-400 text-sm outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400 transition-all duration-200"
                 />
-              </div>
+              </motion.div>
 
-              <div className="space-y-2">
+              <motion.div 
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.28 }}
+                className="space-y-2"
+              >
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                   Password
                 </label>
@@ -187,9 +240,14 @@ export default function SignUpPage() {
                     {showPassword ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
                   </button>
                 </div>
-              </div>
+              </motion.div>
 
-              <div className="space-y-2">
+              <motion.div 
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.35 }}
+                className="space-y-2"
+              >
                 <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
                   Confirm password
                 </label>
@@ -203,9 +261,14 @@ export default function SignUpPage() {
                   minLength={6}
                   className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-800 placeholder-gray-400 text-sm outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400 transition-all duration-200"
                 />
-              </div>
+              </motion.div>
 
-              <button
+              <motion.button
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.42 }}
+                whileHover={{ scale: 1.015 }}
+                whileTap={{ scale: 0.985 }}
                 type="submit"
                 disabled={loading}
                 className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
@@ -218,19 +281,29 @@ export default function SignUpPage() {
                 ) : (
                   "Create Account"
                 )}
-              </button>
+              </motion.button>
             </form>
           )}
 
           {!success && (
             <>
-              <div className="mt-6 flex items-center">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5, duration: 0.4 }}
+                className="mt-6 flex items-center"
+              >
                 <div className="flex-1 border-t border-gray-200"></div>
                 <div className="mx-4 text-sm text-gray-400">Or continue with</div>
                 <div className="flex-1 border-t border-gray-200"></div>
-              </div>
+              </motion.div>
 
-              <button
+              <motion.button
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.55, duration: 0.4 }}
+                whileHover={{ scale: 1.015, backgroundColor: "#f9fafb" }}
+                whileTap={{ scale: 0.985 }}
                 onClick={async () => {
                   const supabase = createClient();
                   await supabase.auth.signInWithOAuth({
@@ -240,7 +313,7 @@ export default function SignUpPage() {
                     },
                   });
                 }}
-                className="mt-6 w-full py-3 rounded-xl bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold shadow-sm transition-all duration-300 flex items-center justify-center gap-3 cursor-pointer"
+                className="mt-6 w-full py-3 rounded-xl bg-white border border-gray-200 text-gray-700 font-semibold shadow-sm transition-all duration-300 flex items-center justify-center gap-3 cursor-pointer"
               >
                 <svg viewBox="0 0 24 24" className="w-5 h-5">
                   <path
@@ -261,12 +334,17 @@ export default function SignUpPage() {
                   />
                 </svg>
                 Google
-              </button>
+              </motion.button>
             </>
           )}
 
           {!success && (
-            <p className="mt-6 text-center text-sm text-gray-500">
+            <motion.p 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6, duration: 0.4 }}
+              className="mt-6 text-center text-sm text-gray-500"
+            >
               Already have an account?{" "}
               <Link
                 href="/sign-in"
@@ -274,9 +352,9 @@ export default function SignUpPage() {
               >
                 Sign in
               </Link>
-            </p>
+            </motion.p>
           )}
-        </div>
+        </motion.div>
       </div>
     </main>
   );
