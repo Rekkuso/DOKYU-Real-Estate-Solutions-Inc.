@@ -1,4 +1,5 @@
 import { mistral } from "@ai-sdk/mistral";
+import { google } from "@ai-sdk/google";
 import { streamText } from "ai";
 import { searchListings } from "@/app/_actions/listing";
 
@@ -10,6 +11,25 @@ export async function POST(req: Request) {
     const body = await req.json();
     console.log("Chat API received request body:", body);
     const { messages } = body;
+
+    // Check environment variables for available AI model provider
+    const mistralKey = process.env.MISTRAL_API_KEY;
+    const googleKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY;
+
+    if (!mistralKey && !googleKey) {
+      console.error("Missing AI API key (MISTRAL_API_KEY or GOOGLE_GENERATIVE_AI_API_KEY)");
+      return new Response(
+        JSON.stringify({
+          error: "API Key missing. Please configure MISTRAL_API_KEY or GOOGLE_GENERATIVE_AI_API_KEY in Vercel project environment variables.",
+        }),
+        { status: 500, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    // Choose active model
+    const aiModel = mistralKey
+      ? mistral("mistral-large-latest")
+      : google("gemini-1.5-flash");
 
     // Build clean conversation history — drop any messages with no text
     const coreMessages = messages
@@ -53,7 +73,7 @@ export async function POST(req: Request) {
     }
 
     const result = streamText({
-      model: mistral("mistral-large-latest"),
+      model: aiModel,
       maxOutputTokens: 800,
       system: `You are an expert real estate assistant for DOKYU in the Philippines. You must ONLY answer questions related to property listings, DOKYU services, and real estate advice. If a user asks about anything else, politely decline. Be highly direct, concise, and straight to the point. Do not use filler words, fluff, or overly apologetic language. No markdown headers. Conversational but direct tone.${listingsContext}`,
       messages: coreMessages,
