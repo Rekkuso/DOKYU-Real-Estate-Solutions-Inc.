@@ -5,7 +5,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!;
 
 // Routes that require authentication
-const protectedRoutes = ["/add-new-listing", "/update-password"];
+const protectedRoutes = ["/add-new-listing", "/dashboard", "/admin"];
 
 // Routes that should redirect to home if already authenticated
 const authRoutes = ["/sign-in", "/sign-up", "/forgot-password"];
@@ -44,14 +44,6 @@ export default async function middleware(request: NextRequest) {
     const signInUrl = new URL("/sign-in", request.url);
     signInUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(signInUrl);
-  }
-
-  // Strictly protect /update-password: MUST have the reset flow cookie
-  if (pathname.startsWith("/update-password")) {
-    const hasResetCookie = request.cookies.has("reset_password_flow");
-    if (!hasResetCookie) {
-      return NextResponse.redirect(new URL("/", request.url));
-    }
   }
 
   // Redirect authenticated users away from auth routes

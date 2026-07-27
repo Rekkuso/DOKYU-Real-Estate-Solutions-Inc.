@@ -18,8 +18,6 @@ import {
   Shield,
   Loader2,
   Save,
-  Lock,
-  MailCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,14 +26,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import { useAuthContext } from "../_context/AuthContext";
 
 export default function UserDashboard({
   user,
@@ -45,6 +36,7 @@ export default function UserDashboard({
   onSignOut: () => void;
 }) {
   const router = useRouter();
+  const { updateProfileData } = useAuthContext();
   const [activeTab, setActiveTab] = useState("overview");
   const [profile, setProfile] = useState<any>(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
@@ -58,10 +50,6 @@ export default function UserDashboard({
   // Likes State
   const [likedListings, setLikedListings] = useState<any[]>([]);
   const [loadingLikes, setLoadingLikes] = useState(true);
-
-  // Password Reset State
-  const [isPasswordResetModalOpen, setIsPasswordResetModalOpen] = useState(false);
-  const [isResettingPassword, setIsResettingPassword] = useState(false);
 
   // Fetch initial data
   useEffect(() => {
@@ -118,30 +106,13 @@ export default function UserDashboard({
       
       await updateProfile(updates);
       setProfile((p: any) => (p ? { ...p, ...updates } : p));
-      window.dispatchEvent(new CustomEvent("profileUpdated", { detail: updates }));
+      updateProfileData(updates);
       toast.success("Profile updated successfully!");
       setActiveTab("overview");
     } catch (error: any) {
       toast.error(error.message || "Failed to update profile");
     } finally {
       setSavingProfile(false);
-    }
-  };
-
-  const handleRequestPasswordReset = async () => {
-    setIsResettingPassword(true);
-    try {
-      const { createClient } = await import("@/utils/supabase/client");
-      const supabase = createClient();
-      const { error } = await supabase.auth.resetPasswordForEmail(user.email!, {
-        redirectTo: `${window.location.origin}/auth/callback?next=/update-password`,
-      });
-      if (error) throw error;
-      setIsPasswordResetModalOpen(true);
-    } catch (error: any) {
-      toast.error(error.message || "Failed to request password reset");
-    } finally {
-      setIsResettingPassword(false);
     }
   };
 
@@ -206,7 +177,7 @@ export default function UserDashboard({
                     size="lg"
                     onUploadSuccess={(url) => {
                       setProfile((p: any) => (p ? { ...p, avatar_url: url } : p));
-                      window.dispatchEvent(new CustomEvent("profileUpdated", { detail: { avatar_url: url } }));
+                      updateProfileData({ avatar_url: url });
                     }}
                   />
                   <h2 className="mt-4 font-bold text-gray-900 text-lg text-center truncate w-full">
@@ -465,30 +436,6 @@ export default function UserDashboard({
                     </div>
                   </form>
                 )}
-
-                {/* Security Section */}
-                {!loadingProfile && (
-                  <div className="mt-8 pt-6 border-t border-gray-100 max-w-lg mx-auto">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Security</h3>
-                    <p className="text-sm text-gray-500 mb-4">
-                      Need to update your password? We will send a secure reset link to your email address.
-                    </p>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="text-gray-700 border-gray-200 hover:bg-gray-50 w-full cursor-pointer rounded-xl py-5"
-                      onClick={handleRequestPasswordReset}
-                      disabled={isResettingPassword}
-                    >
-                      {isResettingPassword ? (
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      ) : (
-                        <Lock className="h-4 w-4 mr-2" />
-                      )}
-                      Request Password Change
-                    </Button>
-                  </div>
-                )}
               </div>
             </div>
           )}
@@ -505,38 +452,6 @@ export default function UserDashboard({
       </main>
 
       <Footer />
-
-      <Dialog open={isPasswordResetModalOpen} onOpenChange={setIsPasswordResetModalOpen}>
-        <DialogContent className="sm:max-w-md p-0 overflow-hidden border-0 rounded-2xl shadow-2xl">
-          <div className="bg-linear-to-b from-blue-50 to-white px-6 pt-10 pb-8 flex flex-col items-center text-center">
-            <div className="w-16 h-16 bg-blue-100/50 rounded-full flex items-center justify-center mb-6 shadow-xs ring-4 ring-white">
-              <MailCheck className="w-8 h-8 text-blue-600" />
-            </div>
-            
-            <DialogHeader className="space-y-3">
-              <DialogTitle className="text-2xl font-bold text-gray-900 text-center">
-                Check your email
-              </DialogTitle>
-              <DialogDescription className="text-gray-500 text-base leading-relaxed text-center">
-                We&apos;ve sent a password reset link to <br />
-                <span className="font-semibold text-gray-900">{user.email}</span>
-                <br /><br />
-                Please click the link in the email to securely change your password.
-              </DialogDescription>
-            </DialogHeader>
-          </div>
-          
-          <div className="px-6 pb-6 bg-white">
-            <Button 
-              type="button" 
-              onClick={() => setIsPasswordResetModalOpen(false)}
-              className="w-full py-6 text-base font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl shadow-lg shadow-blue-500/30 transition-all duration-300 cursor-pointer"
-            >
-              Got it, thanks!
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

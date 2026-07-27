@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import ListingForm from "./ListingForm";
 import { toast } from "sonner";
+import { formatPrice } from "@/utils/format";
 
 interface DraftListing {
   id: number;
@@ -43,12 +44,6 @@ interface DraftListingsProps {
   drafts: DraftListing[];
   loading: boolean;
   onRefresh: () => void;
-}
-
-function formatPrice(price: number) {
-  if (price >= 1000000) return `₱${(price / 1000000).toFixed(1)}M`;
-  if (price >= 1000) return `₱${(price / 1000).toFixed(0)}K`;
-  return `₱${price.toLocaleString()}`;
 }
 
 export default function DraftListings({

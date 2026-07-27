@@ -19,25 +19,14 @@ import {
   Sparkles,
   Tag,
 } from "lucide-react";
-import type { Listing } from "../_actions/listing";
+import type { Listing } from "../_types/listing";
 import { getUserLikes, toggleLike as toggleLikeAction } from "../_actions/likes";
 import { useAuthContext } from "../_context/AuthContext";
 import AuthModal from "./AuthModal";
 import Footer from "./Footer";
 import { getDefaultGradient } from "@/utils/gradients";
+import { formatPrice, formatFullPrice } from "@/utils/format";
 import { toast } from "sonner";
-
-/* ── Helpers ── */
-
-function formatPrice(price: number) {
-  if (price >= 1000000) return `₱${(price / 1000000).toFixed(1)}M`;
-  if (price >= 1000) return `₱${(price / 1000).toFixed(0)}K`;
-  return `₱${price.toLocaleString()}`;
-}
-
-function formatFullPrice(price: number) {
-  return `₱${price.toLocaleString()}`;
-}
 
 /* ── Animation variants ── */
 

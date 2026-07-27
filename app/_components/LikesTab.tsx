@@ -4,17 +4,7 @@ import React from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Heart, MapPin, BedDouble, Bath, Maximize } from "lucide-react";
 import { getDefaultGradient } from "@/utils/gradients";
-
-// Format price utility (you might want to extract this to a shared utils file later,
-// but for now we define it here as it was in AdminDashboard)
-const formatPrice = (price: number) => {
-  return new Intl.NumberFormat("en-PH", {
-    style: "currency",
-    currency: "PHP",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(price);
-};
+import { formatFullPrice } from "@/utils/format";
 
 export default function LikesTab({
   listings,
@@ -126,7 +116,7 @@ export default function LikesTab({
                 {/* Price */}
                 <div className="absolute bottom-3 left-3">
                   <span className="text-xl font-bold text-white drop-shadow-lg">
-                    {formatPrice(Number(listing.price))}
+                    {formatFullPrice(Number(listing.price))}
                   </span>
                 </div>
               </div>
