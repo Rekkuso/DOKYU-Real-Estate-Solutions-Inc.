@@ -171,7 +171,13 @@ export default function AdminChatInbox() {
           loadAdminChatData();
         }
       )
-      .subscribe();
+      .subscribe((status, err) => {
+        if (err) {
+          console.error("Admin realtime subscription error:", err);
+        } else {
+          console.log(`Admin realtime channel [${channelId}] status:`, status);
+        }
+      });
 
     return () => {
       supabase.removeChannel(channel);

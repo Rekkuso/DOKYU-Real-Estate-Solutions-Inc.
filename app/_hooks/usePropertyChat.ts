@@ -161,10 +161,15 @@ export function usePropertyChat(isAdmin = false) {
             setUnreadCount((prev) => prev + 1);
           }
 
-          loadConversations();
         }
       )
-      .subscribe();
+      .subscribe((status, err) => {
+        if (err) {
+          console.error("Realtime subscription error:", err);
+        } else {
+          console.log(`Realtime channel [${channelId}] status:`, status);
+        }
+      });
 
     return () => {
       supabase.removeChannel(channel);
