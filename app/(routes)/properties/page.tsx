@@ -16,6 +16,7 @@ import {
   X,
   ChevronDown,
   Calendar,
+  MessageSquareText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -97,6 +98,8 @@ function PropertiesPageContent() {
   const [showFilters, setShowFilters] = useState(false);
   const { isSignedIn } = useAuthContext();
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [chatPropertyId, setChatPropertyId] = useState<number | null>(null);
+  const [chatDrawerOpen, setChatDrawerOpen] = useState(false);
   const likeTimeouts = useRef<{ [id: number]: NodeJS.Timeout }>({});
 
   // Debounce search input (300ms)
@@ -587,6 +590,25 @@ function PropertiesPageContent() {
                     </div>
                   </div>
 
+                  {/* Inquire Action Button */}
+                  <div className="pt-3 mt-3 border-t border-gray-100">
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (!isSignedIn) {
+                          setShowAuthModal(true);
+                          return;
+                        }
+                        window.dispatchEvent(new CustomEvent("open-property-chat", { detail: { listingId: property.id } }));
+                      }}
+                      className="w-full flex items-center justify-center gap-2 py-2 px-4 bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer shadow-2xs"
+                    >
+                      <MessageSquareText className="h-3.5 w-3.5" />
+                      Inquire Agent
+                    </button>
+                  </div>
+
                   {/* Admin Actions */}
                   {isAdmin && (
                     <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
@@ -609,7 +631,6 @@ function PropertiesPageContent() {
         {totalPages > 1 && (
           <div className="flex items-center justify-center gap-2 mt-12">
             <button
-              id="pagination-prev"
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={safeCurrentPage === 1}
               className="w-10 h-10 rounded-xl flex items-center justify-center border border-gray-200 text-gray-500 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:border-gray-200 disabled:hover:text-gray-500 transition-all duration-200 cursor-pointer disabled:cursor-not-allowed"
@@ -617,13 +638,13 @@ function PropertiesPageContent() {
               <ChevronLeft className="h-4 w-4" />
             </button>
 
-            {pageNumbers.map((page, i) =>
+            {pageNumbers.map((page, idx) =>
               page === "..." ? (
                 <span
-                  key={`ellipsis-${i}`}
-                  className="w-10 h-10 flex items-center justify-center text-gray-400 text-sm"
+                  key={`ellipsis-${idx}`}
+                  className="w-10 h-10 flex items-center justify-center text-gray-400 text-sm font-medium"
                 >
-                  …
+                  ...
                 </span>
               ) : (
                 <button
@@ -631,17 +652,16 @@ function PropertiesPageContent() {
                   onClick={() => setCurrentPage(page as number)}
                   className={`w-10 h-10 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer ${
                     safeCurrentPage === page
-                      ? "bg-blue-600 text-white shadow-md shadow-blue-500/25"
-                      : "border border-gray-200 text-gray-600 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600"
+                      ? "bg-linear-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20"
+                      : "border border-gray-200 text-gray-700 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600"
                   }`}
                 >
                   {page}
                 </button>
-              ),
+              )
             )}
 
             <button
-              id="pagination-next"
               onClick={() =>
                 setCurrentPage((p) => Math.min(totalPages, p + 1))
               }

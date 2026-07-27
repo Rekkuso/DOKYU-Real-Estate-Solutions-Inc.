@@ -2,7 +2,7 @@
 
 import { Skeleton } from "@/components/ui/skeleton";
 
-import { Bath, BedDouble, MapPin, Maximize, Heart, Calendar } from "lucide-react";
+import { Bath, BedDouble, MapPin, Maximize, Heart, Calendar, MessageSquareText } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import { useAuthContext } from "../_context/AuthContext";
 import { toast } from "sonner";
 import AuthModal from "./AuthModal";
 import { formatPrice } from "@/utils/format";
+import PropertyChatDrawer from "./PropertyChatDrawer";
 
 export default function FeaturedProperties({ initialProperties }: { initialProperties?: Listing[] }) {
   const { isSignedIn } = useAuthContext();
@@ -22,6 +23,8 @@ export default function FeaturedProperties({ initialProperties }: { initialPrope
   const [properties, setProperties] = useState<Listing[]>(initialProperties || []);
   const [loading, setLoading] = useState(!initialProperties);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [chatPropertyId, setChatPropertyId] = useState<number | null>(null);
+  const [chatDrawerOpen, setChatDrawerOpen] = useState(false);
   const likeTimeouts = useRef<{ [id: number]: NodeJS.Timeout }>({});
 
   useEffect(() => {
@@ -229,11 +232,8 @@ export default function FeaturedProperties({ initialProperties }: { initialPrope
                       })}
                     </div>
 
-                    {/* Divider */}
-                    <div className="h-px bg-gray-100 mb-4" />
-
                     {/* Details */}
-                    <div className="flex items-center justify-between text-gray-500 text-sm">
+                    <div className="flex items-center justify-between text-gray-500 text-sm mb-4">
                       <div className="flex items-center gap-1.5">
                         <BedDouble className="h-4 w-4 text-blue-500" />
                         <span>{property.beds} Beds</span>
@@ -246,6 +246,25 @@ export default function FeaturedProperties({ initialProperties }: { initialPrope
                         <Maximize className="h-4 w-4 text-blue-500" />
                         <span>{property.area}</span>
                       </div>
+                    </div>
+
+                    {/* Inquire Action Button */}
+                    <div className="pt-3 border-t border-gray-100">
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          if (!isSignedIn) {
+                            setShowAuthModal(true);
+                            return;
+                          }
+                          window.dispatchEvent(new CustomEvent("open-property-chat", { detail: { listingId: property.id } }));
+                        }}
+                        className="w-full flex items-center justify-center gap-2 py-2 px-4 bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer shadow-2xs"
+                      >
+                        <MessageSquareText className="h-3.5 w-3.5" />
+                        Inquire Agent
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -267,6 +286,7 @@ export default function FeaturedProperties({ initialProperties }: { initialPrope
         </div>
       </div>
       
+      {/* Auth Modal */}
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </section>
   );

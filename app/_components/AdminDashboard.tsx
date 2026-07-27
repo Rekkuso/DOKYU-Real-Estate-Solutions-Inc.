@@ -11,6 +11,7 @@ import {
   ChevronRight,
   Menu,
   X,
+  MessageSquareText,
 } from "lucide-react";
 import Link from "next/link";
 import AvatarUpload from "./AvatarUpload";
@@ -18,22 +19,33 @@ import LikesTab from "./LikesTab";
 import DraftListings from "./DraftListings";
 import UserManagementTable from "./UserManagementTable";
 import AdminOverviewTab from "./AdminOverviewTab";
+import AdminChatInbox from "./AdminChatInbox";
 import Footer from "./Footer";
+import { useSearchParams } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAdminDashboard } from "../_hooks/useAdminDashboard";
 
-type Tab = "overview" | "drafts" | "likes" | "users";
+type Tab = "overview" | "support" | "drafts" | "likes" | "users";
 
 const tabs: { id: Tab; label: string; icon: React.ElementType }[] = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
+  { id: "support", label: "Live Support", icon: MessageSquareText },
   { id: "drafts", label: "Drafts", icon: FileText },
   { id: "likes", label: "Likes", icon: Heart },
   { id: "users", label: "Users", icon: Users },
 ];
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState<Tab>("overview");
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get("tab") as Tab | null;
+  const [activeTab, setActiveTab] = useState<Tab>(tabParam || "overview");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  React.useEffect(() => {
+    if (tabParam && ["overview", "support", "drafts", "likes", "users"].includes(tabParam)) {
+      setActiveTab(tabParam);
+    }
+  }, [tabParam]);
 
   const {
     user,
@@ -273,6 +285,8 @@ export default function AdminDashboard() {
               profile={profile}
             />
           )}
+
+          {activeTab === "support" && <AdminChatInbox />}
 
           {activeTab === "drafts" && (
             <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6">

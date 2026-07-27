@@ -111,77 +111,94 @@ export async function searchListings(
   const from = (page - 1) * perPage;
   const to = from + perPage - 1;
 
-  // Start building the query — request exact count alongside data
-  let query = supabase
-    .from("listing")
-    .select(
-      "id, title, location, address, description, price, beds, baths, area, type, tag, facilities, images, date, updated_at, active",
-      { count: "exact" },
-    )
-    .eq("active", true);
+  try {
+    // Start building the query — request exact count alongside data
+    let query = supabase
+      .from("listing")
+      .select(
+        "id, title, location, address, description, price, beds, baths, area, type, tag, facilities, images, date, updated_at, active",
+        { count: "exact" },
+      )
+      .eq("active", true);
 
-  // ── Text search (title OR location) ──
-  if (filters.query?.trim()) {
-    const q = `%${filters.query.trim()}%`;
-    query = query.or(`title.ilike.${q},location.ilike.${q}`);
-  }
-
-  // ── Type filter ──
-  if (filters.type && filters.type !== "All") {
-    query = query.eq("type", filters.type);
-  }
-
-  // ── Price range ──
-  if (filters.priceMin !== undefined && filters.priceMin > 0) {
-    query = query.gte("price", filters.priceMin);
-  }
-  if (filters.priceMax !== undefined && filters.priceMax < Infinity) {
-    query = query.lt("price", filters.priceMax);
-  }
-
-  // ── Bedrooms ──
-  if (filters.beds && filters.beds !== "Any") {
-    if (filters.beds === "5+") {
-      query = query.gte("beds", 5);
-    } else {
-      query = query.eq("beds", parseInt(filters.beds, 10));
+    // ── Text search (title OR location) ──
+    if (filters.query?.trim()) {
+      const q = `%${filters.query.trim()}%`;
+      query = query.or(`title.ilike.${q},location.ilike.${q}`);
     }
+
+    // ── Type filter ──
+    if (filters.type && filters.type !== "All") {
+      query = query.eq("type", filters.type);
+    }
+
+    // ── Price range ──
+    if (filters.priceMin !== undefined && filters.priceMin > 0) {
+      query = query.gte("price", filters.priceMin);
+    }
+    if (filters.priceMax !== undefined && filters.priceMax < Infinity) {
+      query = query.lt("price", filters.priceMax);
+    }
+
+    // ── Bedrooms ──
+    if (filters.beds && filters.beds !== "Any") {
+      if (filters.beds === "5+") {
+        query = query.gte("beds", 5);
+      } else {
+        query = query.eq("beds", parseInt(filters.beds, 10));
+      }
+    }
+
+    // ── Sorting ──
+    const sortBy = filters.sortBy ?? "newest";
+    if (sortBy === "newest") {
+      query = query.order("date", { ascending: false });
+    } else if (sortBy === "price-asc") {
+      query = query.order("price", { ascending: true });
+    } else {
+      query = query.order("price", { ascending: false });
+    }
+
+    // ── Pagination ──
+    query = query.range(from, to);
+
+    const { data, error, count } = await query;
+
+    if (error) {
+      console.error("Error searching listings:", error.message);
+      return {
+        listings: [],
+        totalCount: 0,
+        page,
+        perPage,
+        totalPages: 0,
+      };
+    }
+
+    const totalCount = count ?? 0;
+
+    return {
+      listings: (data || []).map((d: any) => ({
+        ...d,
+        price: Number(d.price),
+        images: Array.isArray(d.images) ? d.images : [],
+        facilities: Array.isArray(d.facilities) ? d.facilities : [],
+      })) as Listing[],
+      totalCount,
+      page,
+      perPage,
+      totalPages: Math.ceil(totalCount / perPage) || 1,
+    };
+  } catch (err) {
+    console.error("searchListings exception:", err);
+    return {
+      listings: [],
+      totalCount: 0,
+      page,
+      perPage,
+      totalPages: 0,
+    };
   }
-
-  // ── Sorting ──
-  const sortBy = filters.sortBy ?? "newest";
-  if (sortBy === "newest") {
-    query = query.order("date", { ascending: false });
-  } else if (sortBy === "price-asc") {
-    query = query.order("price", { ascending: true });
-  } else {
-    query = query.order("price", { ascending: false });
-  }
-
-  // ── Pagination ──
-  query = query.range(from, to);
-
-  const { data, error, count } = await query;
-
-  if (error) {
-    console.error("Error searching listings:", error);
-    throw new Error("Failed to search listings.");
-  }
-
-  const totalCount = count ?? 0;
-
-  return {
-    listings: (data || []).map((d) => ({
-      ...d,
-      price: Number(d.price),
-      images: Array.isArray(d.images) ? d.images : [],
-      facilities: Array.isArray(d.facilities) ? d.facilities : [],
-    })) as Listing[],
-    totalCount,
-    page,
-    perPage,
-    totalPages: Math.max(1, Math.ceil(totalCount / perPage)),
-  };
 }
 
 const getCachedFeaturedListings = unstable_cache(

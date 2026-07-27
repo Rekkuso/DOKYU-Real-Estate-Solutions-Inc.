@@ -2,12 +2,15 @@
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, LogOut, User, Shield } from "lucide-react";
+import { Plus, LogOut, User, Shield, MessageSquareText } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useEffect, useState, useRef } from "react";
 import { useAuthContext } from "../_context/AuthContext";
 import { getProfile } from "../_actions/profile";
+import PropertyChatDrawer from "./PropertyChatDrawer";
+import AdminChatDrawer from "./AdminChatDrawer";
+import { usePropertyChat } from "../_hooks/usePropertyChat";
 
 function Header({ isAdmin }: { isAdmin?: boolean }) {
   const path = usePathname();
@@ -19,6 +22,9 @@ function Header({ isAdmin }: { isAdmin?: boolean }) {
     profileAvatarUrl,
     signOut,
   } = useAuthContext();
+  const { unreadCount } = usePropertyChat(isAdmin);
+  const [chatDrawerOpen, setChatDrawerOpen] = useState(false);
+  const [targetListingId, setTargetListingId] = useState<number | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -33,6 +39,19 @@ function Header({ isAdmin }: { isAdmin?: boolean }) {
     window.addEventListener("scroll", handleScroll);
     handleScroll(); // Trigger once on mount
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Global listener to open chat for a specific property listing without duplicating chat tabs
+  useEffect(() => {
+    const handleOpenChat = (e: Event) => {
+      const customEvent = e as CustomEvent<{ listingId?: number }>;
+      setChatDrawerOpen(true);
+      if (customEvent.detail?.listingId) {
+        setTargetListingId(customEvent.detail.listingId);
+      }
+    };
+    window.addEventListener("open-property-chat", handleOpenChat);
+    return () => window.removeEventListener("open-property-chat", handleOpenChat);
   }, []);
 
   // Close dropdown when clicking outside
@@ -127,57 +146,71 @@ function Header({ isAdmin }: { isAdmin?: boolean }) {
           </Link>
         )}
         {isSignedIn ? (
-          <div className="relative" ref={dropdownRef}>
+          <div className="flex items-center gap-3">
             <button
-              onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="w-9 h-9 rounded-full bg-linear-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-sm font-bold shadow-md shadow-blue-500/20 hover:scale-105 transition-transform duration-200 cursor-pointer overflow-hidden"
+              onClick={() => setChatDrawerOpen(!chatDrawerOpen)}
+              className="relative w-10 h-10 rounded-full bg-linear-to-tr from-blue-600 via-indigo-600 to-violet-600 text-white shadow-md shadow-blue-500/25 flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-110 active:scale-95 border border-white/20"
+              title="Live Support Chat"
             >
-              {profileAvatarUrl ? (
-                <img src={profileAvatarUrl} alt="Profile" className="w-full h-full object-cover" />
-              ) : (
-                userInitial
+              <MessageSquareText className="h-5 w-5 text-white" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-md animate-bounce">
+                  {unreadCount}
+                </span>
               )}
             </button>
-            {dropdownOpen && (
-              <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-2 animate-in fade-in slide-in-from-top-2 duration-200">
-                <div className="px-4 py-2 border-b border-gray-100">
-                  <p className="text-sm font-medium text-gray-900 truncate" title={nameToShow}>
-                    {nameToShow}
-                  </p>
-                  {isAdmin && (
-                    <span className="inline-block mt-1 px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 text-xs font-semibold">
-                      Admin
-                    </span>
-                  )}
-                </div>
-                {isAdmin ? (
-                  <Link
-                    href="/admin"
-                    onClick={() => setDropdownOpen(false)}
-                    className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-blue-600 hover:bg-blue-50 transition-colors"
-                  >
-                    <Shield className="h-4 w-4" />
-                    Admin Dashboard
-                  </Link>
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className="w-9 h-9 rounded-full bg-linear-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-sm font-bold shadow-md shadow-blue-500/20 hover:scale-105 transition-transform duration-200 cursor-pointer overflow-hidden"
+              >
+                {profileAvatarUrl ? (
+                  <img src={profileAvatarUrl} alt="Profile" className="w-full h-full object-cover" />
                 ) : (
-                  <Link
-                    href="/dashboard"
-                    onClick={() => setDropdownOpen(false)}
-                    className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    <User className="h-4 w-4" />
-                    My Dashboard
-                  </Link>
+                  userInitial
                 )}
-                <button
-                  onClick={handleSignOut}
-                  className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
-                >
-                  <LogOut className="h-4 w-4" />
-                  Sign Out
-                </button>
-              </div>
-            )}
+              </button>
+              {dropdownOpen && (
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="px-4 py-2 border-b border-gray-100">
+                    <p className="text-sm font-medium text-gray-900 truncate" title={nameToShow}>
+                      {nameToShow}
+                    </p>
+                    {isAdmin && (
+                      <span className="inline-block mt-1 px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 text-xs font-semibold">
+                        Admin
+                      </span>
+                    )}
+                  </div>
+                  {isAdmin ? (
+                    <Link
+                      href="/admin"
+                      onClick={() => setDropdownOpen(false)}
+                      className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-blue-600 hover:bg-blue-50 transition-colors"
+                    >
+                      <Shield className="h-4 w-4" />
+                      Admin Dashboard
+                    </Link>
+                  ) : (
+                    <Link
+                      href="/dashboard"
+                      onClick={() => setDropdownOpen(false)}
+                      className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      <User className="h-4 w-4" />
+                      My Dashboard
+                    </Link>
+                  )}
+                  <button
+                    onClick={handleSignOut}
+                    className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Sign Out
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         ) : (
           <Link href="/sign-up">
@@ -193,6 +226,20 @@ function Header({ isAdmin }: { isAdmin?: boolean }) {
           </Link>
         )}
       </div>
+
+      {/* Live Support Drawer (Admin console vs Buyer drawer) */}
+      {isAdmin ? (
+        <AdminChatDrawer
+          isOpen={chatDrawerOpen}
+          onClose={() => setChatDrawerOpen(false)}
+        />
+      ) : (
+        <PropertyChatDrawer
+          isOpen={chatDrawerOpen}
+          onClose={() => setChatDrawerOpen(false)}
+          initialListingId={targetListingId}
+        />
+      )}
     </div>
   );
 }

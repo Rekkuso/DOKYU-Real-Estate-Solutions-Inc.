@@ -23,10 +23,12 @@ import type { Listing } from "../_types/listing";
 import { getUserLikes, toggleLike as toggleLikeAction } from "../_actions/likes";
 import { useAuthContext } from "../_context/AuthContext";
 import AuthModal from "./AuthModal";
+import PropertyChatDrawer from "./PropertyChatDrawer";
 import Footer from "./Footer";
 import { getDefaultGradient } from "@/utils/gradients";
 import { formatPrice, formatFullPrice } from "@/utils/format";
 import { toast } from "sonner";
+import { MessageSquareText } from "lucide-react";
 
 /* ── Animation variants ── */
 
@@ -82,6 +84,15 @@ export default function PropertyDetailClient({
       }
     }
     fetchLikeStatus();
+  }, [isSignedIn, listing.id]);
+
+  const handleInquireAgent = useCallback((targetListingId?: number) => {
+    if (!isSignedIn) {
+      setShowAuthModal(true);
+      return;
+    }
+    const id = targetListingId || listing.id;
+    window.dispatchEvent(new CustomEvent("open-property-chat", { detail: { listingId: id } }));
   }, [isSignedIn, listing.id]);
 
   const handleToggleLike = useCallback(() => {
@@ -517,6 +528,13 @@ export default function PropertyDetailClient({
                 {/* Action Buttons */}
                 <div className="space-y-3">
                   <button
+                    onClick={() => handleInquireAgent(listing.id)}
+                    className="w-full py-3.5 px-4 rounded-2xl font-bold text-sm bg-linear-to-r from-blue-600 to-indigo-600 text-white hover:shadow-lg hover:shadow-blue-500/25 transition-all cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    <MessageSquareText className="h-4 w-4" />
+                    Inquire Agent
+                  </button>
+                  <button
                     onClick={handleToggleLike}
                     className={`w-full py-3 px-4 rounded-2xl font-semibold text-sm transition-all cursor-pointer flex items-center justify-center gap-2 ${
                       liked
@@ -531,7 +549,7 @@ export default function PropertyDetailClient({
                   </button>
                   <button
                     onClick={handleShare}
-                    className="w-full py-3 px-4 rounded-2xl font-semibold text-sm bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:shadow-lg hover:shadow-blue-500/25 transition-all cursor-pointer flex items-center justify-center gap-2"
+                    className="w-full py-3 px-4 rounded-2xl font-semibold text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all cursor-pointer flex items-center justify-center gap-2"
                   >
                     <Share2 className="h-4 w-4" />
                     Share Listing
