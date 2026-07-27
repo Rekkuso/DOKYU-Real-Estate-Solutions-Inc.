@@ -28,6 +28,7 @@ import type { AdminPropertyChatGroup, PropertyConversation, PropertyChatMessage 
 import { formatPrice } from "@/utils/format";
 import { createClient } from "@/utils/supabase/client";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AdminChatInbox() {
   const searchParams = useSearchParams();
@@ -267,8 +268,16 @@ export default function AdminChatInbox() {
         {/* Group / Conversation List */}
         <div className="flex-1 overflow-y-auto p-3 space-y-2">
           {loading ? (
-            <div className="flex justify-center p-8">
-              <Loader2 className="h-8 w-8 text-blue-600 animate-spin" />
+            <div className="space-y-2.5 p-1">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="p-3 rounded-2xl border border-slate-200/80 bg-white flex items-center gap-3">
+                  <Skeleton className="w-11 h-11 rounded-2xl shrink-0" />
+                  <div className="flex-1 space-y-2 min-w-0">
+                    <Skeleton className="h-3.5 w-3/4 rounded-md" />
+                    <Skeleton className="h-3 w-1/2 rounded-md" />
+                  </div>
+                </div>
+              ))}
             </div>
           ) : viewMode === "property" ? (
             filteredGroups.length === 0 ? (
@@ -485,8 +494,21 @@ export default function AdminChatInbox() {
             {/* Chat Messages Stream */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {loadingMessages ? (
-                <div className="flex justify-center p-8">
-                  <Loader2 className="h-8 w-8 text-blue-600 animate-spin" />
+                <div className="space-y-4 p-1">
+                  <div className="flex items-end gap-2.5 max-w-[80%]">
+                    <Skeleton className="w-8 h-8 rounded-full shrink-0" />
+                    <Skeleton className="h-12 w-64 rounded-2xl rounded-tl-xs bg-slate-200/80" />
+                  </div>
+                  <div className="flex justify-end">
+                    <Skeleton className="h-10 w-48 rounded-2xl rounded-tr-xs bg-blue-100/70" />
+                  </div>
+                  <div className="flex items-end gap-2.5 max-w-[80%]">
+                    <Skeleton className="w-8 h-8 rounded-full shrink-0" />
+                    <Skeleton className="h-16 w-72 rounded-2xl rounded-tl-xs bg-slate-200/80" />
+                  </div>
+                  <div className="flex justify-end">
+                    <Skeleton className="h-11 w-52 rounded-2xl rounded-tr-xs bg-blue-100/70" />
+                  </div>
                 </div>
               ) : (
                 messages.map((msg) => {

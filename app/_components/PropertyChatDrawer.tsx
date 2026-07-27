@@ -12,14 +12,13 @@ import {
   ChevronLeft,
   Building2,
   Sparkles,
-  Loader2,
   ShieldCheck,
-  Bot,
 } from "lucide-react";
 import Link from "next/link";
 import { usePropertyChat } from "../_hooks/usePropertyChat";
 import { formatPrice } from "@/utils/format";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface PropertyChatDrawerProps {
   isOpen: boolean;
@@ -148,9 +147,24 @@ export default function PropertyChatDrawer({
 
             {/* Body Content */}
             {loadingConversations ? (
-              <div className="flex-1 flex flex-col items-center justify-center p-6 space-y-4 bg-slate-50/50">
-                <Loader2 className="h-9 w-9 text-blue-600 animate-spin" />
-                <p className="text-sm font-semibold text-slate-500">Loading conversations...</p>
+              /* Skeleton Loader for Conversation List */
+              <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50/80">
+                <div className="flex items-center justify-between px-1 mb-2">
+                  <Skeleton className="h-3.5 w-36 rounded-md" />
+                </div>
+                {[1, 2, 3, 4].map((i) => (
+                  <div
+                    key={i}
+                    className="w-full flex items-center gap-3.5 p-3.5 rounded-2xl bg-white border border-slate-200/80 shadow-xs"
+                  >
+                    <Skeleton className="w-13 h-13 rounded-2xl shrink-0" />
+                    <div className="flex-1 space-y-2 min-w-0">
+                      <Skeleton className="h-4 w-3/4 rounded-md" />
+                      <Skeleton className="h-3 w-1/2 rounded-md" />
+                      <Skeleton className="h-3 w-full rounded-md" />
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : conversations.length === 0 ? (
               /* Empty State */
@@ -288,8 +302,26 @@ export default function PropertyChatDrawer({
                 {/* Messages Stream */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-4">
                   {loadingMessages ? (
-                    <div className="flex justify-center p-8">
-                      <Loader2 className="h-7 w-7 text-blue-600 animate-spin" />
+                    /* Skeleton Loader for Message Stream */
+                    <div className="space-y-4 p-1">
+                      {/* Left Agent Message Skeleton */}
+                      <div className="flex items-end gap-2.5 max-w-[80%]">
+                        <Skeleton className="w-8 h-8 rounded-full shrink-0" />
+                        <Skeleton className="h-12 w-64 rounded-2xl rounded-tl-xs bg-slate-200/80" />
+                      </div>
+                      {/* Right User Message Skeleton */}
+                      <div className="flex justify-end">
+                        <Skeleton className="h-10 w-48 rounded-2xl rounded-tr-xs bg-blue-100/70" />
+                      </div>
+                      {/* Left Agent Message Skeleton */}
+                      <div className="flex items-end gap-2.5 max-w-[80%]">
+                        <Skeleton className="w-8 h-8 rounded-full shrink-0" />
+                        <Skeleton className="h-16 w-72 rounded-2xl rounded-tl-xs bg-slate-200/80" />
+                      </div>
+                      {/* Right User Message Skeleton */}
+                      <div className="flex justify-end">
+                        <Skeleton className="h-11 w-52 rounded-2xl rounded-tr-xs bg-blue-100/70" />
+                      </div>
                     </div>
                   ) : (
                     messages.map((msg) => {

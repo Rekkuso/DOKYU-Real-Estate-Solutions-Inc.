@@ -10,13 +10,13 @@ import {
   Users,
   MessageSquareText,
   ChevronRight,
-  Loader2,
   UserCheck,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { getAdminConversationsByProperty } from "../_actions/chat";
 import type { AdminPropertyChatGroup, PropertyConversation } from "../_types/chat";
 import { formatPrice } from "@/utils/format";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface AdminChatDrawerProps {
   isOpen: boolean;
@@ -187,9 +187,20 @@ export default function AdminChatDrawer({
             {/* Content List */}
             <div className="flex-1 overflow-y-auto p-3.5 space-y-2.5 bg-slate-50/80">
               {loading ? (
-                <div className="flex flex-col items-center justify-center p-12 space-y-3">
-                  <Loader2 className="h-8 w-8 text-blue-600 animate-spin" />
-                  <p className="text-xs text-slate-500 font-semibold">Fetching support inquiries...</p>
+                /* Skeleton Loader for Admin Drawer List */
+                <div className="space-y-3">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div
+                      key={i}
+                      className="bg-white rounded-2xl border border-slate-200/80 p-3 shadow-sm flex items-center gap-3"
+                    >
+                      <Skeleton className="w-11 h-11 rounded-2xl shrink-0" />
+                      <div className="flex-1 space-y-2 min-w-0">
+                        <Skeleton className="h-3.5 w-2/3 rounded-md" />
+                        <Skeleton className="h-3 w-1/3 rounded-md" />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ) : viewMode === "property" ? (
                 /* By Property List */
