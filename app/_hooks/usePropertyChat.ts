@@ -110,7 +110,10 @@ export function usePropertyChat(isAdmin = false) {
         const senderType = isAdmin ? "admin" : "user";
         const newMsg = await sendChatMessage(activeConversation.id, content, senderType);
 
-        setMessages((prev) => [...prev, newMsg]);
+        setMessages((prev) => {
+          if (prev.some((m) => m.id === newMsg.id)) return prev;
+          return [...prev, newMsg];
+        });
         setConversations((prev) =>
           prev.map((c) =>
             c.id === activeConversation.id

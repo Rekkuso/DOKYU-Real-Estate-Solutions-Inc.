@@ -46,12 +46,17 @@ export default function AdminChatInbox() {
   const [sending, setSending] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
   const activeConvRef = useRef<PropertyConversation | null>(null);
   activeConvRef.current = activeConversation;
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTo({
+        top: chatContainerRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
   }, [messages]);
 
   // Load all property groups
@@ -130,7 +135,10 @@ export default function AdminChatInbox() {
     setSending(true);
     try {
       const newMsg = await sendChatMessage(activeConversation.id, text, "admin");
-      setMessages((prev) => [...prev, newMsg]);
+      setMessages((prev) => {
+        if (prev.some((m) => m.id === newMsg.id)) return prev;
+        return [...prev, newMsg];
+      });
       setInputMessage("");
       loadAdminChatData();
     } catch (err: any) {
@@ -492,7 +500,7 @@ export default function AdminChatInbox() {
             </div>
 
             {/* Chat Messages Stream */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4">
               {loadingMessages ? (
                 <div className="space-y-4 p-1">
                   <div className="flex items-end gap-2.5 max-w-[80%]">
@@ -511,14 +519,14 @@ export default function AdminChatInbox() {
                   </div>
                 </div>
               ) : (
-                messages.map((msg) => {
+                messages.map((msg, idx) => {
                   const isAdminMsg = msg.sender_type === "admin";
                   const isSystem = msg.sender_type === "system";
 
                   if (isSystem) {
                     return (
                       <motion.div
-                        key={msg.id}
+                        key={`${msg.id}-${idx}`}
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         className="text-center my-3"
@@ -532,7 +540,7 @@ export default function AdminChatInbox() {
 
                   return (
                     <motion.div
-                      key={msg.id}
+                      key={`${msg.id}-${idx}`}
                       initial={{ opacity: 0, y: 12, scale: 0.96 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       transition={{ type: "spring", stiffness: 350, damping: 25 }}
@@ -566,7 +574,6 @@ export default function AdminChatInbox() {
                   );
                 })
               )}
-              <div ref={messagesEndRef} />
             </div>
 
             {/* Admin Canned Quick Responses */}

@@ -47,7 +47,7 @@ export default function PropertyChatDrawer({
   const [inputMessage, setInputMessage] = useState("");
   const [showThreadList, setShowThreadList] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -55,7 +55,12 @@ export default function PropertyChatDrawer({
 
   // Auto-scroll to bottom of chat window
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTo({
+        top: chatContainerRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
   }, [messages]);
 
   // Open specific listing chat on mount if initialListingId provided
@@ -300,7 +305,7 @@ export default function PropertyChatDrawer({
                 )}
 
                 {/* Messages Stream */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4">
                   {loadingMessages ? (
                     /* Skeleton Loader for Message Stream */
                     <div className="space-y-4 p-1">
@@ -324,14 +329,14 @@ export default function PropertyChatDrawer({
                       </div>
                     </div>
                   ) : (
-                    messages.map((msg) => {
+                    messages.map((msg, idx) => {
                       const isUser = msg.sender_type === "user";
                       const isSystem = msg.sender_type === "system";
 
                       if (isSystem) {
                         return (
                           <motion.div
-                            key={msg.id}
+                            key={`${msg.id}-${idx}`}
                             initial={{ opacity: 0, scale: 0.9 }}
                             animate={{ opacity: 1, scale: 1 }}
                             className="text-center my-4"
@@ -346,7 +351,7 @@ export default function PropertyChatDrawer({
 
                       return (
                         <motion.div
-                          key={msg.id}
+                          key={`${msg.id}-${idx}`}
                           initial={{ opacity: 0, y: 12, scale: 0.96 }}
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           transition={{ type: "spring", stiffness: 350, damping: 25 }}
@@ -380,7 +385,6 @@ export default function PropertyChatDrawer({
                       );
                     })
                   )}
-                  <div ref={messagesEndRef} />
                 </div>
 
                 {/* Chat Input Bar */}
