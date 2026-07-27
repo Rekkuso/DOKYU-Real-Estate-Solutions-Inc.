@@ -27,6 +27,7 @@ import { useAdmin } from "../../_hooks/useAdmin";
 import { searchListings, deleteListing } from "../../_actions/listing";
 import type { Listing, ListingSearchResult } from "../../_actions/listing";
 import { getDefaultGradient } from "@/utils/gradients";
+import { formatPrice } from "@/utils/format";
 import { toast } from "sonner";
 import { getUserLikes, toggleLike as toggleLikeAction } from "../../_actions/likes";
 import { useAuthContext } from "../../_context/AuthContext";
@@ -62,14 +63,6 @@ const sortOptions = [
 ];
 
 const ITEMS_PER_PAGE = 9;
-
-/* ───────────────────── Helpers ───────────────────── */
-
-function formatPrice(price: number) {
-  if (price >= 1000000) return `₱${(price / 1000000).toFixed(1)}M`;
-  if (price >= 1000) return `₱${(price / 1000).toFixed(0)}K`;
-  return `₱${price.toLocaleString()}`;
-}
 
 /* ───────────────────── Component ───────────────────── */
 
@@ -490,48 +483,56 @@ function PropertiesPageContent() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pt-4">
             {paginated.map((property, index) => (
-              <div
+              <Link
                 key={property.id}
-                className={`group relative bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-gray-100 animate-slide-up stagger-${index + 1}`}
+                href={`/properties/${property.id}`}
+                className="block group"
               >
-                {/* Image or Gradient Fallback */}
-                <div className="relative h-56 overflow-hidden">
-                  {property.images && property.images.length > 0 ? (
-                    <img
-                      src={property.images[0]}
-                      alt={property.title}
-                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                    />
-                  ) : (
-                    <div
-                      className={`absolute inset-0 bg-linear-to-br ${getDefaultGradient(property.id)} opacity-90`}
-                    />
-                  )}
-                  {/* Decorative elements — only for gradient fallback */}
-                  {(!property.images || property.images.length === 0) && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-20 h-20 border-2 border-white/30 rounded-xl rotate-12 group-hover:rotate-45 transition-transform duration-700" />
-                      <div className="absolute w-32 h-32 border border-white/10 rounded-full -top-4 -right-4" />
-                      <div className="absolute w-16 h-16 bg-white/10 rounded-lg bottom-4 left-4 rotate-6" />
+                <div
+                  className={`relative bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-gray-100 animate-slide-up stagger-${index + 1}`}
+                >
+                  {/* Image or Gradient Fallback */}
+                  <div className="relative h-56 overflow-hidden">
+                    {property.images && property.images.length > 0 ? (
+                      <img
+                        src={property.images[0]}
+                        alt={property.title}
+                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                      />
+                    ) : (
+                      <div
+                        className={`absolute inset-0 bg-linear-to-br ${getDefaultGradient(property.id)} opacity-90`}
+                      />
+                    )}
+                    {/* Decorative elements — only for gradient fallback */}
+                    {(!property.images || property.images.length === 0) && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-20 h-20 border-2 border-white/30 rounded-xl rotate-12 group-hover:rotate-45 transition-transform duration-700" />
+                        <div className="absolute w-32 h-32 border border-white/10 rounded-full -top-4 -right-4" />
+                        <div className="absolute w-16 h-16 bg-white/10 rounded-lg bottom-4 left-4 rotate-6" />
+                      </div>
+                    )}
+                    {/* Dark overlay for readability on images */}
+                    {property.images && property.images.length > 0 && (
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+                    )}
+
+                    {/* Tag */}
+                    <div className="absolute top-4 left-4">
+                      <span className="px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-white text-xs font-semibold border border-white/30">
+                        {property.tag}
+                      </span>
                     </div>
-                  )}
-                  {/* Dark overlay for readability on images */}
-                  {property.images && property.images.length > 0 && (
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
-                  )}
 
-                  {/* Tag */}
-                  <div className="absolute top-4 left-4">
-                    <span className="px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-white text-xs font-semibold border border-white/30">
-                      {property.tag}
-                    </span>
-                  </div>
-
-                  {/* Like Button */}
-                  <button
-                    onClick={() => handleToggleLike(property.id)}
-                    className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white hover:bg-white/40 transition-all duration-300 cursor-pointer"
-                  >
+                    {/* Like Button */}
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleToggleLike(property.id);
+                      }}
+                      className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white hover:bg-white/40 transition-all duration-300 cursor-pointer z-10"
+                    >
                     <Heart
                       className={`h-4 w-4 transition-all ${
                         liked.has(property.id)
@@ -588,15 +589,18 @@ function PropertiesPageContent() {
 
                   {/* Admin Actions */}
                   {isAdmin && (
-                    <AdminPropertyActions
-                      id={property.id}
-                      title={property.title}
-                      onEditSuccess={fetchListings}
-                      onDeleteSuccess={fetchListings}
-                    />
+                    <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+                      <AdminPropertyActions
+                        id={property.id}
+                        title={property.title}
+                        onEditSuccess={fetchListings}
+                        onDeleteSuccess={fetchListings}
+                      />
+                    </div>
                   )}
                 </div>
-              </div>
+                </div>
+              </Link>
             ))}
           </div>
         )}

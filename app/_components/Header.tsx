@@ -15,50 +15,14 @@ function Header({ isAdmin }: { isAdmin?: boolean }) {
     user,
     isSignedIn,
     isLoading: authLoading,
+    profileDisplayName,
+    profileAvatarUrl,
     signOut,
   } = useAuthContext();
   const [scrolled, setScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [displayName, setDisplayName] = useState<string | null>(null);
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const fetchProfile = () => {
-      if (isSignedIn && user) {
-        getProfile()
-          .then((data) => {
-            if (data?.display_name) {
-              setDisplayName(data.display_name);
-            }
-            if (data?.avatar_url !== undefined) {
-              setAvatarUrl(data.avatar_url);
-            }
-          })
-          .catch(console.error);
-      }
-    };
-
-    fetchProfile();
-
-    const handleProfileUpdated = (e: Event) => {
-      const customEvent = e as CustomEvent;
-      if (customEvent.detail) {
-        if (customEvent.detail.display_name !== undefined) {
-          setDisplayName(customEvent.detail.display_name);
-        }
-        if (customEvent.detail.avatar_url !== undefined) {
-          setAvatarUrl(customEvent.detail.avatar_url);
-        }
-      }
-      // Also fetch to ensure consistency
-      fetchProfile();
-    };
-
-    window.addEventListener("profileUpdated", handleProfileUpdated);
-    return () => window.removeEventListener("profileUpdated", handleProfileUpdated);
-  }, [isSignedIn, user]);
 
   useEffect(() => {
     setMounted(true);
@@ -92,9 +56,9 @@ function Header({ isAdmin }: { isAdmin?: boolean }) {
   };
 
   // Get user initials and display name
-  const nameToShow = displayName || (isAdmin ? "Admin" : `User ${user?.id}`);
-  const userInitial = displayName 
-    ? displayName.charAt(0).toUpperCase() 
+  const nameToShow = profileDisplayName || (isAdmin ? "Admin" : `User ${user?.id}`);
+  const userInitial = profileDisplayName 
+    ? profileDisplayName.charAt(0).toUpperCase() 
     : isAdmin 
       ? "A" 
       : "U";
@@ -168,8 +132,8 @@ function Header({ isAdmin }: { isAdmin?: boolean }) {
               onClick={() => setDropdownOpen(!dropdownOpen)}
               className="w-9 h-9 rounded-full bg-linear-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-sm font-bold shadow-md shadow-blue-500/20 hover:scale-105 transition-transform duration-200 cursor-pointer overflow-hidden"
             >
-              {avatarUrl ? (
-                <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+              {profileAvatarUrl ? (
+                <img src={profileAvatarUrl} alt="Profile" className="w-full h-full object-cover" />
               ) : (
                 userInitial
               )}

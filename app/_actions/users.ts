@@ -5,15 +5,9 @@ import { checkIsAdmin } from "./admin";
 
 import { supabaseAdmin as supabase } from "@/utils/supabase/admin";
 
-export interface UserProfile {
-  id: string;
-  email: string;
-  role: string;
-  display_name: string | null;
-  avatar_url: string | null;
-  is_banned: boolean;
-  created_at: string;
-}
+// Type is defined in _types/user.ts; re-exported here for backward compat.
+import type { UserProfile as _UserProfile } from "../_types/user";
+export type UserProfile = _UserProfile;
 
 /**
  * Fetches all users with their profile data.

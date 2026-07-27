@@ -26,6 +26,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useAuthContext } from "../_context/AuthContext";
 
 export default function UserDashboard({
   user,
@@ -35,6 +36,7 @@ export default function UserDashboard({
   onSignOut: () => void;
 }) {
   const router = useRouter();
+  const { updateProfileData } = useAuthContext();
   const [activeTab, setActiveTab] = useState("overview");
   const [profile, setProfile] = useState<any>(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
@@ -104,7 +106,7 @@ export default function UserDashboard({
       
       await updateProfile(updates);
       setProfile((p: any) => (p ? { ...p, ...updates } : p));
-      window.dispatchEvent(new CustomEvent("profileUpdated", { detail: updates }));
+      updateProfileData(updates);
       toast.success("Profile updated successfully!");
       setActiveTab("overview");
     } catch (error: any) {
@@ -175,7 +177,7 @@ export default function UserDashboard({
                     size="lg"
                     onUploadSuccess={(url) => {
                       setProfile((p: any) => (p ? { ...p, avatar_url: url } : p));
-                      window.dispatchEvent(new CustomEvent("profileUpdated", { detail: { avatar_url: url } }));
+                      updateProfileData({ avatar_url: url });
                     }}
                   />
                   <h2 className="mt-4 font-bold text-gray-900 text-lg text-center truncate w-full">

@@ -2,14 +2,12 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
-import { connection } from "next/server";
 import { supabaseAdmin as serviceSupabase } from "@/utils/supabase/admin";
 
 /**
  * Get the current user's profile data.
  */
 export async function getProfile() {
-  await connection();
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
@@ -40,7 +38,6 @@ export async function getProfile() {
  * Update the current user's profile information.
  */
 export async function updateProfile(updates: { display_name?: string; age?: number | null; phone_number?: string | null; avatar_url?: string | null }) {
-  await connection();
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
@@ -68,7 +65,6 @@ export async function updateProfile(updates: { display_name?: string; age?: numb
  * Uploads to Supabase Storage and updates the avatar_url in profiles.
  */
 export async function uploadAvatar(formData: FormData) {
-  await connection();
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
 
