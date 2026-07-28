@@ -10,7 +10,7 @@ export async function updateSession(request: NextRequest) {
     request,
   });
 
-  const supabase = createServerClient(supabaseUrl!, supabaseKey!, {
+  const supabase = createServerClient(supabaseUrl || "", supabaseKey || "", {
     cookies: {
       getAll() {
         return request.cookies.getAll();

@@ -9,26 +9,36 @@ import { connection } from "next/server";
  * the 'admin' role in the profiles table.
  */
 export async function getIsAdmin(): Promise<boolean> {
-  await connection();
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
+  try {
+    await connection();
+    const cookieStore = await cookies();
+    const supabase = createClient(cookieStore);
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-  if (!user) return false;
+    if (!user) return false;
 
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
 
-
-
-  if (error || !data) return false;
-  return data.role === "admin";
+    if (error || !data) return false;
+    return data.role === "admin";
+  } catch (err: any) {
+    if (
+      err?.digest === "DYNAMIC_SERVER_USAGE" ||
+      err?.message?.includes("DYNAMIC_SERVER_USAGE") ||
+      err?.description?.includes("DYNAMIC_SERVER_USAGE")
+    ) {
+      throw err;
+    }
+    console.error("getIsAdmin error:", err);
+    return false;
+  }
 }
 
 /**
