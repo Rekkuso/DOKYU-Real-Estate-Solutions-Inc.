@@ -199,10 +199,10 @@ export function usePropertyChat(isAdmin = false) {
     if (!isSignedIn || !user) return;
 
     const supabase = createClient();
-    // Deterministic channel ID for better reconnection behavior
+    const uniqueId = Math.random().toString(36).substring(2, 7);
     const channelId = isAdmin
-      ? `admin_chat_${user.id}`
-      : `property_chat_user_${user.id}`;
+      ? `admin_chat_${user.id}_${uniqueId}`
+      : `property_chat_user_${user.id}_${uniqueId}`;
     const channel = supabase
       .channel(channelId)
       .on(

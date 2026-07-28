@@ -13,8 +13,8 @@ import {
   UserCheck,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { usePropertyChat } from "../_hooks/usePropertyChat";
-import type { PropertyConversation } from "../_types/chat";
+import { getAdminConversationsByProperty } from "../_actions/chat";
+import type { AdminPropertyChatGroup, PropertyConversation } from "../_types/chat";
 import { formatPrice } from "@/utils/format";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -28,10 +28,8 @@ export default function AdminChatDrawer({
   onClose,
 }: AdminChatDrawerProps) {
   const router = useRouter();
-  const {
-    propertyGroups,
-    loadingConversations: loading,
-  } = usePropertyChat(true);
+  const [propertyGroups, setPropertyGroups] = useState<AdminPropertyChatGroup[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const [viewMode, setViewMode] = useState<"property" | "customer">("property");
   const [searchQuery, setSearchQuery] = useState("");
@@ -40,6 +38,16 @@ export default function AdminChatDrawer({
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Load data when drawer opens (lightweight, no Realtime needed)
+  useEffect(() => {
+    if (!isOpen) return;
+    setLoading(true);
+    getAdminConversationsByProperty()
+      .then((groups) => setPropertyGroups(groups))
+      .catch((err) => console.error("Error loading admin drawer chat data:", err))
+      .finally(() => setLoading(false));
+  }, [isOpen]);
 
   if (!mounted) return null;
 
