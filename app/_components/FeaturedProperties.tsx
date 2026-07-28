@@ -16,9 +16,12 @@ import { toast } from "sonner";
 import AuthModal from "./AuthModal";
 import { formatPrice } from "@/utils/format";
 import PropertyChatDrawer from "./PropertyChatDrawer";
+import { useAdmin } from "../_hooks/useAdmin";
+import AdminPropertyActions from "./AdminPropertyActions";
 
 export default function FeaturedProperties({ initialProperties }: { initialProperties?: Listing[] }) {
   const { isSignedIn } = useAuthContext();
+  const { isAdmin } = useAdmin();
   const [liked, setLiked] = useState<Set<number>>(new Set());
   const [properties, setProperties] = useState<Listing[]>(initialProperties || []);
   const [loading, setLoading] = useState(!initialProperties);
@@ -248,8 +251,8 @@ export default function FeaturedProperties({ initialProperties }: { initialPrope
                       </div>
                     </div>
 
-                    {/* Inquire Action Button */}
-                    <div className="pt-3 border-t border-gray-100">
+                    {/* Inquire Action Button & Admin Actions */}
+                    <div className="pt-3 border-t border-gray-100 space-y-2">
                       <button
                         onClick={(e) => {
                           e.preventDefault();
@@ -260,11 +263,25 @@ export default function FeaturedProperties({ initialProperties }: { initialPrope
                           }
                           window.dispatchEvent(new CustomEvent("open-property-chat", { detail: { listingId: property.id } }));
                         }}
-                        className="w-full flex items-center justify-center gap-2 py-2 px-4 bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer shadow-2xs"
+                        className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 text-white rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer shadow-md shadow-blue-500/20 hover:shadow-lg"
                       >
                         <MessageSquareText className="h-3.5 w-3.5" />
                         Inquire Agent
                       </button>
+
+                      {isAdmin && (
+                        <div className="pt-2 border-t border-gray-100" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+                          <AdminPropertyActions
+                            id={property.id}
+                            title={property.title}
+                            onDeleteSuccess={(deletedId) => {
+                              if (deletedId) {
+                                setProperties((prev) => prev.filter((p) => p.id !== deletedId));
+                              }
+                            }}
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
