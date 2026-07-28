@@ -18,16 +18,9 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import {
-  getAdminConversationsByProperty,
-  sendChatMessage,
-  markMessagesAsRead,
-  getConversationMessages,
-} from "../_actions/chat";
-import type { AdminPropertyChatGroup, PropertyConversation, PropertyChatMessage } from "../_types/chat";
+import { usePropertyChat } from "../_hooks/usePropertyChat";
+import type { PropertyConversation } from "../_types/chat";
 import { formatPrice } from "@/utils/format";
-import { createClient } from "@/utils/supabase/client";
-import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AdminChatInbox() {
@@ -35,21 +28,27 @@ export default function AdminChatInbox() {
   const targetListingId = searchParams.get("listingId");
   const targetConvId = searchParams.get("convId");
 
+  const {
+    activeConversation,
+    messages,
+    loadingConversations,
+    loadingMessages,
+    sending,
+    handleSendMessage,
+    selectConversation,
+    propertyGroups,
+    selectedGroup,
+    selectGroup,
+  } = usePropertyChat(true);
+
   const [viewMode, setViewMode] = useState<"property" | "customer">("property");
-  const [propertyGroups, setPropertyGroups] = useState<AdminPropertyChatGroup[]>([]);
-  const [selectedGroup, setSelectedGroup] = useState<AdminPropertyChatGroup | null>(null);
-  const [activeConversation, setActiveConversation] = useState<PropertyConversation | null>(null);
-  const [messages, setMessages] = useState<PropertyChatMessage[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadingMessages, setLoadingMessages] = useState(false);
   const [inputMessage, setInputMessage] = useState("");
-  const [sending, setSending] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [initialSelectionDone, setInitialSelectionDone] = useState(false);
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
-  const activeConvRef = useRef<PropertyConversation | null>(null);
-  activeConvRef.current = activeConversation;
 
+  // Auto-scroll to bottom on new messages
   useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTo({
@@ -59,139 +58,40 @@ export default function AdminChatInbox() {
     }
   }, [messages]);
 
-  // Load all property groups
-  const loadAdminChatData = async () => {
-    try {
-      const groups = await getAdminConversationsByProperty();
-      setPropertyGroups(groups);
+  // Auto-select from URL search params on initial load
+  useEffect(() => {
+    if (initialSelectionDone || loadingConversations || propertyGroups.length === 0) return;
 
-      let targetGroup: AdminPropertyChatGroup | undefined;
-      let targetConv: PropertyConversation | undefined;
+    let targetGroup = targetListingId
+      ? propertyGroups.find((g) => g.listing.id === Number(targetListingId))
+      : undefined;
 
-      if (targetListingId) {
-        targetGroup = groups.find((g) => g.listing.id === Number(targetListingId));
-      }
-
-      if (!targetGroup && groups.length > 0) {
-        targetGroup = groups[0];
-      }
-
-      if (targetGroup) {
-        setSelectedGroup(targetGroup);
-        if (targetConvId) {
-          targetConv = targetGroup.conversations.find((c) => c.id === targetConvId);
-        }
-        if (!targetConv && targetGroup.conversations.length > 0) {
-          targetConv = targetGroup.conversations[0];
-        }
-        if (targetConv) {
-          selectConversation(targetConv);
-        }
-      }
-    } catch (err) {
-      console.error("Error loading admin chat groups:", err);
-    } finally {
-      setLoading(false);
+    if (!targetGroup && propertyGroups.length > 0) {
+      targetGroup = propertyGroups[0];
     }
-  };
 
-  const selectConversation = async (conv: PropertyConversation) => {
-    setActiveConversation(conv);
-    setLoadingMessages(true);
-
-    // Immediately zero-out unread badges in propertyGroups state
-    setPropertyGroups((prevGroups) =>
-      prevGroups.map((group) => {
-        const updatedConvs = group.conversations.map((c) =>
-          c.id === conv.id ? { ...c, unread_admin: 0 } : c
-        );
-        const totalUnread = updatedConvs.reduce(
-          (acc, c) => acc + (c.unread_admin || 0),
-          0
-        );
-        return {
-          ...group,
-          conversations: updatedConvs,
-          totalUnread,
-        };
-      })
-    );
-
-    try {
-      const msgs = await getConversationMessages(conv.id);
-      setMessages(msgs);
-      await markMessagesAsRead(conv.id, true);
-    } catch (err) {
-      console.error("Error loading messages:", err);
-    } finally {
-      setLoadingMessages(false);
+    if (targetGroup) {
+      selectGroup(targetGroup);
+      let targetConv = targetConvId
+        ? targetGroup.conversations.find((c) => c.id === targetConvId)
+        : undefined;
+      if (!targetConv && targetGroup.conversations.length > 0) {
+        targetConv = targetGroup.conversations[0];
+      }
+      if (targetConv) {
+        selectConversation(targetConv);
+      }
     }
-  };
+    setInitialSelectionDone(true);
+  }, [loadingConversations, propertyGroups, targetListingId, targetConvId, initialSelectionDone, selectGroup, selectConversation]);
 
+  // Admin send handler (supports quick-reply text param)
   const handleSendAdminMessage = async (textToSend?: string) => {
     const text = textToSend || inputMessage;
-    if (!activeConversation || !text.trim()) return;
-
-    setSending(true);
-    try {
-      const newMsg = await sendChatMessage(activeConversation.id, text, "admin");
-      setMessages((prev) => {
-        if (prev.some((m) => m.id === newMsg.id)) return prev;
-        return [...prev, newMsg];
-      });
-      setInputMessage("");
-      loadAdminChatData();
-    } catch (err: any) {
-      toast.error(err.message || "Failed to send message.");
-    } finally {
-      setSending(false);
-    }
+    if (!text.trim()) return;
+    await handleSendMessage(text);
+    setInputMessage("");
   };
-
-  useEffect(() => {
-    loadAdminChatData();
-  }, []);
-
-  // Supabase Realtime Listener for Admin Inbox
-  useEffect(() => {
-    const supabase = createClient();
-    const channelId = `admin_chat_${Math.random().toString(36).substring(2, 7)}`;
-    const channel = supabase
-      .channel(channelId)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "property_chat_messages",
-        },
-        (payload) => {
-          const newMsg = payload.new as PropertyChatMessage;
-          const currentActive = activeConvRef.current;
-
-          if (currentActive && newMsg.conversation_id === currentActive.id) {
-            setMessages((prev) => {
-              if (prev.some((m) => m.id === newMsg.id)) return prev;
-              return [...prev, newMsg];
-            });
-            markMessagesAsRead(currentActive.id, true);
-          }
-
-          loadAdminChatData();
-        }
-      )
-      .subscribe((status, err) => {
-        if (err) {
-          console.error("Admin realtime subscription error:", err);
-        } else {
-          console.log(`Admin realtime channel [${channelId}] status:`, status);
-        }
-      });
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
 
   // Filter property groups based on search query
   const filteredGroups = propertyGroups.filter(
@@ -275,7 +175,7 @@ export default function AdminChatInbox() {
 
         {/* Group / Conversation List */}
         <div className="flex-1 overflow-y-auto p-3 space-y-2">
-          {loading ? (
+          {loadingConversations ? (
             <div className="space-y-2.5 p-1">
               {[1, 2, 3, 4, 5].map((i) => (
                 <div key={i} className="p-3 rounded-2xl border border-slate-200/80 bg-white flex items-center gap-3">
@@ -310,7 +210,7 @@ export default function AdminChatInbox() {
                     {/* Property Card Header in List */}
                     <button
                       onClick={() => {
-                        setSelectedGroup(group);
+                        selectGroup(group);
                         if (group.conversations.length > 0) {
                           selectConversation(group.conversations[0]);
                         }
@@ -393,7 +293,7 @@ export default function AdminChatInbox() {
                 const buyerName =
                   conv.user_profile?.display_name ||
                   `User ${conv.user_id.substring(0, 6)}`;
-                const targetGroup = propertyGroups.find(
+                const matchingGroup = propertyGroups.find(
                   (g) => g.listing.id === conv.listing_id
                 );
                 return (
@@ -405,7 +305,7 @@ export default function AdminChatInbox() {
                     whileHover={{ scale: 1.015 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => {
-                      if (targetGroup) setSelectedGroup(targetGroup);
+                      if (matchingGroup) selectGroup(matchingGroup);
                       selectConversation(conv);
                     }}
                     className={`w-full p-3.5 rounded-2xl border text-left flex items-center justify-between transition-all cursor-pointer ${

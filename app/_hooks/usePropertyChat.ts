@@ -5,12 +5,17 @@ import { createClient } from "@/utils/supabase/client";
 import {
   getUserConversations,
   getConversationMessages,
+  getAdminConversationsByProperty,
   initiatePropertyConversation,
   sendChatMessage,
   markMessagesAsRead,
   getUnreadChatCount,
 } from "../_actions/chat";
-import type { PropertyConversation, PropertyChatMessage } from "../_types/chat";
+import type {
+  PropertyConversation,
+  PropertyChatMessage,
+  AdminPropertyChatGroup,
+} from "../_types/chat";
 import { useAuthContext } from "../_context/AuthContext";
 import { toast } from "sonner";
 
@@ -24,20 +29,32 @@ export function usePropertyChat(isAdmin = false) {
   const [sending, setSending] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
 
+  // Admin-only state
+  const [propertyGroups, setPropertyGroups] = useState<AdminPropertyChatGroup[]>([]);
+  const [selectedGroup, setSelectedGroup] = useState<AdminPropertyChatGroup | null>(null);
+
   const activeConvRef = useRef<PropertyConversation | null>(null);
   activeConvRef.current = activeConversation;
 
-  // Load user conversations
+  // Load conversations (admin mode loads grouped data, user mode loads flat list)
   const loadConversations = useCallback(async () => {
-    if (!isSignedIn) {
+    if (!isAdmin && !isSignedIn) {
       setConversations([]);
       setLoadingConversations(false);
       return;
     }
 
     try {
-      const data = await getUserConversations();
-      setConversations(data);
+      if (isAdmin) {
+        // Admin: load grouped data and flatten for conversations state
+        const groups = await getAdminConversationsByProperty();
+        setPropertyGroups(groups);
+        const flatConvs = groups.flatMap((g) => g.conversations);
+        setConversations(flatConvs);
+      } else {
+        const data = await getUserConversations();
+        setConversations(data);
+      }
       const count = await getUnreadChatCount(isAdmin);
       setUnreadCount(count);
     } catch (err) {
@@ -46,6 +63,14 @@ export function usePropertyChat(isAdmin = false) {
       setLoadingConversations(false);
     }
   }, [isSignedIn, isAdmin]);
+
+  // Admin: Select a property group
+  const selectGroup = useCallback(
+    (group: AdminPropertyChatGroup) => {
+      setSelectedGroup(group);
+    },
+    []
+  );
 
   // Load message history when active conversation changes
   const selectConversation = useCallback(
@@ -65,6 +90,26 @@ export function usePropertyChat(isAdmin = false) {
             : c
         )
       );
+
+      // Admin: also zero-out unread badges in propertyGroups state
+      if (isAdmin) {
+        setPropertyGroups((prevGroups) =>
+          prevGroups.map((group) => {
+            const updatedConvs = group.conversations.map((c) =>
+              c.id === conv.id ? { ...c, unread_admin: 0 } : c
+            );
+            const totalUnread = updatedConvs.reduce(
+              (acc, c) => acc + (c.unread_admin || 0),
+              0
+            );
+            return {
+              ...group,
+              conversations: updatedConvs,
+              totalUnread,
+            };
+          })
+        );
+      }
 
       try {
         const msgs = await getConversationMessages(conv.id);
@@ -121,6 +166,20 @@ export function usePropertyChat(isAdmin = false) {
               : c
           )
         );
+
+        // Admin: also update propertyGroups with new last message
+        if (isAdmin) {
+          setPropertyGroups((prevGroups) =>
+            prevGroups.map((group) => ({
+              ...group,
+              conversations: group.conversations.map((c) =>
+                c.id === activeConversation.id
+                  ? { ...c, last_message: content.trim(), last_message_at: new Date().toISOString() }
+                  : c
+              ),
+            }))
+          );
+        }
       } catch (err: any) {
         toast.error(err.message || "Failed to send message.");
       } finally {
@@ -140,7 +199,10 @@ export function usePropertyChat(isAdmin = false) {
     if (!isSignedIn || !user) return;
 
     const supabase = createClient();
-    const channelId = `property_chat_user_${user.id}_${Math.random().toString(36).substring(2, 7)}`;
+    // Deterministic channel ID for better reconnection behavior
+    const channelId = isAdmin
+      ? `admin_chat_${user.id}`
+      : `property_chat_user_${user.id}`;
     const channel = supabase
       .channel(channelId)
       .on(
@@ -164,6 +226,52 @@ export function usePropertyChat(isAdmin = false) {
             setUnreadCount((prev) => prev + 1);
           }
 
+          // Admin: targeted update of sidebar state (no full refetch)
+          if (isAdmin) {
+            const isActiveConv = currentActive?.id === newMsg.conversation_id;
+            setPropertyGroups((prevGroups) =>
+              prevGroups.map((group) => {
+                const matchingConv = group.conversations.find(
+                  (c) => c.id === newMsg.conversation_id
+                );
+                if (!matchingConv) return group;
+
+                const updatedConvs = group.conversations.map((c) =>
+                  c.id === newMsg.conversation_id
+                    ? {
+                        ...c,
+                        last_message: newMsg.content,
+                        last_message_at: newMsg.created_at,
+                        unread_admin: isActiveConv
+                          ? c.unread_admin
+                          : (c.unread_admin || 0) + 1,
+                      }
+                    : c
+                );
+                const totalUnread = updatedConvs.reduce(
+                  (acc, c) => acc + (c.unread_admin || 0),
+                  0
+                );
+                return {
+                  ...group,
+                  conversations: updatedConvs,
+                  totalUnread,
+                };
+              })
+            );
+            // Also update flat conversations list
+            setConversations((prev) =>
+              prev.map((c) =>
+                c.id === newMsg.conversation_id
+                  ? {
+                      ...c,
+                      last_message: newMsg.content,
+                      last_message_at: newMsg.created_at,
+                    }
+                  : c
+              )
+            );
+          }
         }
       )
       .subscribe((status, err) => {
@@ -192,5 +300,9 @@ export function usePropertyChat(isAdmin = false) {
     openChatForProperty,
     handleSendMessage,
     loadConversations,
+    // Admin-specific
+    propertyGroups,
+    selectedGroup,
+    selectGroup,
   };
 }
