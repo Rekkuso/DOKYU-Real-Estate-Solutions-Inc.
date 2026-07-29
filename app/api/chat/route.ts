@@ -9,8 +9,14 @@ export const maxDuration = 30;
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    console.log("Chat API received request body:", body);
-    const { messages } = body;
+    const { messages } = body || {};
+
+    if (!Array.isArray(messages) || messages.length === 0) {
+      return new Response(
+        JSON.stringify({ error: "Invalid request. 'messages' must be a non-empty array." }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
 
     // Check environment variables for available AI model provider
     const mistralKey = process.env.MISTRAL_API_KEY;

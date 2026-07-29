@@ -95,8 +95,38 @@ export async function sendChatMessage(
       data: { user },
     } = await supabaseClient.auth.getUser();
 
+    if (!user) {
+      throw new Error("You must be authenticated to send messages.");
+    }
+
     if (!content.trim()) {
       throw new Error("Message cannot be empty.");
+    }
+
+    // Check authorization: if user, verify conversation belongs to user; if admin, verify admin role
+    const { data: conv, error: convFetchErr } = await supabase
+      .from("property_conversations")
+      .select("user_id, unread_admin, unread_user")
+      .eq("id", conversationId)
+      .maybeSingle();
+
+    if (convFetchErr || !conv) {
+      throw new Error("Conversation not found.");
+    }
+
+    if (senderType === "user" && conv.user_id !== user.id) {
+      throw new Error("Unauthorized access to this conversation.");
+    }
+
+    if (senderType === "admin") {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+      if (profile?.role !== "admin") {
+        throw new Error("Unauthorized: Admin privileges required.");
+      }
     }
 
     // 1. Insert message
@@ -104,7 +134,7 @@ export async function sendChatMessage(
       .from("property_chat_messages")
       .insert({
         conversation_id: conversationId,
-        sender_id: user?.id || null,
+        sender_id: user.id,
         sender_type: senderType,
         content: content.trim(),
       })
