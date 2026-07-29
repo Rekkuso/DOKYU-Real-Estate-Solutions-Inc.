@@ -2,6 +2,12 @@ import type { NextConfig } from "next";
 import path from "path";
 
 const nextConfig: NextConfig = {
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "100mb",
+    },
+    middlewareClientMaxBodySize: "100mb",
+  },
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "randomuser.me" },
