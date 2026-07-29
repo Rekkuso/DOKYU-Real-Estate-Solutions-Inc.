@@ -528,6 +528,7 @@ export default function ListingForm({
           </div>
 
           <input
+            id="property-image-upload-input"
             type="file"
             accept="image/*"
             multiple
@@ -538,9 +539,9 @@ export default function ListingForm({
 
           {/* Main Upload Area */}
           {totalImageCount === 0 ? (
-            <div
-              onClick={() => fileInputRef.current?.click()}
-              className="rounded-2xl overflow-hidden mb-4 relative group h-48 border-2 border-dashed border-gray-300 bg-gray-50/50 hover:bg-blue-50/50 hover:border-blue-400 cursor-pointer flex flex-col items-center justify-center transition-all duration-300"
+            <label
+              htmlFor="property-image-upload-input"
+              className="rounded-2xl overflow-hidden mb-4 relative group h-48 border-2 border-dashed border-gray-300 bg-gray-50/50 hover:bg-blue-50/50 hover:border-blue-400 cursor-pointer flex flex-col items-center justify-center transition-all duration-300 block"
             >
               <div className="flex flex-col items-center justify-center text-center px-4">
                 <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
@@ -553,7 +554,7 @@ export default function ListingForm({
                   Select multiple files at once
                 </p>
               </div>
-            </div>
+            </label>
           ) : (
             <div className="mb-4">
               {/* Primary image preview (first image) */}
@@ -622,13 +623,13 @@ export default function ListingForm({
 
                 {/* Add More Button */}
                 {totalImageCount < MAX_IMAGES && (
-                  <div
-                    onClick={() => fileInputRef.current?.click()}
+                  <label
+                    htmlFor="property-image-upload-input"
                     className="w-16 h-16 rounded-2xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center shrink-0 cursor-pointer hover:bg-blue-50/50 hover:border-blue-400 hover:text-blue-600 transition-colors text-gray-400 font-medium"
                   >
                     <span className="text-xl leading-none">+</span>
                     <span className="text-[9px] mt-0.5">{totalImageCount}/{MAX_IMAGES}</span>
-                  </div>
+                  </label>
                 )}
               </div>
             </div>
