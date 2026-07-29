@@ -78,6 +78,7 @@ export default function ListingForm({
     }
   }, [initialData, initialExistingImages]);
 
+  const uploadInputId = React.useId();
   const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -528,7 +529,7 @@ export default function ListingForm({
           </div>
 
           <input
-            id="property-image-upload-input"
+            id={uploadInputId}
             type="file"
             accept="image/*"
             multiple
@@ -540,7 +541,8 @@ export default function ListingForm({
           {/* Main Upload Area */}
           {totalImageCount === 0 ? (
             <label
-              htmlFor="property-image-upload-input"
+              htmlFor={uploadInputId}
+              onClick={() => fileInputRef.current?.click()}
               className="rounded-2xl overflow-hidden mb-4 relative group h-48 border-2 border-dashed border-gray-300 bg-gray-50/50 hover:bg-blue-50/50 hover:border-blue-400 cursor-pointer flex flex-col items-center justify-center transition-all duration-300 block"
             >
               <div className="flex flex-col items-center justify-center text-center px-4">
@@ -624,7 +626,8 @@ export default function ListingForm({
                 {/* Add More Button */}
                 {totalImageCount < MAX_IMAGES && (
                   <label
-                    htmlFor="property-image-upload-input"
+                    htmlFor={uploadInputId}
+                    onClick={() => fileInputRef.current?.click()}
                     className="w-16 h-16 rounded-2xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center shrink-0 cursor-pointer hover:bg-blue-50/50 hover:border-blue-400 hover:text-blue-600 transition-colors text-gray-400 font-medium"
                   >
                     <span className="text-xl leading-none">+</span>
