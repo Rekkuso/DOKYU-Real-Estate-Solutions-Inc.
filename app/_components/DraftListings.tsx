@@ -244,16 +244,19 @@ export default function DraftListings({
       {/* Edit Modal */}
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent className="sm:max-w-5xl w-[95vw] max-h-[90vh] p-0 rounded-3xl border-none shadow-2xl overflow-hidden flex flex-col">
-          <div className="bg-gradient-to-r from-gray-900 via-blue-950 to-indigo-950 p-6 md:p-8 text-white shrink-0 relative">
-            <div className="flex items-center gap-3.5">
-              <div className="w-11 h-11 rounded-2xl bg-blue-500/20 backdrop-blur-md border border-blue-400/30 flex items-center justify-center text-blue-400">
+          <div className="bg-gradient-to-r from-blue-50/90 via-indigo-50/50 to-slate-50 px-6 py-5 md:px-8 md:py-5 shrink-0 relative border-b border-gray-200/80">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold shadow-xs">
                 <FileText className="w-5 h-5" />
               </div>
               <div>
-                <DialogTitle className="text-2xl font-bold text-white tracking-tight">
-                  Edit Draft Listing
+                <DialogTitle className="text-xl font-bold text-gray-900 tracking-tight flex items-center gap-2.5">
+                  <span>Edit Draft Listing</span>
+                  <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-amber-100/80 text-amber-700 border border-amber-200/60">
+                    Draft
+                  </span>
                 </DialogTitle>
-                <DialogDescription className="text-blue-200/80 text-sm mt-0.5">
+                <DialogDescription className="text-gray-500 text-xs mt-0.5">
                   Update draft details, location, facilities, and upload photos.
                 </DialogDescription>
               </div>

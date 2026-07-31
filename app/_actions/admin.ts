@@ -16,9 +16,13 @@ export async function getIsAdmin(): Promise<boolean> {
 
     const {
       data: { user },
+      error: authError,
     } = await supabase.auth.getUser();
 
-    if (!user) return false;
+    if (authError || !user) {
+      console.log("[getIsAdmin] Auth check failed or no user:", authError?.message || "No user session found in cookies.");
+      return false;
+    }
 
     const { data, error } = await supabase
       .from("profiles")
@@ -26,7 +30,12 @@ export async function getIsAdmin(): Promise<boolean> {
       .eq("id", user.id)
       .single();
 
-    if (error || !data) return false;
+    if (error || !data) {
+      console.log("[getIsAdmin] Profile role fetch error for user", user.id, error?.message);
+      return false;
+    }
+
+    console.log("[getIsAdmin] User:", user.id, "Role:", data.role);
     return data.role === "admin";
   } catch (err: any) {
     if (

@@ -274,6 +274,14 @@ export default function FeaturedProperties({ initialProperties }: { initialPrope
                           <AdminPropertyActions
                             id={property.id}
                             title={property.title}
+                            onEditSuccess={async () => {
+                              try {
+                                const fresh = await getFeaturedListings();
+                                setProperties(fresh);
+                              } catch (e) {
+                                console.error(e);
+                              }
+                            }}
                             onDeleteSuccess={(deletedId) => {
                               if (deletedId) {
                                 setProperties((prev) => prev.filter((p) => p.id !== deletedId));

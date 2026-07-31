@@ -16,7 +16,22 @@ export async function getListingById(id: number) {
     throw new Error("Listing not found.");
   }
 
-  return data;
+  let images: string[] = [];
+  if (Array.isArray(data.images)) {
+    images = data.images;
+  } else if (typeof data.images === "string") {
+    try {
+      images = JSON.parse(data.images);
+    } catch {
+      images = [];
+    }
+  }
+
+  return {
+    ...data,
+    price: Number(data.price),
+    images,
+  };
 }
 
 /**

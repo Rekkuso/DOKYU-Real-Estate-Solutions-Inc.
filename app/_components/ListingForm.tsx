@@ -261,6 +261,46 @@ export default function ListingForm({
     }
   };
 
+  const handleButtonClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!formRef.current) return;
+    setLoading(true);
+
+    try {
+      const formData = new FormData(formRef.current);
+      formData.append("facilities", JSON.stringify(selectedFacilities));
+
+      for (const file of selectedImages) {
+        formData.append("images", file);
+      }
+
+      if (isEditMode) {
+        formData.append("existingImages", JSON.stringify(existingImages));
+      }
+
+      if (isEditMode && propertyId) {
+        await updateListing(propertyId, formData);
+        toast.success("Property listing updated successfully!");
+        if (onSuccess) onSuccess();
+      } else {
+        await addListing(formData);
+        toast.success("Property listing added successfully!");
+        formRef.current.reset();
+        setSelectedImages([]);
+        setImagePreviews([]);
+        setExistingImages([]);
+        setSelectedFacilities([]);
+        if (onSuccess) onSuccess();
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <form
       ref={formRef}
@@ -468,50 +508,6 @@ export default function ListingForm({
             </div>
           </div>
         </div>
-
-        {/* Action Buttons */}
-        <div className="flex gap-4 pt-2">
-          {onCancel && (
-            <Button
-              type="button"
-              onClick={onCancel}
-              className="flex-1 bg-gray-100 text-gray-700 hover:bg-gray-200 py-6 text-sm font-bold rounded-2xl border border-gray-200/80 transition-all duration-200 cursor-pointer"
-            >
-              Cancel
-            </Button>
-          )}
-          <Button
-            type="button"
-            onClick={handleSaveDraft}
-            disabled={loading || draftLoading}
-            className="flex-1 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200/80 py-6 text-sm font-bold rounded-2xl transition-all duration-200 cursor-pointer shadow-xs"
-          >
-            {draftLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin text-amber-700" />
-                Drafting...
-              </>
-            ) : (
-              "Save as Draft"
-            )}
-          </Button>
-          <Button
-            type="submit"
-            className="flex-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-6 text-sm font-bold rounded-2xl shadow-lg shadow-blue-500/25 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
-            disabled={loading || draftLoading}
-          >
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                {isEditMode ? "Updating..." : "Saving..."}
-              </>
-            ) : isEditMode ? (
-              "Update Property"
-            ) : (
-              "Add Property"
-            )}
-          </Button>
-        </div>
       </div>
 
       {/* Right Column (col-span-1) */}
@@ -533,17 +529,17 @@ export default function ListingForm({
             type="file"
             accept="image/*"
             multiple
-            className="hidden"
+            className="sr-only"
             ref={fileInputRef}
             onChange={handleImageChange}
           />
 
           {/* Main Upload Area */}
           {totalImageCount === 0 ? (
-            <label
-              htmlFor={uploadInputId}
+            <button
+              type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="rounded-2xl overflow-hidden mb-4 relative group h-48 border-2 border-dashed border-gray-300 bg-gray-50/50 hover:bg-blue-50/50 hover:border-blue-400 cursor-pointer flex flex-col items-center justify-center transition-all duration-300 block"
+              className="w-full rounded-2xl overflow-hidden mb-4 relative group h-48 border-2 border-dashed border-gray-300 bg-gray-50/50 hover:bg-blue-50/50 hover:border-blue-400 cursor-pointer flex flex-col items-center justify-center transition-all duration-300 block"
             >
               <div className="flex flex-col items-center justify-center text-center px-4">
                 <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
@@ -556,7 +552,7 @@ export default function ListingForm({
                   Select multiple files at once
                 </p>
               </div>
-            </label>
+            </button>
           ) : (
             <div className="mb-4">
               {/* Primary image preview (first image) */}
@@ -625,14 +621,14 @@ export default function ListingForm({
 
                 {/* Add More Button */}
                 {totalImageCount < MAX_IMAGES && (
-                  <label
-                    htmlFor={uploadInputId}
+                  <button
+                    type="button"
                     onClick={() => fileInputRef.current?.click()}
                     className="w-16 h-16 rounded-2xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center shrink-0 cursor-pointer hover:bg-blue-50/50 hover:border-blue-400 hover:text-blue-600 transition-colors text-gray-400 font-medium"
                   >
                     <span className="text-xl leading-none">+</span>
                     <span className="text-[9px] mt-0.5">{totalImageCount}/{MAX_IMAGES}</span>
-                  </label>
+                  </button>
                 )}
               </div>
             </div>
@@ -726,6 +722,58 @@ export default function ListingForm({
               + Add custom category
             </Button>
           )}
+        </div>
+      </div>
+
+      {/* ──────────────── Sticky Bottom Action Bar ──────────────── */}
+      <div className="col-span-full sticky bottom-0 z-30 flex flex-wrap items-center justify-between gap-3 bg-white/95 backdrop-blur-md border-t border-gray-200/90 py-3.5 px-5 rounded-2xl shadow-lg mt-4">
+        <div className="flex items-center gap-2 text-xs font-semibold text-gray-600">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span>{isEditMode ? `Editing Property #${propertyId || ""}` : "New Property Listing"}</span>
+        </div>
+
+        <div className="flex items-center gap-3 ml-auto">
+          {onCancel && (
+            <Button
+              type="button"
+              onClick={onCancel}
+              className="px-4 py-2.5 bg-white hover:bg-gray-100 text-gray-700 text-xs font-bold rounded-xl border border-gray-200 shadow-xs transition-all cursor-pointer"
+            >
+              Cancel
+            </Button>
+          )}
+          <Button
+            type="button"
+            onClick={handleSaveDraft}
+            disabled={loading || draftLoading}
+            className="px-4 py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200/80 text-xs font-bold rounded-xl shadow-xs transition-all cursor-pointer"
+          >
+            {draftLoading ? (
+              <>
+                <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin text-amber-700 inline" />
+                Drafting...
+              </>
+            ) : (
+              "Save as Draft"
+            )}
+          </Button>
+          <Button
+            type="button"
+            onClick={handleButtonClick}
+            disabled={loading || draftLoading}
+            className="px-6 py-2.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 text-white text-xs font-bold rounded-xl shadow-md shadow-blue-500/20 hover:shadow-lg hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center gap-2"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin inline" />
+                {isEditMode ? "Updating..." : "Saving..."}
+              </>
+            ) : isEditMode ? (
+              "Update Property"
+            ) : (
+              "Add Property"
+            )}
+          </Button>
         </div>
       </div>
     </form>

@@ -35,16 +35,23 @@ export async function addListing(formData: FormData) {
 }
 
 export async function updateListing(id: number, formData: FormData) {
+  console.log("==========================================");
+  console.log("[updateListing Server Action Invoked] id:", id);
+  console.log("==========================================");
+
   await checkIsAdmin();
 
   const listingData = extractListingData(formData);
 
   // Upload new images (if any)
+  let newImageUrls: string[] = [];
   const imageFiles = formData.getAll("images") as File[];
   const validFiles = imageFiles.filter(
     (f) => f instanceof File && f.size > 0,
   );
-  const newImageUrls = await uploadImages(validFiles);
+  if (validFiles.length > 0) {
+    newImageUrls = await uploadImages(validFiles);
+  }
 
   // Get existing images that were kept (passed as JSON string)
   const existingImagesRaw = formData.get("existingImages") as string;
@@ -57,24 +64,29 @@ export async function updateListing(id: number, formData: FormData) {
 
   const allImages = [...existingImages, ...newImageUrls];
 
-  // NOTE: We do NOT overwrite `date` here. The original publish date is preserved
-  // so that edited listings maintain their position in "newest" sort order.
-  const { error } = await supabase
+  const updatePayload: Record<string, any> = {
+    ...listingData,
+    images: allImages,
+  };
+
+  const { data: updatedRows, error } = await supabase
     .from("listing")
-    .update({
-      ...listingData,
-      images: allImages,
-      updated_at: new Date().toISOString().split("T")[0],
-    })
-    .eq("id", id);
+    .update(updatePayload)
+    .eq("id", id)
+    .select();
 
   if (error) {
-    console.error("Error updating listing:", error);
+    console.error("Error updating listing in Supabase:", error);
     throw new Error(`Failed to update listing: ${error.message}`);
   }
 
+  if (!updatedRows || updatedRows.length === 0) {
+    console.error("No listing row updated for ID:", id);
+    throw new Error(`Failed to update listing: Property #${id} was not found.`);
+  }
+
   revalidateAllListingPaths(id);
-  return { success: true };
+  return { success: true, listing: updatedRows[0] };
 }
 
 export async function deleteListing(id: number) {

@@ -208,86 +208,82 @@ export default function PropertyDetailClient({
         className="max-w-7xl mx-auto px-4 pt-6 pb-2"
       >
         {hasImages ? (
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 rounded-3xl overflow-hidden h-[300px] md:h-[460px]">
-            {/* Primary Image */}
-            <div
-              className="lg:col-span-3 relative cursor-pointer group overflow-hidden"
-              onClick={() => setLightboxOpen(true)}
-            >
-              <img
+          <div className="relative w-full h-[340px] sm:h-[420px] md:h-[520px] rounded-3xl overflow-hidden shadow-xl bg-gray-900 group">
+            {/* Carousel Active Image with Framer Motion */}
+            <AnimatePresence mode="wait">
+              <motion.img
+                key={activeImageIndex}
                 src={images[activeImageIndex]}
-                alt={listing.title}
-                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                alt={`${listing.title} - Image ${activeImageIndex + 1}`}
+                initial={{ opacity: 0.85, scale: 1.02 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0.85 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="w-full h-full object-cover cursor-pointer"
+                onClick={() => setLightboxOpen(true)}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+            </AnimatePresence>
 
-              {/* Image counter badge */}
-              <div className="absolute bottom-4 right-4 px-3 py-1.5 rounded-full bg-black/50 backdrop-blur-md text-white text-xs font-medium">
-                {activeImageIndex + 1} / {images.length}
-              </div>
+            {/* Subtle Gradient Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none" />
 
-              {/* Navigation arrows on main image */}
-              {images.length > 1 && (
-                <>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      prevImage();
-                    }}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 backdrop-blur-md flex items-center justify-center text-gray-700 hover:bg-white transition-all opacity-0 group-hover:opacity-100 cursor-pointer shadow-lg"
-                  >
-                    <ChevronLeft className="h-5 w-5" />
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      nextImage();
-                    }}
-                    className="absolute right-16 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 backdrop-blur-md flex items-center justify-center text-gray-700 hover:bg-white transition-all opacity-0 group-hover:opacity-100 cursor-pointer shadow-lg"
-                  >
-                    <ChevronRight className="h-5 w-5" />
-                  </button>
-                </>
-              )}
+            {/* Top Right Counter Badge */}
+            <div className="absolute top-4 right-4 z-10 px-3.5 py-1.5 rounded-full bg-black/60 backdrop-blur-md text-white text-xs font-semibold tracking-wide border border-white/10 shadow-lg">
+              {activeImageIndex + 1} / {images.length}
             </div>
 
-            {/* Thumbnail Strip (right column) */}
+            {/* Navigation Arrows (Shown when images.length > 1) */}
             {images.length > 1 && (
-              <div className="hidden lg:flex flex-col gap-3">
-                {images.slice(0, 3).map((img, i) => (
+              <>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    prevImage();
+                  }}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white/80 hover:bg-white text-gray-900 backdrop-blur-md flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 shadow-xl cursor-pointer"
+                  title="Previous image"
+                >
+                  <ChevronLeft className="h-6 w-6" />
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    nextImage();
+                  }}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white/80 hover:bg-white text-gray-900 backdrop-blur-md flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 shadow-xl cursor-pointer"
+                  title="Next image"
+                >
+                  <ChevronRight className="h-6 w-6" />
+                </button>
+              </>
+            )}
+
+            {/* Bottom Floating Thumbnail Carousel Selector Bar */}
+            {images.length > 1 && (
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 p-2 rounded-2xl bg-black/50 backdrop-blur-xl border border-white/15 max-w-[90%] overflow-x-auto [&::-webkit-scrollbar]:hidden shadow-2xl">
+                {images.map((img, i) => (
                   <button
                     key={i}
-                    onClick={() => setActiveImageIndex(i)}
-                    className={`relative flex-1 overflow-hidden cursor-pointer transition-all ${
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveImageIndex(i);
+                    }}
+                    className={`relative w-12 h-12 md:w-14 md:h-14 rounded-xl overflow-hidden shrink-0 transition-all duration-300 cursor-pointer ${
                       activeImageIndex === i
-                        ? "ring-3 ring-blue-500 ring-offset-2"
-                        : "opacity-70 hover:opacity-100"
+                        ? "ring-2 ring-blue-500 scale-105 opacity-100 shadow-md"
+                        : "opacity-60 hover:opacity-100"
                     }`}
                   >
                     <img
                       src={img}
-                      alt={`${listing.title} - Photo ${i + 1}`}
-                      className="absolute inset-0 w-full h-full object-cover"
+                      alt={`Thumbnail ${i + 1}`}
+                      className="w-full h-full object-cover"
                     />
                   </button>
                 ))}
-                {images.length > 3 && (
-                  <button
-                    onClick={() => setLightboxOpen(true)}
-                    className="relative flex-1 overflow-hidden cursor-pointer group"
-                  >
-                    <img
-                      src={images[3]}
-                      alt={`${listing.title} - More photos`}
-                      className="absolute inset-0 w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                      <span className="text-white text-lg font-bold">
-                        +{images.length - 3}
-                      </span>
-                    </div>
-                  </button>
-                )}
               </div>
             )}
           </div>

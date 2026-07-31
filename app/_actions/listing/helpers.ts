@@ -26,26 +26,16 @@ export function extractListingData(formData: FormData) {
 
   const isDraft = formData.get("isDraft") === "true";
 
-  const facilitiesRaw = formData.get("facilities") as string;
-  let facilities: string[] = [];
-  try {
-    facilities = facilitiesRaw ? JSON.parse(facilitiesRaw) : [];
-  } catch {
-    facilities = [];
-  }
-
   return {
     title: (formData.get("title") as string) || "",
     location: (formData.get("location") as string) || "",
     address: (formData.get("address") as string) || "",
-    description: (formData.get("description") as string) || "",
     price: price,
     beds: beds,
     baths: baths,
     area: (formData.get("area") as string) || "",
     type: (formData.get("type") as string) || "Houses",
     tag: (formData.get("tag") as string) || "New",
-    facilities: facilities,
     active: !isDraft,
   };
 }

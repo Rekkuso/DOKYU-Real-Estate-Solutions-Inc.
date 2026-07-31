@@ -37,7 +37,7 @@ export async function uploadImages(files: File[]): Promise<string[]> {
 
       if (error) {
         console.error("Error uploading image to Supabase Storage:", error);
-        return null;
+        throw new Error(`Supabase Storage upload failed: ${error.message}`);
       }
 
       const { data: publicUrlData } = supabase.storage
@@ -45,9 +45,9 @@ export async function uploadImages(files: File[]): Promise<string[]> {
         .getPublicUrl(filePath);
 
       return publicUrlData.publicUrl;
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to process image file upload:", err);
-      return null;
+      throw new Error(`Failed to upload image ${file.name}: ${err.message || err}`);
     }
   });
 
