@@ -120,7 +120,7 @@ export default function AboutPage() {
             </span>
           </div>
 
-          <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-slate-50 to-blue-50/50 border border-gray-100 p-8 md:p-12 lg:p-16">
+          <div className="relative rounded-3xl overflow-hidden bg-linear-to-br from-slate-50 to-blue-50/50 border border-gray-100 p-8 md:p-12 lg:p-16">
             {/* Decorative accents */}
             <div className="absolute top-0 right-0 w-64 h-64 bg-blue-100/40 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
             <div className="absolute bottom-0 left-0 w-48 h-48 bg-indigo-100/40 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
@@ -129,7 +129,7 @@ export default function AboutPage() {
               {/* Avatar */}
               <div className="lg:col-span-2 flex justify-center">
                 <div className="relative">
-                  <div className="w-52 h-52 md:w-64 md:h-64 rounded-3xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-2xl shadow-blue-500/20">
+                  <div className="w-52 h-52 md:w-64 md:h-64 rounded-3xl bg-linear-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-2xl shadow-blue-500/20">
                     <span className="text-6xl md:text-7xl font-bold text-white">
                       RJ
                     </span>
@@ -192,7 +192,7 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Vision */}
             <div className="group relative rounded-3xl overflow-hidden bg-white border border-gray-100 p-8 md:p-10 hover:shadow-2xl transition-all duration-500 hover:-translate-y-1">
-              <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-600 to-indigo-600" />
+              <div className="absolute top-0 left-0 w-full h-1.5 bg-linear-to-r from-blue-600 to-indigo-600" />
               <div className="absolute top-0 right-0 w-40 h-40 bg-blue-50/60 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
 
               <div className="relative z-10">
@@ -202,7 +202,7 @@ export default function AboutPage() {
 
                 <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
                   Our{" "}
-                  <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                  <span className="bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                     Vision
                   </span>
                 </h3>
@@ -217,7 +217,7 @@ export default function AboutPage() {
 
             {/* Mission */}
             <div className="group relative rounded-3xl overflow-hidden bg-white border border-gray-100 p-8 md:p-10 hover:shadow-2xl transition-all duration-500 hover:-translate-y-1">
-              <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-indigo-600 to-purple-600" />
+              <div className="absolute top-0 left-0 w-full h-1.5 bg-linear-to-r from-indigo-600 to-purple-600" />
               <div className="absolute bottom-0 left-0 w-40 h-40 bg-purple-50/60 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
 
               <div className="relative z-10">
@@ -227,7 +227,7 @@ export default function AboutPage() {
 
                 <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
                   Our{" "}
-                  <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                  <span className="bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                     Mission
                   </span>
                 </h3>
@@ -259,7 +259,7 @@ export default function AboutPage() {
             </span>
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
               Meet the{" "}
-              <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                 Leadership
               </span>
             </h2>
@@ -278,7 +278,7 @@ export default function AboutPage() {
                 {/* Avatar */}
                 <div className="relative inline-flex mb-6">
                   <div
-                    className={`w-24 h-24 rounded-2xl bg-gradient-to-br ${member.gradient} flex items-center justify-center ${member.shadow} shadow-lg group-hover:scale-110 transition-transform duration-500`}
+                    className={`w-24 h-24 rounded-2xl bg-linear-to-br ${member.gradient} flex items-center justify-center ${member.shadow} shadow-lg group-hover:scale-110 transition-transform duration-500`}
                   >
                     <span className="text-2xl font-bold text-white">
                       {member.initials}
@@ -290,7 +290,7 @@ export default function AboutPage() {
                   {member.name}
                 </h4>
                 <span
-                  className={`inline-block px-3 py-1 rounded-full bg-gradient-to-r ${member.gradient} text-white text-xs font-semibold`}
+                  className={`inline-block px-3 py-1 rounded-full bg-linear-to-r ${member.gradient} text-white text-xs font-semibold`}
                 >
                   {member.role}
                 </span>
@@ -309,7 +309,7 @@ export default function AboutPage() {
             </span>
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
               Trusted{" "}
-              <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                 Partners
               </span>
             </h2>
@@ -331,7 +331,7 @@ export default function AboutPage() {
                 key={affiliate.label}
                 className="group flex flex-col items-center justify-center p-8 rounded-2xl bg-white border border-gray-100 hover:border-indigo-200 hover:shadow-lg transition-all duration-500 hover:-translate-y-1"
               >
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
+                <div className="w-16 h-16 rounded-2xl bg-linear-to-br from-gray-50 to-blue-50 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
                   <affiliate.icon className="w-8 h-8 text-indigo-400 group-hover:text-indigo-600 transition-colors duration-300" />
                 </div>
                 <span className="text-sm font-semibold text-gray-500 group-hover:text-indigo-600 transition-colors duration-300">
@@ -344,7 +344,7 @@ export default function AboutPage() {
       </section>
 
       {/* ═══════════════ VALUES STRIP ═══════════════ */}
-      <section className="py-16 px-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-700">
+      <section className="py-16 px-4 bg-linear-to-r from-blue-600 via-indigo-600 to-purple-700">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
             {[

@@ -180,7 +180,7 @@ export default function DraftListings({
               />
             ) : (
               <div
-                className={`w-14 h-14 rounded-xl bg-gradient-to-br ${getDefaultGradient(draft.id)} flex items-center justify-center shrink-0`}
+                className={`w-14 h-14 rounded-xl bg-linear-to-br ${getDefaultGradient(draft.id)} flex items-center justify-center shrink-0`}
               >
                 <FileText className="h-6 w-6 text-white/80" />
               </div>
@@ -244,7 +244,7 @@ export default function DraftListings({
       {/* Edit Modal */}
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent className="sm:max-w-5xl w-[95vw] max-h-[90vh] p-0 rounded-3xl border-none shadow-2xl overflow-hidden flex flex-col">
-          <div className="bg-gradient-to-r from-blue-50/90 via-indigo-50/50 to-slate-50 px-6 py-5 md:px-8 md:py-5 shrink-0 relative border-b border-gray-200/80">
+          <div className="bg-linear-to-r from-blue-50/90 via-indigo-50/50 to-slate-50 px-6 py-5 md:px-8 md:py-5 shrink-0 relative border-b border-gray-200/80">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold shadow-xs">
                 <FileText className="w-5 h-5" />

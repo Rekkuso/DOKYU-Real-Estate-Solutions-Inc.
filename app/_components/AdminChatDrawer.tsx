@@ -89,7 +89,7 @@ export default function AdminChatDrawer({
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[9999] pointer-events-none overflow-hidden">
+        <div className="fixed inset-0 z-9999 pointer-events-none overflow-hidden">
           {/* Mobile backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -107,10 +107,10 @@ export default function AdminChatDrawer({
             exit={{ opacity: 0, scale: 0.1, y: -30, x: 20, filter: "blur(12px)" }}
             transition={{ type: "spring", stiffness: 360, damping: 28 }}
             style={{ transformOrigin: "top right" }}
-            className="fixed top-20 right-3 sm:right-6 md:right-10 z-[9999] w-[95vw] sm:w-[480px] md:w-[500px] h-[680px] max-h-[82vh] bg-white/95 backdrop-blur-2xl rounded-3xl shadow-[0_25px_70px_-15px_rgba(0,0,0,0.3)] flex flex-col overflow-hidden border border-slate-200/90 pointer-events-auto z-10 origin-top-right"
+            className="fixed top-20 right-3 sm:right-6 md:right-10 z-9999 w-[95vw] sm:w-120 md:w-125 h-170 max-h-[82vh] bg-white/95 backdrop-blur-2xl rounded-3xl shadow-[0_25px_70px_-15px_rgba(0,0,0,0.3)] flex flex-col overflow-hidden border border-slate-200/90 pointer-events-auto origin-top-right"
           >
             {/* Minimalist Light Blue Gradient Header */}
-            <div className="px-5 py-3.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-500 text-white flex items-center justify-between shadow-xs shrink-0 relative border-b border-white/15">
+            <div className="px-5 py-3.5 bg-linear-to-r from-blue-600 via-indigo-600 to-blue-500 text-white flex items-center justify-between shadow-xs shrink-0 relative border-b border-white/15">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white shadow-xs border border-white/30">
                   <MessageSquareText className="h-4.5 w-4.5" />
@@ -257,7 +257,7 @@ export default function AdminChatDrawer({
                                   e.stopPropagation();
                                   handleSelectCustomer(group.listing.id, conv.id);
                                 }}
-                                className="w-full p-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 text-white rounded-xl text-xs font-bold flex items-center justify-between shadow-xs hover:shadow-md transition-all"
+                                className="w-full p-2 bg-linear-to-r from-blue-600 via-indigo-600 to-violet-600 text-white rounded-xl text-xs font-bold flex items-center justify-between shadow-xs hover:shadow-md transition-all"
                               >
                                 <span className="truncate flex items-center gap-1.5 text-[11px]">
                                   <UserCheck className="h-3 w-3 shrink-0 text-blue-200" />
@@ -304,7 +304,7 @@ export default function AdminChatDrawer({
                         className="bg-white rounded-2xl border border-slate-200/80 p-3 shadow-sm hover:border-blue-300 hover:shadow-md transition-all cursor-pointer flex items-center justify-between"
                       >
                         <div className="flex items-center gap-3 min-w-0">
-                          <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-extrabold text-xs flex items-center justify-center shrink-0 shadow-sm">
+                          <div className="w-9 h-9 rounded-full bg-linear-to-tr from-blue-600 to-indigo-600 text-white font-extrabold text-xs flex items-center justify-center shrink-0 shadow-sm">
                             {buyerName.charAt(0).toUpperCase()}
                           </div>
                           <div className="min-w-0">

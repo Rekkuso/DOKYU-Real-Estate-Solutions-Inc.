@@ -119,14 +119,14 @@ export default function AdminChatInbox() {
   });
 
   return (
-    <div className="bg-white rounded-3xl shadow-xl border border-slate-200/80 overflow-hidden flex flex-col md:flex-row h-[750px] min-w-0">
+    <div className="bg-white rounded-3xl shadow-xl border border-slate-200/80 overflow-hidden flex flex-col md:flex-row h-187.5 min-w-0">
       {/* Left Sidebar Pane */}
       <div className="w-full md:w-88 border-r border-slate-200/80 flex flex-col shrink-0 bg-slate-50/70">
         {/* Header & View Mode Switcher */}
         <div className="p-4 border-b border-slate-200/80 space-y-3.5 bg-white shadow-2xs">
           <div className="flex items-center justify-between">
             <h2 className="font-extrabold text-slate-900 text-lg flex items-center gap-2.5 tracking-tight">
-              <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 p-0.5 shadow-md shadow-blue-500/20">
+              <div className="w-9 h-9 rounded-2xl bg-linear-to-tr from-blue-600 to-indigo-500 p-0.5 shadow-md shadow-blue-500/20">
                 <div className="w-full h-full bg-slate-950/40 rounded-[14px] flex items-center justify-center text-blue-300 backdrop-blur-xs">
                   <MessageSquareText className="h-4.5 w-4.5" />
                 </div>
@@ -203,7 +203,7 @@ export default function AdminChatInbox() {
                     transition={{ delay: idx * 0.03 }}
                     className={`rounded-2xl border transition-all overflow-hidden ${
                       isSelected
-                        ? "bg-gradient-to-r from-blue-50/90 to-indigo-50/90 border-blue-300 shadow-sm ring-2 ring-blue-400/20"
+                        ? "bg-linear-to-r from-blue-50/90 to-indigo-50/90 border-blue-300 shadow-sm ring-2 ring-blue-400/20"
                         : "bg-white border-slate-200/80 hover:border-blue-200 shadow-2xs hover:shadow-md"
                     }`}
                   >
@@ -259,7 +259,7 @@ export default function AdminChatInbox() {
                               onClick={() => selectConversation(conv)}
                               className={`w-full p-2.5 px-3 rounded-xl text-left text-xs flex items-center justify-between transition-all cursor-pointer ${
                                 isConvSelected
-                                  ? "bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 text-white font-extrabold shadow-md shadow-blue-500/20"
+                                  ? "bg-linear-to-r from-blue-600 via-indigo-600 to-violet-600 text-white font-extrabold shadow-md shadow-blue-500/20"
                                   : "text-slate-700 hover:bg-blue-50/80 font-bold"
                               }`}
                             >
@@ -310,7 +310,7 @@ export default function AdminChatInbox() {
                     }}
                     className={`w-full p-3.5 rounded-2xl border text-left flex items-center justify-between transition-all cursor-pointer ${
                       isSelected
-                        ? "bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 text-white border-blue-600 shadow-md font-extrabold"
+                        ? "bg-linear-to-r from-blue-600 via-indigo-600 to-violet-600 text-white border-blue-600 shadow-md font-extrabold"
                         : "bg-white border-slate-200/80 hover:border-blue-200 text-slate-800 shadow-2xs"
                     }`}
                   >
@@ -319,7 +319,7 @@ export default function AdminChatInbox() {
                         className={`w-9.5 h-9.5 rounded-full flex items-center justify-center font-extrabold text-xs shrink-0 ${
                           isSelected
                             ? "bg-white/20 text-white"
-                            : "bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-xs"
+                            : "bg-linear-to-tr from-blue-600 to-indigo-600 text-white shadow-xs"
                         }`}
                       >
                         {buyerName.charAt(0).toUpperCase()}
@@ -353,7 +353,7 @@ export default function AdminChatInbox() {
         {activeConversation && selectedGroup ? (
           <>
             {/* Top Pinned Property Header Showcase (Shopee / TikTok Style) */}
-            <div className="p-4 border-b border-slate-200/80 bg-gradient-to-r from-blue-50/90 via-indigo-50/70 to-purple-50/90 flex items-center justify-between shadow-xs">
+            <div className="p-4 border-b border-slate-200/80 bg-linear-to-r from-blue-50/90 via-indigo-50/70 to-purple-50/90 flex items-center justify-between shadow-xs">
               <div className="flex items-center gap-3.5 min-w-0">
                 <div className="w-13 h-13 rounded-2xl bg-white p-0.5 border border-blue-200/80 shadow-md shrink-0 overflow-hidden relative flex items-center justify-center">
                   {selectedGroup.listing.images?.[0] ? (
@@ -450,14 +450,14 @@ export default function AdminChatInbox() {
                     >
                       <div className="flex items-end gap-2 max-w-[85%]">
                         {!isAdminMsg && (
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 text-white flex items-center justify-center text-[10px] font-bold shrink-0 mb-1 shadow-md shadow-blue-500/20">
+                          <div className="w-8 h-8 rounded-full bg-linear-to-tr from-blue-600 via-indigo-600 to-purple-600 text-white flex items-center justify-center text-[10px] font-bold shrink-0 mb-1 shadow-md shadow-blue-500/20">
                             <ShieldCheck className="h-4 w-4" />
                           </div>
                         )}
                         <div
                           className={`p-3.5 px-4 rounded-2xl text-sm leading-relaxed ${
                             isAdminMsg
-                              ? "bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 text-white rounded-br-xs shadow-md shadow-blue-500/15 font-medium"
+                              ? "bg-linear-to-r from-blue-600 via-indigo-600 to-violet-600 text-white rounded-br-xs shadow-md shadow-blue-500/15 font-medium"
                               : "bg-white text-slate-800 border border-slate-200/70 rounded-bl-xs shadow-sm font-medium"
                           }`}
                         >
@@ -527,7 +527,7 @@ export default function AdminChatInbox() {
                   whileTap={{ scale: 0.95 }}
                   type="submit"
                   disabled={sending || !inputMessage.trim()}
-                  className="p-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 text-white rounded-2xl hover:opacity-95 disabled:opacity-40 transition-all cursor-pointer shadow-md shadow-blue-500/25 shrink-0"
+                  className="p-3 bg-linear-to-r from-blue-600 via-indigo-600 to-violet-600 text-white rounded-2xl hover:opacity-95 disabled:opacity-40 transition-all cursor-pointer shadow-md shadow-blue-500/25 shrink-0"
                 >
                   <Send className="h-4.5 w-4.5" />
                 </motion.button>

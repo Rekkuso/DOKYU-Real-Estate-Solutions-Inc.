@@ -130,7 +130,7 @@ export default function ServicesPage() {
               </span>
               <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
                 Complete{" "}
-                <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                <span className="bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                   Documentation
                 </span>
                 <br />
@@ -143,7 +143,7 @@ export default function ServicesPage() {
               </p>
 
               {/* Decorative card */}
-              <div className="hidden lg:block relative rounded-2xl overflow-hidden bg-gradient-to-br from-blue-600 to-indigo-700 p-8">
+              <div className="hidden lg:block relative rounded-2xl overflow-hidden bg-linear-to-br from-blue-600 to-indigo-700 p-8">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
                 <Handshake className="w-10 h-10 text-white/80 mb-4" />
                 <p className="text-white font-semibold text-lg mb-2">
@@ -193,7 +193,7 @@ export default function ServicesPage() {
             </span>
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
               What We{" "}
-              <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                 Deliver
               </span>
             </h2>
@@ -211,7 +211,7 @@ export default function ServicesPage() {
               >
                 {/* Hover gradient background */}
                 <div
-                  className={`absolute inset-0 bg-gradient-to-br ${service.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
+                  className={`absolute inset-0 bg-linear-to-br ${service.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
                 />
 
                 <div className="relative z-10">
@@ -250,7 +250,7 @@ export default function ServicesPage() {
         <div className="max-w-5xl mx-auto">
           <div className="relative rounded-3xl overflow-hidden">
             {/* Gradient Background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700" />
+            <div className="absolute inset-0 bg-linear-to-br from-blue-600 via-indigo-600 to-purple-700" />
             {/* Decorative shapes */}
             <div className="absolute inset-0 overflow-hidden">
               <div className="absolute -top-20 -right-20 w-72 h-72 bg-white/10 rounded-full blur-2xl" />

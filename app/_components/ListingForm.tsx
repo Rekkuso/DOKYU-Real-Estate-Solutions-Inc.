@@ -443,7 +443,7 @@ export default function ListingForm({
               name="description"
               rows={4}
               placeholder="Describe key highlights, architectural features, and neighborhood info..."
-              className="flex min-h-[110px] w-full rounded-2xl border border-gray-200 bg-gray-50/50 px-4 py-3 text-sm focus-visible:outline-none focus:bg-white focus-visible:ring-2 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 transition-all font-medium text-gray-900 placeholder:text-gray-400"
+              className="flex min-h-27.5 w-full rounded-2xl border border-gray-200 bg-gray-50/50 px-4 py-3 text-sm focus-visible:outline-none focus:bg-white focus-visible:ring-2 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 transition-all font-medium text-gray-900 placeholder:text-gray-400"
               defaultValue={initialData.description || ""}
             ></textarea>
           </div>
@@ -539,7 +539,7 @@ export default function ListingForm({
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="w-full rounded-2xl overflow-hidden mb-4 relative group h-48 border-2 border-dashed border-gray-300 bg-gray-50/50 hover:bg-blue-50/50 hover:border-blue-400 cursor-pointer flex flex-col items-center justify-center transition-all duration-300 block"
+              className="w-full rounded-2xl overflow-hidden mb-4 relative group h-48 border-2 border-dashed border-gray-300 bg-gray-50/50 hover:bg-blue-50/50 hover:border-blue-400 cursor-pointer flex flex-col items-center justify-center transition-all duration-300"
             >
               <div className="flex flex-col items-center justify-center text-center px-4">
                 <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
@@ -761,7 +761,7 @@ export default function ListingForm({
             type="button"
             onClick={handleButtonClick}
             disabled={loading || draftLoading}
-            className="px-6 py-2.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 text-white text-xs font-bold rounded-xl shadow-md shadow-blue-500/20 hover:shadow-lg hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center gap-2"
+            className="px-6 py-2.5 bg-linear-to-r from-blue-600 via-indigo-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 text-white text-xs font-bold rounded-xl shadow-md shadow-blue-500/20 hover:shadow-lg hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center gap-2"
           >
             {loading ? (
               <>

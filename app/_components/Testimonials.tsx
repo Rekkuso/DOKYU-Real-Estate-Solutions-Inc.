@@ -38,7 +38,7 @@ export default function Testimonials() {
           </span>
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             What Our{" "}
-            <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
               Clients Say
             </span>
           </h2>
@@ -76,7 +76,7 @@ export default function Testimonials() {
               {/* Author */}
               <div className="flex items-center gap-3">
                 <div
-                  className={`w-11 h-11 rounded-full bg-gradient-to-br ${t.gradient} flex items-center justify-center text-white text-sm font-bold shadow-md`}
+                  className={`w-11 h-11 rounded-full bg-linear-to-br ${t.gradient} flex items-center justify-center text-white text-sm font-bold shadow-md`}
                 >
                   {t.initials}
                 </div>

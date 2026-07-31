@@ -83,12 +83,12 @@ export default function LikesTab({
                       alt={listing.title}
                       className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+                    <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-black/20" />
                   </>
                 ) : (
                   <>
                     <div
-                      className={`absolute inset-0 bg-gradient-to-br ${getDefaultGradient(listing.id)} opacity-90`}
+                      className={`absolute inset-0 bg-linear-to-br ${getDefaultGradient(listing.id)} opacity-90`}
                     />
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="w-16 h-16 border-2 border-white/30 rounded-xl rotate-12 group-hover:rotate-45 transition-transform duration-700" />

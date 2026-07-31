@@ -75,7 +75,7 @@ export default function Services() {
           </span>
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             What We{" "}
-            <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
               Offer
             </span>
           </h2>
@@ -94,7 +94,7 @@ export default function Services() {
             >
               {/* Hover gradient background */}
               <div
-                className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
+                className={`absolute inset-0 bg-linear-to-br ${service.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
               />
 
               {/* Content */}

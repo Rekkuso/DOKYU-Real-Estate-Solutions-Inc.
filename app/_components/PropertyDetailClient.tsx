@@ -156,7 +156,7 @@ export default function PropertyDetailClient({
   return (
     <div className="min-h-screen bg-gray-50 pt-20">
       {/* ── Back Navigation Floating Pill Bar ── */}
-      <div className="sticky top-[80px] z-40 max-w-7xl mx-auto px-4 py-2 pointer-events-none">
+      <div className="sticky top-20 z-40 max-w-7xl mx-auto px-4 py-2 pointer-events-none">
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -208,7 +208,7 @@ export default function PropertyDetailClient({
         className="max-w-7xl mx-auto px-4 pt-6 pb-2"
       >
         {hasImages ? (
-          <div className="relative w-full h-[340px] sm:h-[420px] md:h-[520px] rounded-3xl overflow-hidden shadow-xl bg-gray-900 group">
+          <div className="relative w-full h-85 sm:h-105 md:h-130 rounded-3xl overflow-hidden shadow-xl bg-gray-900 group">
             {/* Carousel Active Image with Framer Motion */}
             <AnimatePresence mode="wait">
               <motion.img
@@ -225,7 +225,7 @@ export default function PropertyDetailClient({
             </AnimatePresence>
 
             {/* Subtle Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none" />
+            <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-black/20 pointer-events-none" />
 
             {/* Top Right Counter Badge */}
             <div className="absolute top-4 right-4 z-10 px-3.5 py-1.5 rounded-full bg-black/60 backdrop-blur-md text-white text-xs font-semibold tracking-wide border border-white/10 shadow-lg">
@@ -290,7 +290,7 @@ export default function PropertyDetailClient({
         ) : (
           /* Gradient fallback when no images */
           <div
-            className={`relative h-[300px] md:h-[400px] rounded-3xl overflow-hidden bg-linear-to-br ${getDefaultGradient(listing.id)}`}
+            className={`relative h-75 md:h-100 rounded-3xl overflow-hidden bg-linear-to-br ${getDefaultGradient(listing.id)}`}
           >
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="w-24 h-24 border-2 border-white/30 rounded-xl rotate-12" />
@@ -337,7 +337,7 @@ export default function PropertyDetailClient({
                 </div>
 
                 <div className="text-right">
-                  <p className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                  <p className="text-3xl md:text-4xl font-bold bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                     {formatFullPrice(listing.price)}
                   </p>
                   <div className="flex items-center gap-1.5 text-gray-400 text-xs mt-1 justify-end">
@@ -354,7 +354,7 @@ export default function PropertyDetailClient({
 
               {/* Quick Stats */}
               <div className="grid grid-cols-3 gap-3 mt-6">
-                <div className="flex items-center gap-3 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100/50">
+                <div className="flex items-center gap-3 p-4 bg-linear-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100/50">
                   <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
                     <BedDouble className="h-5 w-5 text-blue-600" />
                   </div>
@@ -365,7 +365,7 @@ export default function PropertyDetailClient({
                     <p className="text-xs text-gray-500">Bedrooms</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100/50">
+                <div className="flex items-center gap-3 p-4 bg-linear-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100/50">
                   <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
                     <Bath className="h-5 w-5 text-blue-600" />
                   </div>
@@ -376,7 +376,7 @@ export default function PropertyDetailClient({
                     <p className="text-xs text-gray-500">Bathrooms</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100/50">
+                <div className="flex items-center gap-3 p-4 bg-linear-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100/50">
                   <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
                     <Maximize className="h-5 w-5 text-blue-600" />
                   </div>
@@ -400,7 +400,7 @@ export default function PropertyDetailClient({
                 className="bg-white rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm"
               >
                 <div className="flex items-center gap-3 mb-5">
-                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-sm">
+                  <div className="w-10 h-10 rounded-2xl bg-linear-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-sm">
                     <Sparkles className="h-5 w-5 text-white" />
                   </div>
                   <div>
@@ -437,7 +437,7 @@ export default function PropertyDetailClient({
               className="bg-white rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm"
             >
               <div className="flex items-center gap-3 mb-5">
-                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-sm">
+                <div className="w-10 h-10 rounded-2xl bg-linear-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-sm">
                   <MapPin className="h-5 w-5 text-white" />
                 </div>
                 <div>
@@ -464,7 +464,7 @@ export default function PropertyDetailClient({
           </div>
 
           {/* ── Right Column — Sidebar ── */}
-          <div className="lg:col-span-1 space-y-5 lg:sticky lg:top-[140px] self-start">
+          <div className="lg:col-span-1 space-y-5 lg:sticky lg:top-35 self-start">
             {/* Price & Actions Card */}
             <motion.div
               custom={1}
@@ -478,7 +478,7 @@ export default function PropertyDetailClient({
                   <p className="text-sm text-gray-400 uppercase tracking-widest font-medium mb-1">
                     Listed Price
                   </p>
-                  <p className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                  <p className="text-3xl font-bold bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                     {formatFullPrice(listing.price)}
                   </p>
                 </div>
@@ -592,7 +592,7 @@ export default function PropertyDetailClient({
             animate="visible"
           >
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-sm">
+              <div className="w-10 h-10 rounded-2xl bg-linear-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-sm">
                 <Tag className="h-5 w-5 text-white" />
               </div>
               <div>
@@ -631,7 +631,7 @@ export default function PropertyDetailClient({
                         />
                       )}
                       {property.images && property.images.length > 0 && (
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+                        <div className="absolute inset-0 bg-linear-to-t from-black/50 via-transparent to-transparent" />
                       )}
                       <div className="absolute top-3 left-3">
                         <span className="px-2.5 py-1 rounded-full bg-white/20 backdrop-blur-md text-white text-xs font-semibold border border-white/30">

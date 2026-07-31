@@ -277,7 +277,7 @@ function PropertiesPageContent() {
       </section>
 
       {/* ───────── Search & Filters ───────── */}
-      <section className="sticky top-[72px] z-40 bg-white/80 backdrop-blur-xl border-b border-gray-200/60 shadow-sm">
+      <section className="sticky top-18 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-200/60 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-4">
           {/* Row 1: Search + Filter Toggle + Sort */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
@@ -517,7 +517,7 @@ function PropertiesPageContent() {
                     )}
                     {/* Dark overlay for readability on images */}
                     {property.images && property.images.length > 0 && (
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+                      <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-black/20" />
                     )}
 
                     {/* Tag */}
@@ -602,7 +602,7 @@ function PropertiesPageContent() {
                         }
                         window.dispatchEvent(new CustomEvent("open-property-chat", { detail: { listingId: property.id } }));
                       }}
-                      className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 text-white rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer shadow-md shadow-blue-500/20 hover:shadow-lg"
+                      className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-linear-to-r from-blue-600 via-indigo-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 text-white rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer shadow-md shadow-blue-500/20 hover:shadow-lg"
                     >
                       <MessageSquareText className="h-3.5 w-3.5" />
                       Inquire Agent

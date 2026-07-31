@@ -77,7 +77,7 @@ export default function PropertyChatDrawer({
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[9999] pointer-events-none overflow-hidden">
+        <div className="fixed inset-0 z-9999 pointer-events-none overflow-hidden">
           {/* Mobile backdrop for small screens */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -95,10 +95,10 @@ export default function PropertyChatDrawer({
             exit={{ opacity: 0, scale: 0.1, y: -30, x: 20, filter: "blur(12px)" }}
             transition={{ type: "spring", stiffness: 360, damping: 28 }}
             style={{ transformOrigin: "top right" }}
-            className="fixed top-20 right-3 sm:right-6 md:right-10 z-[9999] w-[95vw] sm:w-[480px] md:w-[500px] h-[680px] max-h-[82vh] bg-white/95 backdrop-blur-2xl rounded-3xl shadow-[0_25px_70px_-15px_rgba(0,0,0,0.3)] flex flex-col overflow-hidden border border-slate-200/90 pointer-events-auto origin-top-right"
+            className="fixed top-20 right-3 sm:right-6 md:right-10 z-9999 w-[95vw] sm:w-120 md:w-125 h-170 max-h-[82vh] bg-white/95 backdrop-blur-2xl rounded-3xl shadow-[0_25px_70px_-15px_rgba(0,0,0,0.3)] flex flex-col overflow-hidden border border-slate-200/90 pointer-events-auto origin-top-right"
           >
             {/* Minimalist Light Blue Gradient Header */}
-            <div className="px-5 py-3.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-500 text-white flex items-center justify-between shadow-xs shrink-0 relative border-b border-white/15">
+            <div className="px-5 py-3.5 bg-linear-to-r from-blue-600 via-indigo-600 to-blue-500 text-white flex items-center justify-between shadow-xs shrink-0 relative border-b border-white/15">
               <div className="flex items-center gap-3">
                 {activeConversation && !showThreadList && (
                   <motion.button
@@ -178,7 +178,7 @@ export default function PropertyChatDrawer({
                 animate={{ opacity: 1, scale: 1 }}
                 className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-slate-50/50"
               >
-                <div className="w-20 h-20 rounded-3xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 text-white flex items-center justify-center mb-5 shadow-xl shadow-blue-500/20">
+                <div className="w-20 h-20 rounded-3xl bg-linear-to-tr from-blue-600 via-indigo-600 to-purple-600 text-white flex items-center justify-center mb-5 shadow-xl shadow-blue-500/20">
                   <Sparkles className="h-10 w-10 animate-bounce" />
                 </div>
                 <h3 className="text-xl font-extrabold text-slate-900 mb-2 tracking-tight">
@@ -189,7 +189,7 @@ export default function PropertyChatDrawer({
                 </p>
                 <Link href="/properties" onClick={onClose}>
                   <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                    <Button className="bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 text-white rounded-2xl font-bold px-7 py-6 text-sm shadow-lg shadow-blue-500/25 hover:shadow-xl cursor-pointer">
+                    <Button className="bg-linear-to-r from-blue-600 via-indigo-600 to-violet-600 text-white rounded-2xl font-bold px-7 py-6 text-sm shadow-lg shadow-blue-500/25 hover:shadow-xl cursor-pointer">
                       Browse Properties
                     </Button>
                   </motion.div>
@@ -219,7 +219,7 @@ export default function PropertyChatDrawer({
                       }}
                       className={`w-full flex items-center gap-3.5 p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
                         activeConversation?.id === conv.id
-                          ? "bg-gradient-to-r from-blue-50/90 to-indigo-50/90 border-blue-300 shadow-md ring-2 ring-blue-400/20"
+                          ? "bg-linear-to-r from-blue-50/90 to-indigo-50/90 border-blue-300 shadow-md ring-2 ring-blue-400/20"
                           : "bg-white border-slate-200/80 hover:border-blue-300 shadow-sm hover:shadow-md"
                       }`}
                     >
@@ -264,7 +264,7 @@ export default function PropertyChatDrawer({
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-gradient-to-r from-blue-50/90 via-slate-50 to-indigo-50/90 border-b border-blue-100 p-3.5 px-4 flex items-center justify-between shadow-xs shrink-0"
+                    className="bg-linear-to-r from-blue-50/90 via-slate-50 to-indigo-50/90 border-b border-blue-100 p-3.5 px-4 flex items-center justify-between shadow-xs shrink-0"
                   >
                     <div className="flex items-center gap-3.5 min-w-0">
                       <div className="w-13 h-13 rounded-2xl bg-white p-0.5 border border-blue-200/80 shadow-md shrink-0 overflow-hidden relative flex items-center justify-center">
@@ -361,14 +361,14 @@ export default function PropertyChatDrawer({
                         >
                           <div className="flex items-end gap-2 max-w-[85%]">
                             {!isUser && (
-                              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 text-white flex items-center justify-center text-xs font-bold shrink-0 mb-1 shadow-md shadow-blue-500/20 border border-white">
+                              <div className="w-8 h-8 rounded-full bg-linear-to-tr from-blue-600 via-indigo-600 to-purple-600 text-white flex items-center justify-center text-xs font-bold shrink-0 mb-1 shadow-md shadow-blue-500/20 border border-white">
                                 <ShieldCheck className="h-4 w-4" />
                               </div>
                             )}
                             <div
                               className={`p-3.5 px-4 rounded-2xl text-sm leading-relaxed ${
                                 isUser
-                                  ? "bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 text-white rounded-tr-xs shadow-md shadow-blue-500/15 font-medium"
+                                  ? "bg-linear-to-r from-blue-600 via-indigo-600 to-violet-600 text-white rounded-tr-xs shadow-md shadow-blue-500/15 font-medium"
                                   : "bg-white text-slate-800 border border-slate-200/80 rounded-tl-xs shadow-sm font-medium"
                               }`}
                             >
@@ -411,7 +411,7 @@ export default function PropertyChatDrawer({
                       whileTap={{ scale: 0.95 }}
                       type="submit"
                       disabled={sending || !inputMessage.trim()}
-                      className="p-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 text-white rounded-2xl hover:opacity-95 disabled:opacity-40 transition-all cursor-pointer shadow-md shadow-blue-500/25 shrink-0"
+                      className="p-3 bg-linear-to-r from-blue-600 via-indigo-600 to-violet-600 text-white rounded-2xl hover:opacity-95 disabled:opacity-40 transition-all cursor-pointer shadow-md shadow-blue-500/25 shrink-0"
                     >
                       <Send className="h-4.5 w-4.5" />
                     </motion.button>

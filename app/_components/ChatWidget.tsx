@@ -66,7 +66,7 @@ export default function ChatWidget() {
             animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
             exit={{ opacity: 0, y: 30, scale: 0.9, filter: "blur(10px)" }}
             transition={{ type: "spring", stiffness: 350, damping: 30 }}
-            className="fixed bottom-6 right-6 z-50 w-[92vw] sm:w-[420px] h-[650px] max-h-[85vh] bg-white/90 backdrop-blur-2xl rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.15)] flex flex-col overflow-hidden border border-white/60"
+            className="fixed bottom-6 right-6 z-50 w-[92vw] sm:w-105 h-162.5 max-h-[85vh] bg-white/90 backdrop-blur-2xl rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.15)] flex flex-col overflow-hidden border border-white/60"
           >
             {/* Header */}
             <div className="bg-linear-to-r from-blue-600 via-indigo-600 to-violet-600 p-5 flex justify-between items-center text-white shrink-0 relative overflow-hidden">
