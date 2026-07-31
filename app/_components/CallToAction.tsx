@@ -30,9 +30,9 @@ export default function CallToAction() {
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/add-new-listing">
+              <Link href="/properties">
                 <Button className="px-8 py-4 h-auto bg-white text-indigo-700 hover:bg-gray-100 rounded-xl font-semibold text-base shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer">
-                  Get Started
+                  Browse Properties
                   <ArrowRight className="h-5 w-5 ml-2" />
                 </Button>
               </Link>
