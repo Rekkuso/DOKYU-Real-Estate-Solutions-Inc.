@@ -24,7 +24,7 @@ export default function CallToAction() {
               Perfect Property?
             </h2>
             <p className="text-white/70 text-lg max-w-xl mx-auto mb-10 leading-relaxed">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Start your
+              Our experts are standing by to guide you through every step of the real estate process. Start your
               journey with DOKYU today and let us help you find the home of your
               dreams.
             </p>

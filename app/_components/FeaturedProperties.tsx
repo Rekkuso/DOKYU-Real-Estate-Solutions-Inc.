@@ -118,8 +118,8 @@ export default function FeaturedProperties({ initialProperties }: { initialPrope
             </span>
           </h2>
           <p className="text-gray-500 text-lg max-w-2xl mx-auto">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua.
+            Discover some of the most sought-after homes on the market right now. From
+            cozy apartments to luxurious estates, find the perfect property for you.
           </p>
         </div>
 

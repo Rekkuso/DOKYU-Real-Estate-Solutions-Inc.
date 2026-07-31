@@ -35,9 +35,9 @@ export default function Footer() {
               </span>
             </Link>
             <p className="text-gray-400 text-sm leading-relaxed mb-6">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Your
-              trusted partner in finding the perfect property across the
-              Philippines.
+              Your trusted partner in finding the perfect property across the
+              Philippines. We are committed to delivering the best real estate
+              solutions tailored to your needs.
             </p>
             <div className="flex gap-3">
               {[Globe, MessageCircle, Share2].map((Icon, i) => (
@@ -79,7 +79,7 @@ export default function Footer() {
           <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-400">
             <div className="flex items-center gap-2">
               <MapPin className="h-4 w-4 text-blue-400" />
-              <span>123 Lorem Ipsum St, Makati City</span>
+              <span>123 Ayala Avenue, Makati City</span>
             </div>
             <div className="flex items-center gap-2">
               <Phone className="h-4 w-4 text-blue-400" />
@@ -95,7 +95,7 @@ export default function Footer() {
         {/* Copyright */}
         <div className="text-center text-xs text-gray-500">
           © {new Date().getFullYear()} DOKYU Real Estate Solutions Inc. All rights
-          reserved. Lorem ipsum dolor sit amet.
+          reserved.
         </div>
       </div>
     </footer>

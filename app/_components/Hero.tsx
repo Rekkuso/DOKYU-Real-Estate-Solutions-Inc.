@@ -64,7 +64,7 @@ export default function Hero() {
 
         {/* Subtitle */}
         <p className="text-lg md:text-xl text-white/70 mb-10 max-w-2xl mx-auto leading-relaxed">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Discover
+          Your journey to finding the perfect place to live starts here. Discover
           premium properties across the Philippines with our trusted real estate
           solutions.
         </p>

@@ -12,7 +12,7 @@ const services = [
     icon: Home,
     title: "Property Listings",
     description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Browse thousands of verified properties across the country.",
+      "Discover a wide range of premium real estate options. Browse thousands of verified properties across the country.",
     color: "from-blue-500 to-blue-600",
     bgLight: "bg-blue-50",
     textColor: "text-blue-600",
@@ -21,7 +21,7 @@ const services = [
     icon: TrendingUp,
     title: "Market Analysis",
     description:
-      "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris. Get real-time market insights and trends.",
+      "Make informed decisions with our data-driven approach. Get real-time market insights and trends.",
     color: "from-emerald-500 to-emerald-600",
     bgLight: "bg-emerald-50",
     textColor: "text-emerald-600",
@@ -30,7 +30,7 @@ const services = [
     icon: Shield,
     title: "Secure Transactions",
     description:
-      "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
+      "We ensure every step of your property journey is safe, transparent, and completely protected.",
     color: "from-purple-500 to-purple-600",
     bgLight: "bg-purple-50",
     textColor: "text-purple-600",
@@ -39,7 +39,7 @@ const services = [
     icon: Handshake,
     title: "Expert Consultation",
     description:
-      "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est.",
+      "Connect with our experienced agents who provide personalized guidance tailored to your real estate goals.",
     color: "from-orange-500 to-orange-600",
     bgLight: "bg-orange-50",
     textColor: "text-orange-600",
@@ -48,7 +48,7 @@ const services = [
     icon: ClipboardCheck,
     title: "Property Management",
     description:
-      "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.",
+      "Enjoy peace of mind with our professional property management services covering maintenance and tenant relations.",
     color: "from-rose-500 to-rose-600",
     bgLight: "bg-rose-50",
     textColor: "text-rose-600",
@@ -57,7 +57,7 @@ const services = [
     icon: HeadphonesIcon,
     title: "24/7 Support",
     description:
-      "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur.",
+      "Our dedicated support team is always available to answer your questions and assist you at any time.",
     color: "from-indigo-500 to-indigo-600",
     bgLight: "bg-indigo-50",
     textColor: "text-indigo-600",
@@ -80,7 +80,7 @@ export default function Services() {
             </span>
           </h2>
           <p className="text-gray-500 text-lg max-w-2xl mx-auto">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. We provide
+            Whether you are buying, selling, or investing, we provide
             comprehensive real estate solutions tailored to your needs.
           </p>
         </div>

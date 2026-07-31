@@ -43,7 +43,7 @@ export default function Testimonials() {
             </span>
           </h2>
           <p className="text-gray-500 text-lg max-w-2xl mx-auto">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Hear from
+            Don't just take our word for it. Hear from
             our satisfied clients about their experience.
           </p>
         </div>
